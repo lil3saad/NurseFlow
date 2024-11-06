@@ -64,7 +64,7 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
                 fontFamily = jersery25
             ))
         }
-         val softwarekeyboard = GiveKeyboard()
+        val softwarekeyboard = GiveKeyboard()
         val iserror = remember { mutableStateOf(false) }
         TextField(
             value = textstate.value , onValueChange = {
@@ -106,6 +106,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     var password1 = remember { mutableStateOf("") } ; var password1_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var password2 = remember { mutableStateOf("") }; var password2_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
+    val ErrorMessage = remember { mutableStateOf("") }
     val authState = viewmodel.authstate.collectAsState()
     // Handling the click event of login button
     // LaunchEffect observes the side effects when the key provided changes and makes sure the
@@ -116,12 +117,8 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
                 viewmodel.CreateNurseProfile()
                 navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
             }
-            is AuthState.Failed -> {
-                Toast.makeText(context , (authState.value as AuthState.Failed).message , Toast.LENGTH_LONG).show()
-            }
-            is AuthState.LoadingAuth -> {
-                Log.d("TAGY" , "Creating user please wait...")
-            }
+            is AuthState.Failed -> { ErrorMessage.value = (authState.value as AuthState.Failed).message }
+            is AuthState.LoadingAuth -> { Log.d("TAGY" , "Creating user please wait...") }
             else -> Unit
         }
     }
@@ -140,7 +137,9 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
             SingupFeilds("Password" , password1 , placeholdertext = "Set Passowrd" , password1_ststate)
             SingupFeilds("Confirm " , password2, placeholdertext = "Re-enter password" , password2_ststate)
             // When the User Closes the App without Registering , he still gets redirected to the dashboard because the state becomes authenticated on the auth page itself and not after registrationg
-            val context = LocalContext.current
+            if(!ErrorMessage.value.isBlank()){
+                Text(ErrorMessage.value, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = ScreenWidth(0.04).sp))
+            }
             Button( onClick = {
                 fun NotEmptyFeilds() : Boolean { var isvalid = true
                     if( user_email.value.isBlank()){ useremail_ststate.value = SupportTextState.empty("Required*") ; isvalid = false}
@@ -155,7 +154,8 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
                     if(  password1.value == password2.value){
                         viewmodel.CreateUser(user_email.value , password2.value)
                     }else {
-                        Toast.makeText(context , "Passwords do not match", Toast.LENGTH_LONG).show()
+                        password1_ststate.value = SupportTextState.empty("Passwords Does Not  Match")
+                        password2_ststate.value = SupportTextState.empty("Password Does Not Match")
                     }
                 }
 
