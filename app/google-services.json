@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "881903418092",
+    "project_id": "nurseflow-96d74",
+    "storage_bucket": "nurseflow-96d74.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881903418092:android:9f98c94115d917ecf783c9",
+        "android_client_info": {
+          "package_name": "com.example.nurseflowd1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkiAGU38Pdj2wjpfNYmFz6n1haT_6NQcU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
