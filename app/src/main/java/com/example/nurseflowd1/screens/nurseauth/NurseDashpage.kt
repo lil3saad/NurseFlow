@@ -91,11 +91,10 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 
     LaunchedEffect(gotnursedocid) {
         if(gotnursedocid is NurseDocIdState.CurrentNurseId) { viewmodel.FetchP_InfoList() } } // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
-
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
-    ) {
+    ){
         val patientinfo by viewmodel.paitientinfolist.collectAsState()
         LazyColumn(
             modifier = Modifier
@@ -126,9 +125,6 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         BottomNavBar(navController)
     }
 }
-
-
-
 
 @Composable
 fun PaitentCard(patient : CardPatient ){

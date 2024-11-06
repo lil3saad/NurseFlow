@@ -69,8 +69,8 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
         supportingText = {
             when(val state = supportingText.value){
                 is SupportTextState.empty -> {  Text(state.errormsg) ; isError.value = true }
-                is SupportTextState.invalid -> { Text(state.errormsg) ; isError.value = true }
-                else -> { isError.value = false}
+                is SupportTextState.ideal -> { isError.value = false}
+                else -> Unit
             }
         },
         isError = isError.value ,
@@ -115,11 +115,8 @@ fun LoginContent(modifier: Modifier,
                  viewmodel: AppVM,
                  errormessage : MutableState<String>
 ){
-    var userin_id = remember { mutableStateOf("") }
-    var userin_password = remember { mutableStateOf("") }
-    var supportingtext_email : MutableState<SupportTextState> = remember{ mutableStateOf(SupportTextState.ideal) }
-    var supportingtext_password : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
-
+    var userin_id = remember { mutableStateOf("") } ; var supportingtext_email : MutableState<SupportTextState> = remember{ mutableStateOf(SupportTextState.ideal) }
+    var userin_password = remember { mutableStateOf("") } ; var supportingtext_password : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
     Column (modifier = modifier.background(AppBg).fillMaxSize().verticalScroll( rememberScrollState() ),
         verticalArrangement =  Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally
@@ -142,12 +139,18 @@ fun LoginContent(modifier: Modifier,
             }
             // Go to Nurse Dashboard page
             Button( onClick = {
-                if(userin_id.value.isBlank() ){
-                    supportingtext_email.value = SupportTextState.empty("email can be empty")
+                fun FieldEmpty() : Boolean {
+                    var isempty = false
+                    if(userin_id.value.isBlank() ){
+                        supportingtext_email.value = SupportTextState.empty("email can be empty") ; isempty = true
+                    }else supportingtext_email.value = SupportTextState.ideal
+                    if( userin_password.value.isBlank()) {
+                        supportingtext_password.value = SupportTextState.empty("password cannot be empty") ; isempty = true
+                    }else supportingtext_password.value = SupportTextState.ideal
+
+                    return isempty
                 }
-                else if( userin_password.value.isBlank()) {
-                    supportingtext_password.value = SupportTextState.empty("password cannot be empty")
-                }else {
+                if (!FieldEmpty()){
                     supportingtext_email.value = SupportTextState.ideal
                     supportingtext_password.value = SupportTextState.ideal
                     viewmodel.LoginUser(userin_id.value, userin_password.value)

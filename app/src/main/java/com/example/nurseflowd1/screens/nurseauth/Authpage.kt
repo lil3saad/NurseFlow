@@ -46,23 +46,26 @@ import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
 
+
 @Composable
 fun GiveKeyboard() : SoftwareKeyboardController =  LocalSoftwareKeyboardController.current!!
 
 @Composable
-fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext: String){
+fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext: String , supportextstate : MutableState<SupportTextState>){
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
     Column(modifier = Modifier.padding(bottom = ScreenWidth(0.05).dp)){
         Column(modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
         ){
-            Text("$label" , color = HTextClr , style = TextStyle(
+            Text(
+                label, color = HTextClr , style = TextStyle(
                 fontSize = ScreenWidth(0.05).sp ,
                 fontFamily = jersery25
             ))
         }
-         val softwarekeyboard = GiveKeyboard()
+        val softwarekeyboard = GiveKeyboard()
+        val iserror = remember { mutableStateOf(false) }
         TextField(
             value = textstate.value , onValueChange = {
                     usertext -> textstate.value = usertext
@@ -79,7 +82,15 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
                 onDone = {
                        softwarekeyboard.hide()
                 }
-            )
+            ),
+            supportingText = {
+                when(val state = supportextstate.value){
+                    is SupportTextState.empty -> { Text(state.errormsg) ; iserror.value = true}
+                    is SupportTextState.ideal -> { iserror.value = false}
+                    else -> Unit
+                }
+            },
+            isError = iserror.value
         )
     }
 }
@@ -91,10 +102,11 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
     val context = LocalContext.current
 
-    var user_email = remember { mutableStateOf("") }
-    var password1 = remember { mutableStateOf("") }
-    var password2 = remember { mutableStateOf("") }
+    var user_email = remember { mutableStateOf("") } ; var useremail_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+    var password1 = remember { mutableStateOf("") } ; var password1_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+    var password2 = remember { mutableStateOf("") }; var password2_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
+    val ErrorMessage = remember { mutableStateOf("") }
     val authState = viewmodel.authstate.collectAsState()
     // Handling the click event of login button
     // LaunchEffect observes the side effects when the key provided changes and makes sure the
@@ -105,12 +117,8 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
                 viewmodel.CreateNurseProfile()
                 navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
             }
-            is AuthState.Failed -> {
-                Toast.makeText(context , (authState.value as AuthState.Failed).message , Toast.LENGTH_LONG).show()
-            }
-            is AuthState.LoadingAuth -> {
-                Log.d("TAGY" , "Creating user please wait...")
-            }
+            is AuthState.Failed -> { ErrorMessage.value = (authState.value as AuthState.Failed).message }
+            is AuthState.LoadingAuth -> { Log.d("TAGY" , "Creating user please wait...") }
             else -> Unit
         }
     }
@@ -125,17 +133,32 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
                 fontSize = (ScreenWidth(0.08).sp) , fontFamily = jersery25 , color = HTextClr),
                 modifier = Modifier.padding(bottom = ScreenWidth(0.1).dp)
             )
-            SingupFeilds("UserId" , user_email , placeholdertext = "Enter email id or phone number")
-            SingupFeilds("Password" , password1 , placeholdertext = "Set Passowrd")
-            SingupFeilds("Confirm " , password2, placeholdertext = "Re-enter password")
+            SingupFeilds("UserId" , user_email , placeholdertext = "Enter email id or phone number", useremail_ststate)
+            SingupFeilds("Password" , password1 , placeholdertext = "Set Passowrd" , password1_ststate)
+            SingupFeilds("Confirm " , password2, placeholdertext = "Re-enter password" , password2_ststate)
             // When the User Closes the App without Registering , he still gets redirected to the dashboard because the state becomes authenticated on the auth page itself and not after registrationg
-            val context = LocalContext.current
+            if(!ErrorMessage.value.isBlank()){
+                Text(ErrorMessage.value, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = ScreenWidth(0.04).sp))
+            }
             Button( onClick = {
-                     if(password1.value == password2.value){
-                         viewmodel.CreateUser(user_email.value , password2.value)
-                     }else {
-                         Toast.makeText(context , "Passwords do not match", Toast.LENGTH_LONG).show()
-                     }
+                fun NotEmptyFeilds() : Boolean { var isvalid = true
+                    if( user_email.value.isBlank()){ useremail_ststate.value = SupportTextState.empty("Required*") ; isvalid = false}
+                    else useremail_ststate.value = SupportTextState.ideal
+                    if( password1.value.isBlank()){ password1_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                    else password1_ststate.value = SupportTextState.ideal
+                    if( password2.value.isBlank()){ password2_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                    else password2_ststate.value = SupportTextState.ideal
+                    return isvalid
+                }
+                if(NotEmptyFeilds()){
+                    if(  password1.value == password2.value){
+                        viewmodel.CreateUser(user_email.value , password2.value)
+                    }else {
+                        password1_ststate.value = SupportTextState.empty("Passwords Does Not  Match")
+                        password2_ststate.value = SupportTextState.empty("Password Does Not Match")
+                    }
+                }
+
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
                 modifier = Modifier.padding(top = ScreenWidth (0.04).dp ).size(width = ScreenWidth(0.30).dp , height = ScreenWidth(0.11) .dp)
