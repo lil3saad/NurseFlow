@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,34 +38,34 @@ fun setpreview(){
 }
 @Composable
 fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM = AppVM() , navcontroller: NavController){
-    Column( modifier = modifier.fillMaxSize().background(AppBg)
+    Column( modifier = modifier.fillMaxSize().background(AppBg),
+        horizontalAlignment = Alignment.End
     ){
-        Row( modifier = Modifier.weight(0.2f).fillMaxWidth().background( color = Color.White) ,
-            horizontalArrangement = Arrangement.Center , verticalAlignment = Alignment.CenterVertically
-        ){
-            Image( painter = painterResource(R.drawable.syringe), contentDescription = "AccountPicture" ,
-                modifier = Modifier.border(color = Color.Black , width = 1.dp)
-            )
+        Button(onClick = {
+            viewmodel.SingOut()
+            navcontroller.popBackStack(route = Destinations.NurseDboardScreen.ref , inclusive = false)
+        }) {
+            Text( text = "SignOut" , style = TextStyle(fontSize = 22.sp))
         }
-        Column(modifier = Modifier.weight(1f).fillMaxWidth().background(Color.Red)
-        ){
-            Text( text = "Name : " , style = TextStyle(fontSize = 22.sp))
-            Row {
-                Text( text = "Gender " , style = TextStyle(fontSize = 22.sp))
-                Text( text = "Age: " , style = TextStyle(fontSize = 22.sp))
-            }
-            Text( text = "Hospital Name " , style = TextStyle(fontSize = 22.sp))
-            Text( text = "Hospital Id : " , style = TextStyle(fontSize = 22.sp))
-            Text( text = "Nurse License Id: " , style = TextStyle(fontSize = 22.sp))
-            Text( text = "Email  Id: " , style = TextStyle(fontSize = 22.sp))
-            Text( text = "Phone no" , style = TextStyle(fontSize = 22.sp))
-            Text( text = "SignOut" , style = TextStyle(fontSize = 22.sp),
-
-                modifier = Modifier.clickable{
-                      viewmodel.SingOut()
-                      navcontroller.popBackStack(route = Destinations.NurseDboardScreen.ref , inclusive = false)
-                }
-            )
-        }
+//        Row( modifier = Modifier.weight(0.2f).fillMaxWidth().background( color = Color.White) ,
+//            horizontalArrangement = Arrangement.Center , verticalAlignment = Alignment.CenterVertically
+//        ){
+//            Image( painter = painterResource(R.drawable.syringe), contentDescription = "AccountPicture" ,
+//                modifier = Modifier.border(color = Color.Black , width = 1.dp)
+//            )
+//        }
+//        Column(modifier = Modifier.weight(1f).fillMaxWidth().background(Color.Red)
+//        ){
+//            Text( text = "Name : " , style = TextStyle(fontSize = 22.sp))
+//            Row {
+//                Text( text = "Gender " , style = TextStyle(fontSize = 22.sp))
+//                Text( text = "Age: " , style = TextStyle(fontSize = 22.sp))
+//            }
+//            Text( text = "Hospital Name " , style = TextStyle(fontSize = 22.sp))
+//            Text( text = "Hospital Id : " , style = TextStyle(fontSize = 22.sp))
+//            Text( text = "Nurse License Id: " , style = TextStyle(fontSize = 22.sp))
+//            Text( text = "Email  Id: " , style = TextStyle(fontSize = 22.sp))
+//            Text( text = "Phone no" , style = TextStyle(fontSize = 22.sp))
+//        }
     }
 }

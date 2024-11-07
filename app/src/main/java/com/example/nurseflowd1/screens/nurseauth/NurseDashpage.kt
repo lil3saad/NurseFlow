@@ -156,7 +156,7 @@ fun PaitentCard(patient : CardPatient ){
                     }
             ){
                 Text( "Name : ${patient.name}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp ) , color = Color.White  )
-                Text( "Condition : ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Doctor name : ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
 
                 Row( horizontalArrangement = Arrangement.spacedBy( ScreenHeight(0.022).dp ) ,
                     modifier = Modifier.fillMaxWidth()) {
@@ -173,7 +173,6 @@ fun PaitentCard(patient : CardPatient ){
                         end.linkTo(parent.end , margin = 3.dp)
                         top.linkTo(parent.top , margin = 13.dp )
                         bottom.linkTo(parent.bottom , margin = 13.dp)
-
                     }
             ){
                 Image(
