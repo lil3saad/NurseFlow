@@ -51,7 +51,6 @@ class AppVM : ViewModel() {
             }
         }
     }
-
     fun LoginUser(email: String , password: String) = viewModelScope.launch {
         Log.d("TAGY" , "LoginFunctionCalled !VM:LoginUser")
         _authState.value = AuthState.LoadingAuth
@@ -123,7 +122,7 @@ class AppVM : ViewModel() {
                     if (!querySnapshot.isEmpty) {
                         for (document in querySnapshot.documents) {
                             // Process each document
-                            Log.d("TAGY", "Document ID MF: ${document.id} => ${document.data}")
+                            Log.d("TAGY", "Document ID : ${document.id} => ${document.data} !VM:GetNurseDocId")
                            _NurseDocId.value = NurseDocIdState.CurrentNurseId(document.id)
                         }
                     } else {
@@ -139,7 +138,7 @@ class AppVM : ViewModel() {
     }
 
     //Save PatientInfo + _Pvitals and put in the Patients Collection with there own doc
-    fun SavePatientInfoFirestore( pinfo : PatientInfo) {
+    fun SavePatientInfoFirestore( pinfo : PatientInfo) = viewModelScope.launch {
         when(_NurseDocId.value){
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid  = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
@@ -151,7 +150,7 @@ class AppVM : ViewModel() {
                 val p_reports = "p_reports"
                 val patientdoc = hashMapOf("patient_info" to pinfo)
 
-                fun PatientExists(patientid: String, callback : (Boolean) -> Unit) {
+                fun PatientExists(patientid: String, callback : (Boolean) -> Unit) = viewModelScope.launch {
                     NurseDocRef.collection(NursePatients).document(patientid).get()
                         .addOnSuccessListener { document ->
                             if (document.exists()) {
@@ -280,7 +279,6 @@ class AppVM : ViewModel() {
     }
 
 }
-
 sealed class AuthState {
         object Idle : AuthState()
         object Authenticated : AuthState()
