@@ -36,6 +36,10 @@ import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.nurseauth.SignupFeildsSecond
 import com.example.nurseflowd1.screens.nurseauth.SupportTextState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -137,8 +141,15 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
                         p_patientid = patient_id.value ,
                         p_doctor = doctorname.value , p_age = age.value , p_gender = gender.value
                     )
-                    viewmodel.SavePatientInfoFirestore(patientinfo)
-                    navcontroller.popBackStack(Destinations.NurseDboardScreen.ref , inclusive = false)
+                    CoroutineScope(Dispatchers.IO).launch{
+                        withContext(Dispatchers.IO){
+                            viewmodel.SavePatientInfoFirestore(patientinfo)
+                        }
+                        withContext(Dispatchers.Main){
+                            navcontroller.popBackStack(Destinations.NurseDboardScreen.ref , inclusive = false)
+                        }
+                    }
+
                 }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),

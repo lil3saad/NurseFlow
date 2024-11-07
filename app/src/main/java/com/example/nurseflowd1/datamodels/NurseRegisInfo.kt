@@ -7,6 +7,6 @@ data class NurseRegisInfo(
     var N_hospitalid : String = "notsetyet",
     var N_license_id: String = "notsetyet",
     var N_gender : String = "notsetyet",
-    var N_age  : Int = 69,
+    var N_age  : Int = 0,
     var uid : String = "notsetyet"
 )

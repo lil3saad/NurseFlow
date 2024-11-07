@@ -71,26 +71,21 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
             is AuthState.UnAuthenticated -> {
                 navController.navigate(Destinations.LoginScreen.ref)
             }
-
             is AuthState.Failed -> {
                 Toast.makeText(context, (authState as AuthState.Failed).message, Toast.LENGTH_LONG)
                     .show()
             }
-
             is AuthState.LoadingAuth -> {
                 Log.d("TAGY", "Loging in.......")
             }
-
-            is AuthState.Authenticated -> {
-                if (gotnursedocid == NurseDocIdState.NoId) viewmodel.GetNurseDocId()
-            }
-
+            is AuthState.Authenticated ->  { if (gotnursedocid == NurseDocIdState.NoId) viewmodel.GetNurseDocId() }
             else -> Unit
         }
     }
 
     LaunchedEffect(gotnursedocid) {
-        if(gotnursedocid is NurseDocIdState.CurrentNurseId) { viewmodel.FetchP_InfoList() } } // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
+        if(gotnursedocid is NurseDocIdState.CurrentNurseId) { viewmodel.FetchP_InfoList() }
+    } // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -102,7 +97,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                 .fillMaxWidth(0.9f)
                 .fillMaxHeight(0.84f)
         ) {
-            when (patientinfo) {
+            when (patientinfo){
                 is PatientListState.idlelist -> {
                     item { Text("No patients available. Please add patients.") }
                 }
@@ -224,13 +219,11 @@ fun BottomNavBar(navController: NavController) {
                     .padding(top = (ScreenHeight * 0.005).dp)
             ) {
                 val (icon1, icon2) = createRefs()
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Column(horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.constrainAs(icon1) {
                         start.linkTo(parent.start, margin = (ScreenHeight * 0.020).dp)
-                        top.linkTo(parent.top)
-                    }
-                ) {
+                        top.linkTo(parent.top) }
+                ){
                     // Try Converting a normal image into a vector
                     Image(
                         painter = painterResource(R.drawable.patients),
@@ -239,7 +232,6 @@ fun BottomNavBar(navController: NavController) {
                     )
                     Text("Patients", color = Color.White, fontSize = (ScreenHeight * 0.012).sp)
                 }
-
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(

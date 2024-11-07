@@ -113,8 +113,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     // execution after the key changes happens only once
     LaunchedEffect(authState.value) {
         when(authState.value) {
-            is AuthState.Authenticated -> {
-                viewmodel.CreateNurseProfile()
+            is AuthState.Authenticated -> { viewmodel.CreateNurseProfile()
                 navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
             }
             is AuthState.Failed -> { ErrorMessage.value = (authState.value as AuthState.Failed).message }
@@ -136,7 +135,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
             SingupFeilds("UserId" , user_email , placeholdertext = "Enter email id or phone number", useremail_ststate)
             SingupFeilds("Password" , password1 , placeholdertext = "Set Passowrd" , password1_ststate)
             SingupFeilds("Confirm " , password2, placeholdertext = "Re-enter password" , password2_ststate)
-            // When the User Closes the App without Registering , he still gets redirected to the dashboard because the state becomes authenticated on the auth page itself and not after registrationg
+            // When the User Closes the App without Registering , he still gets redirected to the dashboard because the state becomes authenticated on the auth page itself and not after registration
             if(!ErrorMessage.value.isBlank()){
                 Text(ErrorMessage.value, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = ScreenWidth(0.04).sp))
             }
