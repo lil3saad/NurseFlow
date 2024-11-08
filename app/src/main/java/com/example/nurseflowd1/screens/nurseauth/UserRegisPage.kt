@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseRegisInfo
-import com.example.nurseflowd1.domain.AppVM
+import com.example.nurseflowd1.backend.AppVM
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr

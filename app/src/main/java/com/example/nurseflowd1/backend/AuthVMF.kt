@@ -1,4 +1,4 @@
-package com.example.nurseflowd1.domain
+package com.example.nurseflowd1.backend
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

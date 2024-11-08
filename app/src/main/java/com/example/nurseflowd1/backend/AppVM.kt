@@ -1,4 +1,4 @@
-package com.example.nurseflowd1.domain
+package com.example.nurseflowd1.backend
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -157,6 +157,7 @@ class AppVM : ViewModel() {
                                 Log.d("TAGY", "DOCUMENT IS ALREADY EXISTING WITH DOC ID: $patientid")
                                 callback(true)
                             } else {
+                                _authState.value = AuthState.Authenticated
                                 Log.d("TAGY", "NO DOCUMENT EXISTING, CREATING DOC: $patientid")
                                 callback(false)
                             }

@@ -26,8 +26,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.nurseflowd1.domain.AppVM
-import com.example.nurseflowd1.domain.AuthVMF
+import com.example.nurseflowd1.backend.AppVM
+import com.example.nurseflowd1.backend.AuthVMF
 import com.example.nurseflowd1.screens.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations

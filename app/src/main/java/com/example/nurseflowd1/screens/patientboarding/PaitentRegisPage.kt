@@ -17,6 +17,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,8 +27,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
-import com.example.nurseflowd1.domain.AppVM
+import com.example.nurseflowd1.backend.AppVM
 import com.example.nurseflowd1.screens.nurseauth.SingupFeilds
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
@@ -44,6 +47,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavController , viewmodel: AppVM){
+
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
 
@@ -149,7 +153,6 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
                             navcontroller.popBackStack(Destinations.NurseDboardScreen.ref , inclusive = false)
                         }
                     }
-
                 }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
