@@ -44,8 +44,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.nurseflowd1.R
 import com.example.nurseflowd1.datamodels.CardPatient
-import com.example.nurseflowd1.backend.AppVM
-import com.example.nurseflowd1.backend.AuthState
+import com.example.nurseflowd1.Domain.AppVM
+import com.example.nurseflowd1.Domain.AuthState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr

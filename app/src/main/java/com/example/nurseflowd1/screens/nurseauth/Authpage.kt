@@ -37,8 +37,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.nurseflowd1.backend.AppVM
-import com.example.nurseflowd1.backend.AuthState
+import com.example.nurseflowd1.Domain.AppVM
+import com.example.nurseflowd1.Domain.AuthState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr

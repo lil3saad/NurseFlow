@@ -1,4 +1,4 @@
-package com.example.nurseflowd1.screens
+package com.example.nurseflowd1.screens.nurseaccount
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,20 +14,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nurseflowd1.ui.theme.AppBg
-import com.example.nurseflowd1.backend.AppVM
+import com.example.nurseflowd1.Domain.AppVM
+import com.example.nurseflowd1.screens.Destinations
 
 
 @Composable
-@Preview( showBackground = true , showSystemUi = true , device = Devices.PIXEL_7A)
-fun preview(){
-    setpreview()
-}
-@Composable
-fun setpreview(){
-
-}
-@Composable
-fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM = AppVM() , navcontroller: NavController){
+fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontroller: NavController){
     Column( modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.End
     ){

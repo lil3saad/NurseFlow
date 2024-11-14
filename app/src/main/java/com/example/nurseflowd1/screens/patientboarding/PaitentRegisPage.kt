@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.patientboarding
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,10 +27,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
-import com.example.nurseflowd1.backend.AppVM
+import com.example.nurseflowd1.Domain.AppVM
 import com.example.nurseflowd1.screens.nurseauth.SingupFeilds
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
@@ -43,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 
 @Composable
@@ -70,7 +69,7 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             SingupFeilds(
-                label = "Name",
+                label = "Firstname",
                 textstate = user_name,
                 placeholdertext = "Enter paitent name",
                 username_ststate
@@ -107,9 +106,9 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
             )
             Row(modifier = Modifier.fillMaxWidth().padding( horizontal = ScreenWidth(0.2).dp)
             ){
-                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender")
+                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false)
                 Spacer( modifier = Modifier.size(ScreenWidth(0.1).dp))
-                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age")
+                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age" , true)
             }
             Button( onClick = {
                 fun NotEmptyFeilds() : Boolean { var isvalid = true
@@ -139,20 +138,15 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
 
                     return isvalid
                 }
+
                 if(NotEmptyFeilds()){
                     val patientinfo = PatientInfo(
-                        p_name =  user_name.value, p_surename = user_surname.value , p_phoneno = phoneno.value,
+                        p_name =  user_name.value, p_surename = user_surname.value ,
+                        p_phoneno = phoneno.value,
                         p_patientid = patient_id.value ,
                         p_doctor = doctorname.value , p_age = age.value , p_gender = gender.value
                     )
-                    CoroutineScope(Dispatchers.IO).launch{
-                        withContext(Dispatchers.IO){
-                            viewmodel.SavePatientInfoFirestore(patientinfo)
-                        }
-                        withContext(Dispatchers.Main){
-                            navcontroller.popBackStack(Destinations.NurseDboardScreen.ref , inclusive = false)
-                        }
-                    }
+                    viewmodel.SavePatientInfoFirestore(patientinfo)
                 }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
