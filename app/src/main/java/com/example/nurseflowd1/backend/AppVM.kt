@@ -3,6 +3,7 @@ package com.example.nurseflowd1.backend
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseRegisInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
@@ -21,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.HashMap
 
-class AppVM : ViewModel() {
+class AppVM(val navController: NavController) : ViewModel() {
     // USER AUTHENTICATION
     val auth: FirebaseAuth = Firebase.auth
     var currentuser : FirebaseUser? = auth.currentUser
