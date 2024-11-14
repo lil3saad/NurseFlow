@@ -28,9 +28,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nurseflowd1.Domain.AppVM
 import com.example.nurseflowd1.Domain.AuthVMF
-import com.example.nurseflowd1.screens.nurseaccount.AccountScreen
+import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.accountmanage.AccountSettingPage
+import com.example.nurseflowd1.screens.accountmanage.UpdateProfilePage
 import com.example.nurseflowd1.screens.nurseauth.LoginScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseDashBoardScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseRegister
@@ -98,6 +100,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Destinations.AccountScreen.ref){
                 AccountScreen(modifier , viewmodel , navController)
+            }
+            composable(route = Destinations.UpdateProfileScreen.ref){
+                UpdateProfilePage(modifier)
+            }
+            composable(route = Destinations.AccSettingsScreen.ref){
+                AccountSettingPage(modifier)
             }
             composable(route = Destinations.PatientRegisterScreen.ref){
                 Paitent_Regis_Screen( modifier ,  navController , viewmodel)
