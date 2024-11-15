@@ -5,7 +5,11 @@ sealed class Destinations(val ref : String) {
     object LoginScreen : Destinations("loginscreen")
     object AuthScreen : Destinations("authscreen")
     object RegisScreen : Destinations("regisscreen")
+
+    //Account Settings
     object AccountScreen : Destinations("accountscreen")
+    object UpdateProfileScreen : Destinations("updatescreen")
+    object AccSettingsScreen: Destinations("settingscreen")
 
     object NurseDboardScreen : Destinations("nursedb")
     object PatientRegisterScreen : Destinations("patientinfo")

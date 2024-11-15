@@ -19,10 +19,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,8 +37,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.nurseflowd1.backend.AppVM
-import com.example.nurseflowd1.backend.AuthState
+import com.example.nurseflowd1.AppVM
+import com.example.nurseflowd1.AuthState
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
@@ -55,7 +55,7 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
         style = TextStyle(fontFamily = jersery25, fontWeight = FontWeight.Thin, fontSize = (ScreenHeight * 0.03).sp  )
     )
     // Nurse Id OutlinedTextField
-    val softwarekeyboard = GiveKeyboard()
+    val softwarekeyboard = giveKeyboard()
     val isError = remember { mutableStateOf(false) }
     OutlinedTextField(
         value = textstate.value,
@@ -92,20 +92,27 @@ fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, vie
     val ScreenHeight = LocalConfiguration.current.screenHeightDp
 
 
-    val errormessage = remember { mutableStateOf("") }
+
     // If users keep entering null fields it will show message or execute statement once but not again and again
     // The same Functionality works with wrong email and password tho , if they keep using wrong creds , it keeps messaging the user with same authstate which is failed
     val authState by viewmodel.authstate.collectAsState()
-    LaunchedEffect(authState) {
+
+    val errormessage = remember { mutableStateOf("") }
+    val isloading = remember { mutableStateOf(false) }
         when(val state = authState){
-            is AuthState.Authenticated ->{ navcontroller.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false) }
-            is AuthState.Failed -> {  errormessage.value = state.message }
-            is AuthState.LoadingAuth -> { Log.d("TAGY" , "Loging in.......") }
+            is AuthState.Authenticated ->{
+                navcontroller.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
+            }
+            is AuthState.Failed -> {  errormessage.value = state.message ; isloading.value = false
+
+            }
+            is AuthState.LoadingAuth -> { errormessage.value = ""; isloading.value = true
+                Log.d("TAGY" , "Loging in.......")
+            }
             else -> Unit
         }
-    }
+    LoginContent(modifier , ScreenHeight , navcontroller , viewmodel , errormessage , isloading)
 
-    LoginContent(modifier , ScreenHeight , navcontroller , viewmodel , errormessage)
 }
 
 @Composable
@@ -113,7 +120,8 @@ fun LoginContent(modifier: Modifier,
                  ScreenHeight: Int,
                  navcontroller : NavController,
                  viewmodel: AppVM,
-                 errormessage : MutableState<String>
+                 errormessage : MutableState<String>,
+                 isloading : MutableState<Boolean>
 ){
     var userin_id = remember { mutableStateOf("") } ; var supportingtext_email : MutableState<SupportTextState> = remember{ mutableStateOf(SupportTextState.ideal) }
     var userin_password = remember { mutableStateOf("") } ; var supportingtext_password : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -130,12 +138,15 @@ fun LoginContent(modifier: Modifier,
         // Login / Signup Button
 
         Column( modifier = Modifier.fillMaxWidth(0.8f), horizontalAlignment = Alignment.CenterHorizontally){
-            if (errormessage.value.isNotEmpty()) {
+            if (errormessage.value.isNotBlank()) {
                 Text( text = errormessage.value,
                     style = TextStyle(fontSize = (ScreenHeight * 0.018).sp),
                     color = Color.Red.copy(alpha = 0.8f),
                     modifier = Modifier.width( ( ScreenHeight * 0.3).dp )
                 )
+            }
+            if(isloading.value){
+                CircularProgressIndicator( modifier = Modifier.size(50.dp) , color = HTextClr , strokeWidth = 5.dp)
             }
             // Go to Nurse Dashboard page
             Button( onClick = {

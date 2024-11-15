@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,15 +29,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.nurseflowd1.datamodels.NurseRegisInfo
-import com.example.nurseflowd1.backend.AppVM
+import com.example.nurseflowd1.datamodels.NurseInfo
+import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextStyle
 
 
 @Composable
@@ -48,6 +53,7 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
     var user_surname  = remember { mutableStateOf("") } ; var usersurname_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var hospital_name  = remember { mutableStateOf("") }; var hospitalname_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var hospital_id  = remember { mutableStateOf("") }; var hospitalid_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+    var Council = remember { mutableStateOf("") }; var council_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var nurse_license_id  = remember { mutableStateOf("") }; var nurselicense_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var gender = remember { mutableStateOf("") }; var gender_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var age = remember { mutableStateOf("") }; var age_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -55,14 +61,14 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
     Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally){
 
-        Column(modifier = Modifier.padding(top = ScreenWidth(0.3).dp )
+        Column(modifier = Modifier.padding(top = ScreenWidth(0.1).dp )
             .fillMaxWidth(0.9f).fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
 
             SingupFeilds(
-                label = "Name",
+                label = "FirstName",
                 textstate = user_name,
                 placeholdertext = "Enter your firstname",
                 username_ststate
@@ -86,34 +92,47 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                 hospitalid_ststate
             )
             SingupFeilds(
-                label = "License ID",
+                label = "State Council",
+                textstate = Council,
+                placeholdertext = "Enter name of your nursing council",
+                council_ststate
+            )
+            SingupFeilds(
+                label = "Registration Id",
                 textstate = nurse_license_id,
-                placeholdertext = "Enter your Unique License id provided by Nursing Body",
+                placeholdertext = "Enter Nurse Registration Number or Id issued by your state council",
                 nurselicense_ststate
             )
 
 
-            Row(modifier = Modifier.fillMaxWidth().padding( horizontal = ScreenWidth(0.2).dp)
-            ){
-                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender")
+            Row(modifier = Modifier.fillMaxWidth().padding( horizontal = ScreenWidth(0.2).dp)){
+                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false)
                 Spacer( modifier = Modifier.size(ScreenWidth(0.1).dp))
-                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age")
+                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age", true)
+            }
+
+            var errormessage by remember { mutableStateOf("") }
+            if(errormessage.isNotBlank()){
+                Text(errormessage, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = screenHeight(0.02).sp))
             }
             Button( onClick = {
                     fun NotEmptyFeilds() : Boolean { var isvalid = true
-                        if( user_name.value.isBlank()){ username_ststate.value = SupportTextState.empty("Required*") ; isvalid = false}
+                        if( user_name.value.isBlank()){ username_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
                         else { username_ststate.value = SupportTextState.ideal }
 
-                        if( user_surname.value.isBlank()){ usersurname_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                        if( user_surname.value.isBlank()){ usersurname_ststate.value = SupportTextState.empty("Required")  ; isvalid = false}
                         else { usersurname_ststate.value = SupportTextState.ideal }
 
-                        if( hospital_name.value.isBlank()){ hospitalname_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                        if( hospital_name.value.isBlank()){ hospitalname_ststate.value = SupportTextState.empty("Required")  ; isvalid = false}
                         else { hospitalname_ststate.value = SupportTextState.ideal }
 
-                        if( hospital_id.value.isBlank()){ hospitalid_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                        if( hospital_id.value.isBlank()){ hospitalid_ststate.value = SupportTextState.empty("Required")  ; isvalid = false}
                         else {hospitalid_ststate.value = SupportTextState.ideal }
 
-                        if( nurse_license_id.value.isBlank()){ nurselicense_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                        if(Council.value.isBlank()){ council_ststate.value = SupportTextState.empty("Required") ; isvalid = false }
+                        else { council_ststate.value = SupportTextState.ideal }
+
+                        if( nurse_license_id.value.isBlank()){ nurselicense_ststate.value = SupportTextState.empty("Required")  ; isvalid = false}
                         else { nurselicense_ststate.value = SupportTextState.ideal }
 
                         if(gender.value.isBlank()){gender_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
@@ -125,12 +144,17 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                         return isvalid
                     }
                     if (NotEmptyFeilds()){
-                        val nurseinfo = NurseRegisInfo( N_name = user_name.value , N_surname =  user_surname.value ,
-                            N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value ,
-                            N_license_id = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt()
-                        )
-                        viewmodel.SaveNurseInfo(nurseinfo)
-                        navController.navigate( route = Destinations.AuthScreen.ref)
+                        try {
+                            val nurseinfo = NurseInfo( N_name = user_name.value , N_surname =  user_surname.value ,
+                                N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
+                                N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt()
+                            )
+                            viewmodel.SaveNurseInfo(nurseinfo)
+                            navController.navigate( route = Destinations.AuthScreen.ref)
+                        }catch (e : Exception){
+                                errormessage = "Age can only have numbers"
+                            Log.d("TAGY" , "Error ${e.cause} $e ${e.message} !UserRegisPage")
+                        }
                     }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
@@ -146,18 +170,23 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
 @Composable
 fun SignupFeildsSecond( modifier: Modifier,
     textstate : MutableState<String> , supporttextstate : MutableState<SupportTextState> ,
-    placeholder : String
+    placeholder : String , isnumeric : Boolean
 ){
     val iserror = remember { mutableStateOf(false) }
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
-    val softwarekeyboard = GiveKeyboard()
+    val softwarekeyboard = giveKeyboard()
+
+
+     var keyboardtype = KeyboardType.Text
+     if(isnumeric) keyboardtype = KeyboardType.Number
         OutlinedTextField( value = textstate.value , onValueChange = {
                 it -> textstate.value = it
         },
             placeholder = { Text(placeholder , color = Color.White.copy(0.50f) )},
             modifier = modifier,
             keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardtype,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(

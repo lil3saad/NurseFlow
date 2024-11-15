@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -44,8 +45,8 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.nurseflowd1.R
 import com.example.nurseflowd1.datamodels.CardPatient
-import com.example.nurseflowd1.backend.AppVM
-import com.example.nurseflowd1.backend.AuthState
+import com.example.nurseflowd1.AppVM
+import com.example.nurseflowd1.AuthState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
@@ -58,65 +59,64 @@ import com.example.nurseflowd1.ui.theme.SecClr
 fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM) {
     val ScreenHeight = LocalConfiguration.current.screenHeightDp  ; val context = LocalContext.current
 
-    viewmodel.authStatus() // For AutoLogin
-    val authState by viewmodel.authstate.collectAsState()
-    val gotnursedocid by viewmodel.NurseDocId.collectAsState()
+    //Authentication State
 
+    viewmodel.authStatus() // For AutoLogin
+    val authState by viewmodel.authstate.collectAsState() // Observing the AuthState
+    val gotnursedocid by viewmodel.NurseDocId.collectAsState() // Get Nurse DocumentId by Uid
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.UnAuthenticated -> {
-                navController.navigate(Destinations.LoginScreen.ref)
-            }
-            is AuthState.Failed -> {
-                Toast.makeText(context, (authState as AuthState.Failed).message, Toast.LENGTH_LONG)
-                    .show()
-            }
-            is AuthState.LoadingAuth -> {
-                Log.d("TAGY", "Loging in.......")
-            }
+            is AuthState.UnAuthenticated -> { navController.navigate(Destinations.LoginScreen.ref) }
+            is AuthState.Failed -> { Toast.makeText(context, (authState as AuthState.Failed).message, Toast.LENGTH_LONG).show() }
             is AuthState.Authenticated ->  { if (gotnursedocid == NurseDocIdState.NoId) viewmodel.GetNurseDocId() }
             else -> Unit
         }
     }
 
+
+
+    //PatientList Stat
+    val patientliststate by viewmodel.paitientinfolist.collectAsState()
     LaunchedEffect(gotnursedocid) {
-        if(gotnursedocid is NurseDocIdState.CurrentNurseId) { viewmodel.FetchP_InfoList() }
+        if(gotnursedocid is NurseDocIdState.CurrentNurseId) {  viewmodel.FetchP_InfoList() }
     } // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ){
-        val patientinfo by viewmodel.paitientinfolist.collectAsState()
-        LazyColumn(
-            modifier = Modifier
-                .padding(top = (ScreenHeight * 0.09).dp)
+        LazyColumn(modifier = Modifier.padding(top = (ScreenHeight * 0.09).dp)
                 .fillMaxWidth(0.9f)
-                .fillMaxHeight(0.84f)
-        ) {
-            when (patientinfo){
-                is PatientListState.idlelist -> {
-                    item { Text("No patients available. Please add patients.") }
-                }
+                .fillMaxHeight(0.84f)){
+
+            when (patientliststate){
+                is PatientListState.emptylist ->{ item { Text("No patients available. Please add patients.") } }
                 is PatientListState.PatientsReceived -> {
-                    val patientList = (patientinfo as PatientListState.PatientsReceived).patientlist
+                    val patientList = (patientliststate as PatientListState.PatientsReceived).patientlist
                     items(patientList) { patient ->
                         val cardPatient = CardPatient(
                             name = "${patient.p_name} ${patient.p_surename}",
                             gender = patient.p_gender,
-                            age = patient.p_age,
+                            age = patient.p_age.toString(),
                             conditon = patient.p_doctor,
                         )
                         PaitentCard(cardPatient)
                     }
                 }
+                is  PatientListState.Loadinglist -> { item{
+                        Box(modifier = modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator( modifier = Modifier.size(50.dp) , color = HTextClr , strokeWidth = 5.dp)
+                        }
+                    }
+                }
                 else -> Unit
             }
-        }
 
+        }
         BottomNavBar(navController)
     }
 }
-
 @Composable
 fun PaitentCard(patient : CardPatient ){
     @Composable
@@ -186,8 +186,6 @@ fun PaitentCard(patient : CardPatient ){
         }
     }
 }
-
-
 @Composable
 fun BottomNavBar(navController: NavController) {
     // BOTTOM BAR

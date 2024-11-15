@@ -26,11 +26,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.nurseflowd1.backend.AppVM
-import com.example.nurseflowd1.backend.AuthVMF
-import com.example.nurseflowd1.screens.AccountScreen
+import com.example.nurseflowd1.domain.AuthVMF
+import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.accountmanage.AccountSettingPage
+import com.example.nurseflowd1.screens.accountmanage.UpdateProfilePage
 import com.example.nurseflowd1.screens.nurseauth.LoginScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseDashBoardScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseRegister
@@ -44,8 +45,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //ViewModel
-        val factory = AuthVMF()
-        val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
         enableEdgeToEdge()
         setContent {
             NurseFlowD1Theme {
@@ -59,8 +58,6 @@ class MainActivity : ComponentActivity() {
 
                                     Text( "NurseFlow" , fontFamily = jersery25  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
                                         modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-
-
                                 }
 
                             },
@@ -74,14 +71,16 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ){ innerPadding ->
-                    NavigationStack(modifier = Modifier.padding(innerPadding) , viewmodel)
+                    NavigationStack(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
     @Composable
-    fun NavigationStack(modifier: Modifier = Modifier , viewmodel : AppVM){
+    fun NavigationStack(modifier: Modifier = Modifier){
         val navController = rememberNavController()
+        val factory = AuthVMF(navController)
+        val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){
                 LoginScreen(modifier, navController , viewmodel)
@@ -98,6 +97,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Destinations.AccountScreen.ref){
                 AccountScreen(modifier , viewmodel , navController)
+            }
+            composable(route = Destinations.UpdateProfileScreen.ref){
+                UpdateProfilePage(modifier , viewmodel = viewmodel , navController = navController)
+            }
+            composable(route = Destinations.AccSettingsScreen.ref){
+                AccountSettingPage(modifier)
             }
             composable(route = Destinations.PatientRegisterScreen.ref){
                 Paitent_Regis_Screen( modifier ,  navController , viewmodel)

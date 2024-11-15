@@ -7,5 +7,5 @@ data class PatientInfo(
       val p_patientid : String = "noname" ,
       val p_doctor : String = "noname" ,
       val p_gender : String = "noname" ,
-      val p_age : String = "noname" ,
+      val p_age : Int = 0 ,
 )
