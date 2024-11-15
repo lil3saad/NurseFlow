@@ -1,4 +1,4 @@
-package com.example.nurseflowd1.Domain
+package com.example.nurseflowd1
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -7,8 +7,10 @@ import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
 import com.example.nurseflowd1.screens.nurseauth.PatientListState
+import com.example.nurseflowd1.screens.patientboarding.AddPatientState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.HashMap
+import kotlin.collections.get
 
 class AppVM(val navController: NavController) : ViewModel() {
 
@@ -48,6 +51,7 @@ class AppVM(val navController: NavController) : ViewModel() {
                 val result = auth.createUserWithEmailAndPassword(email,password).await()
                 currentuser  = result.user
                 Log.d("TAGY" , "User Created !VM:CreateUser")
+                CreateNurseProfile()
                 _authState.value = AuthState.Authenticated
             }catch (e : FirebaseAuthException){
                 Log.w("TAGY", "createUserWithEmail:failure ${e.message}")
@@ -77,7 +81,7 @@ class AppVM(val navController: NavController) : ViewModel() {
             auth.signOut()
             currentuser =  null
             _NurseDocId.value = NurseDocIdState.NoId
-            _patientinfolist.value = PatientListState.idlelist
+            _patientinfolist.value = PatientListState.emptylist
                 _authState.value = AuthState.UnAuthenticated
             Log.d("TAGY" , "User SignedOut !VM:SingOut")
         }catch (e : FirebaseAuthException) {
@@ -99,6 +103,7 @@ class AppVM(val navController: NavController) : ViewModel() {
         _NurseRegisinfo.N_hospitalname = nurse.N_hospitalname
         _NurseRegisinfo.N_council = nurse.N_council
         _NurseRegisinfo.N_registrationid = nurse.N_registrationid
+        _NurseRegisinfo.uid = nurse.uid
         Log.d("TAGY" , "Nurse Profile Saved In !VM:SaveNurseInfo")
     }
     fun CreateNurseProfile() = viewModelScope.launch{
@@ -115,10 +120,14 @@ class AppVM(val navController: NavController) : ViewModel() {
     }
 
 
-    // DataBase References
+
     private var _NurseDocId : MutableStateFlow<NurseDocIdState> = MutableStateFlow(NurseDocIdState.NoId)
     var NurseDocId : StateFlow<NurseDocIdState> = _NurseDocId
+
+    private var _patientinfolist  = MutableStateFlow<PatientListState>(PatientListState.emptylist)
+    val paitientinfolist : StateFlow<PatientListState> = _patientinfolist
     fun GetNurseDocId(){
+         _patientinfolist.value = PatientListState.Loadinglist
         val uid = currentuser?.uid
         if (uid != null) {
             firestoredb.collection("Nurses")
@@ -138,85 +147,20 @@ class AppVM(val navController: NavController) : ViewModel() {
                 .addOnFailureListener { exception ->
                     Log.e("TAGY", "Error getting documents: ", exception)
                 }
-        } else {
-            Log.d("TAGY", "NO NURSE AUTHENTICATED YET")
-        }
+        }else { Log.d("TAGY", "NO NURSE AUTHENTICATED YET") }
     }
 
-    //Save PatientInfo + _Pvitals and put in the Patients Collection with there own doc
-   fun SavePatientInfoFirestore( pinfo : PatientInfo) = viewModelScope.launch {
-        when(_NurseDocId.value){
-            is NurseDocIdState.CurrentNurseId -> {
-                val nursedocid  = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
-                val NurseDocRef = firestoredb.collection("Nurses").document(nursedocid)
-
-                val NursePatients = "n_patients"
-                val p_medicines = "medicines"
-                val p_notes = "notes"
-                val p_reports = "p_reports"
-                val patientdoc = hashMapOf("patient_info" to pinfo)
-
-                fun PatientExists(patientid: String, callback : (Boolean) -> Unit) = viewModelScope.launch {
-                    NurseDocRef.collection(NursePatients).document(patientid).get()
-                        .addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                Log.d("TAGY", "DOCUMENT IS ALREADY EXISTING WITH DOC ID: $patientid")
-                                callback(true)
-                            } else {
-                                Log.d("TAGY", "NO DOCUMENT EXISTING, CREATING DOC: $patientid")
-
-                                callback(false)
-                            }
-                        }
-                        .addOnFailureListener {
-                            Log.d("TAGY", "Error checking document existence: ${it.message}")
-                            callback(false) // Treat failure as non-existent
-                        }
-                }
-
-                PatientExists(pinfo.p_patientid) { exists ->
-                    if (exists) {
-                        Log.d("TAGY", "Patient with this ID already exists.Can't Create New Paitent")
-                    } else {
-                        val PatientDocRef = NurseDocRef.collection(NursePatients).document(pinfo.p_patientid) // Doc with Patient_Id Gets Created
-                        // Store patient info as an object
-                        PatientDocRef.set(patientdoc)
-                            .addOnCompleteListener { document ->
-                                Log.d("TAGY", "New Patient Doc Added with DocId: ${PatientDocRef.id}")
-                                // Creating subcollections for the patient
-                                PatientDocRef.collection(p_medicines).add( "test" to 1)
-                                PatientDocRef.collection(p_notes).add( "test" to 1)
-                                PatientDocRef.collection(p_reports).add( "test" to 1)
-                                _authState.value = AuthState.Authenticated
-                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref , inclusive = false)
-                            }
-                            .addOnFailureListener { e ->
-                                Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
-                            }
-                    }
-                }
-            }
-            NurseDocIdState.NoId -> {
-                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
-            }
-        }
-    }
-
-
-
-    private var _patientinfolist  = MutableStateFlow<PatientListState>(PatientListState.idlelist)
-    val paitientinfolist : StateFlow<PatientListState> = _patientinfolist
     val patientsCollection = "n_patients"
     //Fetch the PatientInfo Object  Field  from FireStore // Function should be called only after receiving the NurseDocID
     fun FetchP_InfoList(){
+        _patientinfolist.value = PatientListState.Loadinglist
         when(_NurseDocId.value){
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid  = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
                 IfPatientsExists(nursedocid) { exists ->
                     if(exists){
                         Log.d("TAGY" , "FETCHING PATIENT DETAILS FROM PATIENT COLLECTION")
-                        firestoredb.collection("Nurses").document(nursedocid).collection(patientsCollection)
-                            .get()
+                        firestoredb.collection("Nurses").document(nursedocid).collection(patientsCollection).get()
                             .addOnSuccessListener {
                                     documents -> if (!documents.isEmpty) {
                                 try {
@@ -227,7 +171,7 @@ class AppVM(val navController: NavController) : ViewModel() {
                                         val result  = doc.get("patient_info") as HashMap<*, *>
                                         val name = result["p_name"] as String
                                         val surname= result["p_surename"] as String
-                                        val age  = result["p_age"] as String
+                                        val age  = result["p_age"] as Long
                                         val docname  = result["p_doctor"] as String
                                         val gender = result["p_gender"] as String
                                         val patientid = result["p_patientid"] as String
@@ -236,7 +180,7 @@ class AppVM(val navController: NavController) : ViewModel() {
                                         val receivedpinfo = PatientInfo(
                                             p_name = name,
                                             p_surename = surname,
-                                            p_age = age,
+                                            p_age = age.toInt(),
                                             p_doctor = docname,
                                             p_gender = gender,
                                             p_patientid = patientid,
@@ -249,17 +193,18 @@ class AppVM(val navController: NavController) : ViewModel() {
                                     Log.d("TAGY", "Error while fetching patientlist ${e.message}" )
                                 }
 
-                            }else {
+                            } else {
+                                _patientinfolist.value = PatientListState.emptylist
                                 Log.d("TAGY", "No patients found")
                             }
-                            }
-                            .addOnFailureListener { e ->
+                            }.addOnFailureListener { e ->
+                                _patientinfolist.value = PatientListState.emptylist
                                 Log.e("TAGY", "Failed to fetch patients", e)
                             }
                     }
+                    else { _patientinfolist.value = PatientListState.emptylist }
                 }
             }
-
             NurseDocIdState.NoId -> {
                 Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
             }
@@ -284,6 +229,123 @@ class AppVM(val navController: NavController) : ViewModel() {
                 Log.w("TAGY", "Error checking collection existence", e)
                 callback(false)
             }
+    }
+
+
+    private var _Addpatientstate  = MutableStateFlow<AddPatientState>(AddPatientState.idle)
+    var addPatientState : StateFlow<AddPatientState> = _Addpatientstate
+    //Save PatientInfo + _Pvitals and put in the Patients Collection with there own doc
+   fun SavePatientInfoFirestore( pinfo : PatientInfo) = viewModelScope.launch {
+       _Addpatientstate.value = AddPatientState.AddingPatient
+        when(_NurseDocId.value){
+            is NurseDocIdState.CurrentNurseId -> {
+
+                val nursedocid  = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
+                val NurseDocRef = firestoredb.collection("Nurses").document(nursedocid)
+
+                val NursePatients = "n_patients"
+                val p_medicines = "medicines"
+                val p_notes = "notes"
+                val p_reports = "p_reports"
+                val patientdoc = hashMapOf("patient_info" to pinfo)
+
+                fun PatientExists(patientid: String, callback : (Boolean) -> Unit) = viewModelScope.launch {
+                    NurseDocRef.collection(NursePatients).document(patientid).get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                callback(true)
+                            } else {
+                                callback(false)
+                            }
+                        }
+                        .addOnFailureListener {
+                            Log.d("TAGY", "Error checking document existence: ${it.message}")
+                            callback(false) // Treat failure as non-existent
+                        }
+                }
+
+                PatientExists(pinfo.p_patientid) { exists ->
+                    if (exists) {
+                        _Addpatientstate.value = AddPatientState.AddPatientFailed("Patient with this ID already exists , Can't Create New Paitent with same Id ")
+                        Log.d("TAGY", "Patient with this ID already exists , Can't Create New Paitent with same Id ")
+                    } else {
+                        val PatientDocRef = NurseDocRef.collection(NursePatients).document(pinfo.p_patientid) // Doc with Patient_Id Gets Created
+                        // Store patient info as an object
+                        PatientDocRef.set(patientdoc)
+                            .addOnCompleteListener { document ->
+                                Log.d("TAGY", "New Patient Doc Added with DocId: ${PatientDocRef.id}")
+                                // Creating subcollections for the patient
+                                PatientDocRef.collection(p_medicines).add( "test" to 1)
+                                PatientDocRef.collection(p_notes).add( "test" to 1)
+                                PatientDocRef.collection(p_reports).add( "test" to 1)
+                                _Addpatientstate.value = AddPatientState.idle
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref , inclusive = false)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
+                            }
+                    }
+                }
+            }
+            NurseDocIdState.NoId -> {
+                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
+            }
+        }
+    }
+
+
+
+    //NurseProfile Operations
+    private var _NurseProfileState : MutableStateFlow<NurseProfileState> = MutableStateFlow(NurseProfileState.Loading)
+    val nurseprofilestate : MutableStateFlow<NurseProfileState> = _NurseProfileState
+    fun FetchNurseProfile() = viewModelScope.launch {
+        delay(1000)
+        when(_NurseDocId.value){
+            is NurseDocIdState.CurrentNurseId -> {
+                val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
+                try {
+                    val fbnursedoc  = firestoredb.collection("Nurses").document(nursedocid).get().await()
+                    if (fbnursedoc.exists()) {
+                        val nurseInfo = fbnursedoc.toObject(NurseInfo::class.java)
+                        if (nurseInfo != null) {
+                            Log.d("TAGY", "Nurse Info: $nurseInfo !VM:FetchNurseProfile")
+                            _NurseProfileState.value = NurseProfileState.Fetched(nurseInfo)
+                        } else {
+                            Log.d("TAGY", "No NurseInfo object found !VM:FetchNurseProfile")
+                        }
+                    }else {
+                        Log.d("Firestore", "No document found with ID: $nursedocid !VM:FetchNurseProfile")
+                    }
+                }catch (e : FirebaseFirestoreException){
+                    Log.d("TAGY" , "${e.message}  !VM:FetchNurseProfile")
+                }
+            }
+            NurseDocIdState.NoId -> {
+                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
+            }
+        }
+    }
+
+    fun UpdateNurseProfile() = viewModelScope.launch {
+        _NurseProfileState.value = NurseProfileState.Loading
+        delay(5000)
+        when(_NurseDocId.value){
+            is NurseDocIdState.CurrentNurseId -> {
+                val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
+                try {
+                    firestoredb.collection("Nurses").document(nursedocid).set(_NurseRegisinfo).await()
+                    navController.popBackStack()
+                    Log.d("TAGY" , "$ the Document should be Updated !VM:UpdateNurseProfile")
+
+                }catch (e : FirebaseFirestoreException){
+                    _NurseProfileState.value = NurseProfileState.Failed(e.message!!)
+                    Log.d("TAGY" , "${e.message}  !VM:UpdateNurseProfile")
+                }
+            }
+            NurseDocIdState.NoId -> {
+                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
+            }
+        }
     }
 
 }

@@ -26,8 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.nurseflowd1.Domain.AppVM
-import com.example.nurseflowd1.Domain.AuthVMF
+import com.example.nurseflowd1.domain.AuthVMF
 import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
@@ -59,8 +58,6 @@ class MainActivity : ComponentActivity() {
 
                                     Text( "NurseFlow" , fontFamily = jersery25  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
                                         modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-
-
                                 }
 
                             },
@@ -102,7 +99,7 @@ class MainActivity : ComponentActivity() {
                 AccountScreen(modifier , viewmodel , navController)
             }
             composable(route = Destinations.UpdateProfileScreen.ref){
-                UpdateProfilePage(modifier)
+                UpdateProfilePage(modifier , viewmodel = viewmodel , navController = navController)
             }
             composable(route = Destinations.AccSettingsScreen.ref){
                 AccountSettingPage(modifier)

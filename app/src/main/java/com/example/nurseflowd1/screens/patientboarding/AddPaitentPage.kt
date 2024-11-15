@@ -1,6 +1,5 @@
 package com.example.nurseflowd1.screens.patientboarding
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,9 +14,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,20 +29,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.nurseflowd1.Domain.AppVM
+import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.nurseauth.SingupFeilds
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
 import com.example.nurseflowd1.datamodels.PatientInfo
-import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.nurseauth.SignupFeildsSecond
 import com.example.nurseflowd1.screens.nurseauth.SupportTextState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.math.log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 
 
 @Composable
@@ -59,12 +58,11 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
     var gender = remember { mutableStateOf("") }; var gender_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var age = remember { mutableStateOf("") }; var age_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
-    Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll( rememberScrollState() ) ,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally){
 
-        Column(modifier = Modifier
-            .fillMaxWidth(0.9f).fillMaxHeight(),
+    Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll( rememberScrollState() ) ,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Column(modifier = Modifier.padding(top = ScreenWidth(0.05).dp).fillMaxHeight().fillMaxWidth(0.9f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -110,6 +108,28 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
                 Spacer( modifier = Modifier.size(ScreenWidth(0.1).dp))
                 SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age" , true)
             }
+
+            val addPatientState by viewmodel.addPatientState.collectAsState()
+            var errormessage by remember { mutableStateOf("") }
+            var isloading by remember { mutableStateOf(false) }
+
+            when(val state = addPatientState){
+                is AddPatientState.AddPatientFailed -> { isloading = false ; errormessage = state.errormsg }
+                AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
+                AddPatientState.idle -> Unit
+            }
+            if(errormessage.isNotBlank()){
+                Text( text = errormessage,
+                    style = TextStyle(fontSize =  ScreenWidth(0.037).sp ),
+                    color = Color.Red.copy(alpha = 0.8f),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
+            if(isloading){
+                CircularProgressIndicator( modifier = Modifier.size(50.dp) , color = HTextClr , strokeWidth = 5.dp)
+            }
+
             Button( onClick = {
                 fun NotEmptyFeilds() : Boolean { var isvalid = true
                     if( user_name.value.isBlank()){ username_ststate.value = SupportTextState.empty("Required*") ; isvalid = false}
@@ -140,13 +160,17 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
                 }
 
                 if(NotEmptyFeilds()){
-                    val patientinfo = PatientInfo(
-                        p_name =  user_name.value, p_surename = user_surname.value ,
-                        p_phoneno = phoneno.value,
-                        p_patientid = patient_id.value ,
-                        p_doctor = doctorname.value , p_age = age.value , p_gender = gender.value
-                    )
-                    viewmodel.SavePatientInfoFirestore(patientinfo)
+                    try {
+                        val patientinfo = PatientInfo(
+                            p_name =  user_name.value, p_surename = user_surname.value ,
+                            p_phoneno = phoneno.value,
+                            p_patientid = patient_id.value ,
+                            p_doctor = doctorname.value , p_age = age.value.toInt() , p_gender = gender.value
+                        )
+                        viewmodel.SavePatientInfoFirestore(patientinfo)
+                    }catch (e : Exception){
+                        errormessage = "Age can only have numbers"
+                    }
                 }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),

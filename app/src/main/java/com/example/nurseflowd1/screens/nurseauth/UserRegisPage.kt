@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,11 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseInfo
-import com.example.nurseflowd1.Domain.AppVM
+import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextStyle
 
 
 @Composable
@@ -106,6 +110,11 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                 Spacer( modifier = Modifier.size(ScreenWidth(0.1).dp))
                 SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age", true)
             }
+
+            var errormessage by remember { mutableStateOf("") }
+            if(errormessage.isNotBlank()){
+                Text(errormessage, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = screenHeight(0.02).sp))
+            }
             Button( onClick = {
                     fun NotEmptyFeilds() : Boolean { var isvalid = true
                         if( user_name.value.isBlank()){ username_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
@@ -135,12 +144,17 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                         return isvalid
                     }
                     if (NotEmptyFeilds()){
-                        val nurseinfo = NurseInfo( N_name = user_name.value , N_surname =  user_surname.value ,
-                            N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
-                            N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt()
-                        )
-                        viewmodel.SaveNurseInfo(nurseinfo)
-                        navController.navigate( route = Destinations.AuthScreen.ref)
+                        try {
+                            val nurseinfo = NurseInfo( N_name = user_name.value , N_surname =  user_surname.value ,
+                                N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
+                                N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt()
+                            )
+                            viewmodel.SaveNurseInfo(nurseinfo)
+                            navController.navigate( route = Destinations.AuthScreen.ref)
+                        }catch (e : Exception){
+                                errormessage = "Age can only have numbers"
+                            Log.d("TAGY" , "Error ${e.cause} $e ${e.message} !UserRegisPage")
+                        }
                     }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
@@ -161,7 +175,7 @@ fun SignupFeildsSecond( modifier: Modifier,
     val iserror = remember { mutableStateOf(false) }
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
-    val softwarekeyboard = GiveKeyboard()
+    val softwarekeyboard = giveKeyboard()
 
 
      var keyboardtype = KeyboardType.Text
