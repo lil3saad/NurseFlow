@@ -26,7 +26,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.cloudinary.android.MediaManager
 import com.example.nurseflowd1.domain.AuthVMF
+import com.example.nurseflowd1.domain.StorageUseCase
 import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
@@ -40,11 +42,12 @@ import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.jersery25
 
+
 class MainActivity : ComponentActivity() {
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //ViewModel
         enableEdgeToEdge()
         setContent {
             NurseFlowD1Theme {
@@ -79,7 +82,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun NavigationStack(modifier: Modifier = Modifier){
         val navController = rememberNavController()
-        val factory = AuthVMF(navController)
+        val factory = AuthVMF(navController , StorageUseCase())
         val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){

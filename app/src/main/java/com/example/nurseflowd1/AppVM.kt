@@ -1,11 +1,14 @@
 package com.example.nurseflowd1
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
+import com.example.nurseflowd1.domain.ProfilePictureState
+import com.example.nurseflowd1.domain.StorageUseCase
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
@@ -26,7 +29,9 @@ import kotlinx.coroutines.tasks.await
 import java.util.HashMap
 import kotlin.collections.get
 
-class AppVM(val navController: NavController) : ViewModel() {
+class AppVM( private val navController: NavController,
+  private val  storageuc : StorageUseCase
+) : ViewModel() {
 
 
     // USER AUTHENTICATION
@@ -37,7 +42,7 @@ class AppVM(val navController: NavController) : ViewModel() {
     val authstate :  StateFlow<AuthState> =  _authState
 
     fun authStatus() = viewModelScope.launch {
-        if( currentuser != null) _authState.value = AuthState.Authenticated
+        if (currentuser != null) _authState.value = AuthState.Authenticated
         else _authState.value = AuthState.UnAuthenticated
     }
 
@@ -77,12 +82,11 @@ class AppVM(val navController: NavController) : ViewModel() {
     }
 
     fun SingOut() = viewModelScope.launch {
-        try {
-            auth.signOut()
+        try { auth.signOut()
             currentuser =  null
+            _authState.value = AuthState.UnAuthenticated
             _NurseDocId.value = NurseDocIdState.NoId
-            _patientinfolist.value = PatientListState.emptylist
-                _authState.value = AuthState.UnAuthenticated
+            storageuc._profilestate.value = ProfilePictureState.Empty // Removes Profile Picture from APP VM
             Log.d("TAGY" , "User SignedOut !VM:SingOut")
         }catch (e : FirebaseAuthException) {
             Log.d("TAGY" , "FIREBASE LOG ERROR ${e.message}")
@@ -106,6 +110,7 @@ class AppVM(val navController: NavController) : ViewModel() {
         _NurseRegisinfo.uid = nurse.uid
         Log.d("TAGY" , "Nurse Profile Saved In !VM:SaveNurseInfo")
     }
+
     fun CreateNurseProfile() = viewModelScope.launch{
         if(auth.currentUser != null) {
             _NurseRegisinfo.uid = auth.currentUser!!.uid
@@ -118,8 +123,6 @@ class AppVM(val navController: NavController) : ViewModel() {
                 }
         }
     }
-
-
 
     private var _NurseDocId : MutableStateFlow<NurseDocIdState> = MutableStateFlow(NurseDocIdState.NoId)
     var NurseDocId : StateFlow<NurseDocIdState> = _NurseDocId
@@ -212,6 +215,7 @@ class AppVM(val navController: NavController) : ViewModel() {
         // Check If Nurse has added patients collection // just check if the there is patient collection // if there fetch others tell her to add patients
 
     }
+
     fun IfPatientsExists( nursedocid : String , callback : (Boolean) -> Unit)  {
         Log.d("TAGY", "Patients Check Called ")
         firestoredb.collection("Nurses").document( nursedocid ).collection(patientsCollection).limit(1).get()
@@ -230,7 +234,6 @@ class AppVM(val navController: NavController) : ViewModel() {
                 callback(false)
             }
     }
-
 
     private var _Addpatientstate  = MutableStateFlow<AddPatientState>(AddPatientState.idle)
     var addPatientState : StateFlow<AddPatientState> = _Addpatientstate
@@ -293,13 +296,10 @@ class AppVM(val navController: NavController) : ViewModel() {
         }
     }
 
-
-
     //NurseProfile Operations
     private var _NurseProfileState : MutableStateFlow<NurseProfileState> = MutableStateFlow(NurseProfileState.Loading)
     val nurseprofilestate : MutableStateFlow<NurseProfileState> = _NurseProfileState
     fun FetchNurseProfile() = viewModelScope.launch {
-        delay(1000)
         when(_NurseDocId.value){
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
@@ -321,21 +321,20 @@ class AppVM(val navController: NavController) : ViewModel() {
                 }
             }
             NurseDocIdState.NoId -> {
-                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
+                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:FetchNurseProfile")
             }
         }
     }
 
     fun UpdateNurseProfile() = viewModelScope.launch {
         _NurseProfileState.value = NurseProfileState.Loading
-        delay(5000)
         when(_NurseDocId.value){
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
                 try {
                     firestoredb.collection("Nurses").document(nursedocid).set(_NurseRegisinfo).await()
                     navController.popBackStack()
-                    Log.d("TAGY" , "$ the Document should be Updated !VM:UpdateNurseProfile")
+                    Log.d("TAGY" , "the Document should be Updated !VM:UpdateNurseProfile")
 
                 }catch (e : FirebaseFirestoreException){
                     _NurseProfileState.value = NurseProfileState.Failed(e.message!!)
@@ -343,11 +342,16 @@ class AppVM(val navController: NavController) : ViewModel() {
                 }
             }
             NurseDocIdState.NoId -> {
-                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
+                Log.d("TAGY" , "NO NURSEDOC FOUND WITH ANY ID !VM:UpdateNurseProfile")
             }
         }
     }
 
+
+    // Accounts Page Operations
+    fun saveProfileUri(uri : Uri) { storageuc._profilestate.value = ProfilePictureState.Picture(uri) }
+    val profilepicstate : StateFlow<ProfilePictureState> = fetchProfileState()
+    fun fetchProfileState() :  StateFlow<ProfilePictureState> = storageuc._profilestate
 }
 sealed class AuthState {
         object Idle : AuthState()

@@ -47,10 +47,8 @@ import com.example.nurseflowd1.screens.nurseauth.screenHeight
 
 @Composable
 fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmodel : AppVM){
-
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
-
     Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center){
 
@@ -199,7 +197,6 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
 
             }
         }
-
 
     }
 }

@@ -60,11 +60,28 @@ dependencies {
     //FireStore
     implementation("com.google.firebase:firebase-firestore")
 
+
     val lifecycle_version = "2.8.7"
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     // ViewModel utilities for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+
+
+    // Image Loading
+    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.3")
+
+    // Image Cropping
+    implementation ("io.github.rroohit:ImageCropView:3.0.1")
+
+    // Cloudinary
+    // All:
+    implementation ("com.cloudinary:cloudinary-android:3.0.2")
+    // Download + Preprocess:
+    implementation ("com.cloudinary:cloudinary-android-download:3.0.2")
+    implementation ("com.cloudinary:cloudinary-android-preprocess:3.0.2")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
