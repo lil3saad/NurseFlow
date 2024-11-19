@@ -72,15 +72,8 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.3")
 
-    // Image Cropping
-    implementation ("io.github.rroohit:ImageCropView:3.0.1")
-
-    // Cloudinary
-    // All:
-    implementation ("com.cloudinary:cloudinary-android:3.0.2")
-    // Download + Preprocess:
-    implementation ("com.cloudinary:cloudinary-android-download:3.0.2")
-    implementation ("com.cloudinary:cloudinary-android-preprocess:3.0.2")
+    // Appwrite
+    implementation("io.appwrite:sdk-for-android:6.0.0")
 
 
     implementation(libs.androidx.core.ktx)

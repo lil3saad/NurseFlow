@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.accountmanage
 
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +28,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,12 +48,17 @@ import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.jersery25
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.example.nurseflowd1.datamodels.NurseInfo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import coil3.compose.rememberAsyncImagePainter
-import com.example.nurseflowd1.domain.ProfilePictureState
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 @Composable
@@ -85,57 +94,99 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
         horizontalAlignment = Alignment.CenterHorizontally){
 
         val nurseprofilestate by viewmodel.nurseprofilestate.collectAsState()
-        viewmodel.FetchNurseProfile()
         var fetchenurseinfo = NurseInfo()
+
+        LaunchedEffect(nurseprofilestate) { viewmodel.FetchNurseProfile()
+            viewmodel.getProfilePicState() }
+
         when(val state = nurseprofilestate) { // How does When State Automatically cast the NurseInfoState to Corresponding type even the variable is private
-                is NurseProfileState.Failed -> { Log.d("TAGY" , "Error During Fetch  ${state.errormsg}") }
-                is NurseProfileState.Fetched -> { fetchenurseinfo = state.nurse }
-                is NurseProfileState.Loading -> {
-                    Box(modifier = modifier
-                        .fillMaxSize()
-                        .background(AppBg), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator( modifier = Modifier.size(50.dp) , color = HTextClr , strokeWidth = 5.dp)
-                    }
+            is NurseProfileState.Failed -> { Log.d("TAGY" , "Error During Fetch  ${state.errormsg}") }
+            is NurseProfileState.Fetched -> { fetchenurseinfo = state.nurse }
+            is NurseProfileState.Loading -> {
+                Box(modifier = modifier
+                    .fillMaxSize()
+                    .background(AppBg), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator( modifier = Modifier.size(50.dp) , color = HTextClr , strokeWidth = 5.dp)
                 }
+            }
+        }
+
+        val context = LocalContext.current
+        val photopicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+                pickeduri ->
+            if (pickeduri != null) {
+                viewmodel.saveProfileUri(pickeduri , context = context)
+                Log.d("PhotoPicker", "PHOTO PICKED $pickeduri")
+            } else Log.d("PhotoPicker", "No media selected")
         }
 
 
-        val photopicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { pickeduri ->
-                if (pickeduri != null) {
-                          viewmodel.saveProfileUri(pickeduri)
-                    Log.d("PhotoPicker", "PHOTO PICKED $pickeduri")
-                } else Log.d("PhotoPicker", "No media selected")
-        }
 
-
-        val profilepicstate by viewmodel.profilepicstate.collectAsState()
         Column(modifier = Modifier.fillMaxWidth() ,
             horizontalAlignment = Alignment.CenterHorizontally
-        ){ // How to give the User Crop the Images after picking it
-            Image(
-                painter =  when(val state = profilepicstate){
-                    ProfilePictureState.Empty -> { painterResource(R.drawable.profilepic)}
-                    is ProfilePictureState.Picture -> { rememberAsyncImagePainter(state.uri) }
-                },
-                contentDescription = "Profile Picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(200.dp)
-                    .clip(CircleShape)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier .clickable{
-                    photopicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        ){
+
+            val profilepicstate by viewmodel.profilepiucstate.collectAsState()
+            when(val state = profilepicstate){
+                ProfilePictureState.default -> { Image(
+                        bitmap = BitmapFactory.decodeResource(context.resources , R.drawable.profilepicture).asImageBitmap(),
+                        contentDescription = "Profile Picture",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(200.dp)
+                            .clip(CircleShape)
+                    )
+                } // Let ProfileImage Stay Default
+                ProfilePictureState.Added -> viewmodel.getProfilePicState()
+
+                is ProfilePictureState.Fetched -> {
+                    Image(
+                        bitmap =  state.image.asImageBitmap(),
+                        contentDescription = "Profile Picture",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(200.dp)
+                            .clip(CircleShape)
                     )
                 }
-            ) {
-                Text("Change Profile" ,
-                    modifier = Modifier.padding(top = ScreenHeight(0.01).dp)
-                )
-                Icon( imageVector = Icons.Default.Add , contentDescription =  "Edit Profile",
-                    modifier = Modifier.padding(top = 12.dp)
-                        .size(25.dp)
+                is ProfilePictureState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(150.dp),
+                        color = HTextClr
+                    )
+                }
+                else -> {
+                    Image(
+                        bitmap = BitmapFactory.decodeResource(context.resources , R.drawable.profilepicture).asImageBitmap(),
+                        contentDescription = "Profile Picture",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(200.dp)
+                            .clip(CircleShape)
+                    )
+                }
+            }
 
+
+            Row(verticalAlignment = Alignment.CenterVertically){
+
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier =   Modifier .clickable{
+                        photopicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+                ) {
+                    Text("Change Profile" ,
+                        modifier = Modifier.padding(top = ScreenHeight(0.01).dp)
+                    )
+                    Icon( imageVector = Icons.Default.Add , contentDescription =  "Edit Profile",
+                        modifier = Modifier.padding(top = 12.dp)
+                            .size(25.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.size(ScreenHeight(0.03).dp))
+                Text("Remove",
+                    modifier = Modifier.padding(top = ScreenHeight(0.01).dp).clickable{
+                         viewmodel.DeleteProfilePicState()
+                    }
                 )
             }
 

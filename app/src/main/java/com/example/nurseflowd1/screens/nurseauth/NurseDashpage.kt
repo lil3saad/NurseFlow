@@ -61,25 +61,33 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 
     //Authentication State
 
-    viewmodel.authStatus() // For AutoLogin
+    viewmodel.authStatus() // For AutoLog
     val authState by viewmodel.authstate.collectAsState() // Observing the AuthState
     val gotnursedocid by viewmodel.NurseDocId.collectAsState() // Get Nurse DocumentId by Uid
+
+
     LaunchedEffect(authState) {
         when (authState) {
+            is AuthState.Idle -> { navController.navigate(Destinations.LoginScreen.ref) }
             is AuthState.UnAuthenticated -> { navController.navigate(Destinations.LoginScreen.ref) }
             is AuthState.Failed -> { Toast.makeText(context, (authState as AuthState.Failed).message, Toast.LENGTH_LONG).show() }
-            is AuthState.Authenticated ->  { if (gotnursedocid == NurseDocIdState.NoId) viewmodel.GetNurseDocId() }
+            is AuthState.Authenticated ->  {
+                Log.d("TAGY" , "HOW IS THIS NURSE AUTHENTICATED")
+                if (gotnursedocid is NurseDocIdState.CurrentNurseId) Unit
+                else viewmodel.GetNurseDocId()
+            }
             else -> Unit
         }
     }
 
-
-
     //PatientList Stat
     val patientliststate by viewmodel.paitientinfolist.collectAsState()
     LaunchedEffect(gotnursedocid) {
-        if(gotnursedocid is NurseDocIdState.CurrentNurseId) {  viewmodel.FetchP_InfoList() }
-    } // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
+        if(gotnursedocid is NurseDocIdState.CurrentNurseId) {
+            viewmodel.FetchP_InfoList()
+        }
+    }
+     // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -87,7 +95,6 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         LazyColumn(modifier = Modifier.padding(top = (ScreenHeight * 0.09).dp)
                 .fillMaxWidth(0.9f)
                 .fillMaxHeight(0.84f)){
-
             when (patientliststate){
                 is PatientListState.emptylist ->{ item { Text("No patients available. Please add patients.") } }
                 is PatientListState.PatientsReceived -> {

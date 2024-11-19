@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,7 +27,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cloudinary.android.MediaManager
 import com.example.nurseflowd1.domain.AuthVMF
 import com.example.nurseflowd1.domain.StorageUseCase
 import com.example.nurseflowd1.screens.accountmanage.AccountScreen
@@ -41,12 +41,14 @@ import com.example.nurseflowd1.screens.patientboarding.Paitent_Regis_Screen
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.jersery25
+import io.appwrite.Client
 
 
 class MainActivity : ComponentActivity() {
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1")
+            .setProject("673b1afc002275ec3f3a")
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -74,15 +76,15 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ){ innerPadding ->
-                    NavigationStack(modifier = Modifier.padding(innerPadding))
+                    NavigationStack(modifier = Modifier.padding(innerPadding) , client)
                 }
             }
         }
     }
     @Composable
-    fun NavigationStack(modifier: Modifier = Modifier){
+    fun NavigationStack(modifier: Modifier = Modifier , client: Client){
         val navController = rememberNavController()
-        val factory = AuthVMF(navController , StorageUseCase())
+        val factory = AuthVMF(navController , StorageUseCase(client, context = LocalContext.current))
         val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){
@@ -110,7 +112,6 @@ class MainActivity : ComponentActivity() {
             composable(route = Destinations.PatientRegisterScreen.ref){
                 Paitent_Regis_Screen( modifier ,  navController , viewmodel)
             }
-
         }
     }
 }

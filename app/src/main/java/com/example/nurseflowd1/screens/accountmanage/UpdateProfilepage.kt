@@ -43,6 +43,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
 import com.example.nurseflowd1.screens.nurseauth.screenHeight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -56,7 +59,6 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
         val nurseprofilestate by viewmodel.nurseprofilestate.collectAsState()
         var fetchednurseinfo by remember { mutableStateOf(NurseInfo()) }
 
-
         when (val state = nurseprofilestate) {
             is NurseProfileState.Failed -> { Log.d("TAGY", "FETCHING NURSE PROFILE PLEASE WAIT ${state.errormsg}") }
             is NurseProfileState.Fetched -> { fetchednurseinfo = state.nurse // Update the state when fetched
@@ -65,8 +67,6 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
-// Now bind your UI to `fetchednurseinfo` state
-
                     var user_name = remember { mutableStateOf(fetchednurseinfo.N_name) }
                     var username_ststate: MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
@@ -169,13 +169,16 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
                         }
                         if (NotEmptyFeilds()){
                             try {
-                                val nurseinfo = NurseInfo( N_name = user_name.value , N_surname =  user_surname.value ,
-                                    N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
-                                    N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt() ,
-                                    uid = fetchednurseinfo.uid
-                                )
-                                viewmodel.SaveNurseInfo(nurseinfo)
-                                viewmodel.UpdateNurseProfile()
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val nurseinfo = NurseInfo( N_name = user_name.value , N_surname =  user_surname.value ,
+                                        N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
+                                        N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt() ,
+                                        uid = fetchednurseinfo.uid ,
+                                        profilepicid = viewmodel.getProfilePicID()
+                                    )
+                                    viewmodel.SaveNurseInfo(nurseinfo)
+                                    viewmodel.UpdateNurseProfile()
+                                }
                             }catch (e : Exception){
                                 errormessage = "Age can only have numbers"
                                 Log.d("TAGY" , "Error ${e.cause} $e ${e.message} !UserRegisPage")
