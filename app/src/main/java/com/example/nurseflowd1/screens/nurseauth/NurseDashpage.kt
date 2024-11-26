@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.text.InputFilter
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -41,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
@@ -72,6 +72,7 @@ import com.example.nurseflowd1.ui.theme.SecClr
 import com.example.nurseflowd1.ui.theme.bottombar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 
 
 // NURSE DASHBOARD
@@ -216,27 +217,29 @@ fun PaitentCard(patient : CardPatient ){
             val ( p_image , p_details , p_info) = createRefs()
 
             Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = ScreenHeight(0.01).dp)
+                modifier = Modifier.padding(start = ScreenHeight(0.01).dp , end = ScreenHeight(0.012).dp )
                     .fillMaxHeight().fillMaxWidth(0.15f)
                     .constrainAs(p_image){
                         start.linkTo(parent.start)
                         top.linkTo(parent.top)
                     }
             ){
+                Image(  painter = painterResource(R.drawable.hospitalisation) , contentDescription = "")
 
             }
 
             Column( verticalArrangement = Arrangement.SpaceEvenly ,
-                modifier = Modifier.padding( top = (ScreenHeight(0.02).dp ))
+                modifier = Modifier
+                    .padding( top = (ScreenHeight(0.02).dp ))
                     .fillMaxHeight(0.9f).fillMaxWidth(0.65f)
                     .constrainAs(p_details){
                         start.linkTo(p_image.end)
                         top.linkTo(parent.top)
-
                     }
             ){
                 Text( "Name : ${patient.name}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , color = Color.White  )
                 Text( "Doctor name : ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Conditon: ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
 
                 Row( horizontalArrangement = Arrangement.spacedBy( ScreenHeight(0.022).dp ) ,
                     modifier = Modifier.fillMaxWidth()) {
@@ -247,7 +250,7 @@ fun PaitentCard(patient : CardPatient ){
             }
 
             Column( verticalArrangement = Arrangement.SpaceBetween, horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight(0.65f)
+                modifier = Modifier.fillMaxHeight().padding(vertical = 8.dp)
                     .constrainAs(p_info){
                         start.linkTo(p_details.end)
                         end.linkTo(parent.end , margin = 3.dp)
@@ -255,6 +258,14 @@ fun PaitentCard(patient : CardPatient ){
                         bottom.linkTo(parent.bottom , margin = 13.dp)
                     }
             ){
+                Image(  painter = painterResource(R.drawable.dashboard) , contentDescription = "" ,
+                    modifier = Modifier.size(50.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Ward no")
+                    Text("101")
+                }
             }
         }
     }
