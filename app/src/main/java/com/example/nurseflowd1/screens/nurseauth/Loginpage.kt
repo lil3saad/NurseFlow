@@ -41,9 +41,10 @@ import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.AuthState
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
-import com.example.nurseflowd1.ui.theme.jersery25
+import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.TopAppBarState
 
 // NURSE LOGIN
 @Composable
@@ -52,7 +53,7 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
     Text(label,
         color = HTextClr,
         modifier = Modifier.padding(bottom = 2.dp, start = 6.dp),
-        style = TextStyle(fontFamily = jersery25, fontWeight = FontWeight.Thin, fontSize = (ScreenHeight * 0.03).sp  )
+        style = TextStyle(fontFamily = Headingfont, fontWeight = FontWeight.Thin, fontSize = (ScreenHeight * 0.03).sp  )
     )
     // Nurse Id OutlinedTextField
     val softwarekeyboard = giveKeyboard()
@@ -92,7 +93,7 @@ fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, vie
     val ScreenHeight = LocalConfiguration.current.screenHeightDp
 
 
-
+    viewmodel.SetTopBarState(TopAppBarState.AppNameBar)
     // If users keep entering null fields it will show message or execute statement once but not again and again
     // The same Functionality works with wrong email and password tho , if they keep using wrong creds , it keeps messaging the user with same authstate which is failed
     val authState by viewmodel.authstate.collectAsState()
@@ -172,7 +173,7 @@ fun LoginContent(modifier: Modifier,
                     .size(width = (ScreenHeight * 0.15).dp , height = (ScreenHeight * 0.05) .dp),
                 contentPadding = PaddingValues(0.dp)
             ){
-                Text("Login" , fontFamily = jersery25 , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.03).sp)
+                Text("Login" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.03).sp)
             }
 
 
@@ -196,7 +197,7 @@ fun LoginContent(modifier: Modifier,
                     modifier = Modifier.size(width = (ScreenHeight * 0.14).dp , height = (ScreenHeight * 0.05).dp),
                     contentPadding = PaddingValues(0.dp)
                 ){
-                    Text("Signup" , fontFamily = jersery25 , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.02).sp )
+                    Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.02).sp )
                 }
 
             }

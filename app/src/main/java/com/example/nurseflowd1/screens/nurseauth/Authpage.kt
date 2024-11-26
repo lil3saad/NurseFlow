@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -41,9 +40,10 @@ import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.AuthState
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
-import com.example.nurseflowd1.ui.theme.jersery25
+import com.example.nurseflowd1.ui.theme.Headingfont
 
 
 @Composable
@@ -61,7 +61,7 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
             Text(
                 label, color = HTextClr , style = TextStyle(
                 fontSize = screenHeight(0.025).sp ,
-                fontFamily = jersery25
+                fontFamily = Headingfont
             ))
         }
         val softwarekeyboard = giveKeyboard()
@@ -99,6 +99,8 @@ fun screenHeight(k : Double ) : Double = (LocalConfiguration.current.screenHeigh
 @Composable
 fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , viewmodel : AppVM){
 
+    viewmodel.SetTopBarState(TopAppBarState.AppNameBack)
+
     var user_email = remember { mutableStateOf("") } ; var useremail_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var password1 = remember { mutableStateOf("") } ; var password1_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var password2 = remember { mutableStateOf("") }; var password2_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -127,7 +129,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Text("Welcome to NurseFlow " , style = TextStyle(
-                fontSize = (screenHeight(0.035).sp) , fontFamily = jersery25 , color = HTextClr),
+                fontSize = (screenHeight(0.035).sp) , fontFamily = Headingfont , color = HTextClr),
                 modifier = Modifier.padding(bottom = screenHeight(0.01).dp)
             )
             SingupFeilds("UserId" , user_email , placeholdertext = "Enter email id or phone number", useremail_ststate)
@@ -163,7 +165,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
                 modifier = Modifier.padding(top = screenHeight (0.04).dp ).size(width = screenHeight(0.15).dp , height = screenHeight(0.05) .dp)
             ) {
-                Text("SignUp" , fontFamily = jersery25 , fontWeight = FontWeight.Bold , fontSize = screenHeight (0.025).sp)
+                Text("SignUp" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = screenHeight (0.025).sp)
             }
         }
 

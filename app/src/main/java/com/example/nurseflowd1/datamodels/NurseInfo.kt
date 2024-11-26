@@ -9,5 +9,6 @@ data class NurseInfo(
     var N_registrationid: String = "notsetyet",
     var N_gender : String = "notsetyet",
     var N_age  : Int = 0,
-    var uid : String = "notsetyet"
+    var uid : String = "notsetyet",
+    var profilepicid : String = "default"
 )

@@ -60,11 +60,21 @@ dependencies {
     //FireStore
     implementation("com.google.firebase:firebase-firestore")
 
+
     val lifecycle_version = "2.8.7"
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
     // ViewModel utilities for Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+
+
+    // Image Loading
+    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.3")
+
+    // Appwrite
+    implementation("io.appwrite:sdk-for-android:6.0.0")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

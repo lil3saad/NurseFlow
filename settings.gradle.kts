@@ -6,9 +6,11 @@ pluginManagement {
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
             }
+
         }
         mavenCentral()
         gradlePluginPortal()
+
     }
 }
 dependencyResolutionManagement {

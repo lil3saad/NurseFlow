@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
 
-class AuthVMF(val navController: NavController) : ViewModelProvider.Factory {
+class AuthVMF(val navController: NavController , val storageuc : StorageUseCase) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(AppVM::class.java)){
-            return AppVM(navController) as T
+            return AppVM(navController , storageuc) as T
         }
         throw IllegalArgumentException("ViewModel not found ")
     }

@@ -5,28 +5,36 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nurseflowd1.domain.AuthVMF
+import com.example.nurseflowd1.domain.StorageUseCase
 import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
@@ -38,49 +46,125 @@ import com.example.nurseflowd1.screens.nurseauth.NurseRegister
 import com.example.nurseflowd1.screens.patientboarding.Paitent_Regis_Screen
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
-import com.example.nurseflowd1.ui.theme.jersery25
+import com.example.nurseflowd1.ui.theme.Headingfont
+import io.appwrite.Client
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.font.FontWeight
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
+import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
+import com.example.nurseflowd1.ui.theme.HTextClr
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
         super.onCreate(savedInstanceState)
-        //ViewModel
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
+            val factory = AuthVMF(navController , StorageUseCase(client, context = LocalContext.current))
+            val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
+                val topbarstate by viewmodel.topappbarstate.collectAsState()
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
                             title = {
-                                Row( verticalAlignment = Alignment.CenterVertically) {
-                                    Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                when(topbarstate){
+                                    TopAppBarState.AppNameBar -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
+                                    TopAppBarState.AppNameBack -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
+                                    TopAppBarState.NurseDashBoard -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "DashBoard" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp , fontWeight = FontWeight.ExtraBold,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
+                                    TopAppBarState.Profile -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "Profile" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
+                                    TopAppBarState.ShitfReport -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "Shift Reports" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
+                                    TopAppBarState.NurseNotes -> {
+                                        Row( verticalAlignment = Alignment.CenterVertically) {
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Text( "Notes" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                                        }
+                                    }
 
-                                    Text( "NurseFlow" , fontFamily = jersery25  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
-                                        modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
                                 }
-
                             },
-                            colors = TopAppBarColors(
-                                containerColor = AppBg ,
-                                scrolledContainerColor = Color.Black,
-                                navigationIconContentColor = Color.Black,
-                                titleContentColor = Color.Black,
-                                actionIconContentColor = Color.Black
-                            )
+                            colors = when(topbarstate){
+                                TopAppBarState.NurseDashBoard -> {
+                                    TopAppBarColors(
+                                        containerColor = HTextClr,
+                                        scrolledContainerColor = Color.Black,
+                                        navigationIconContentColor = Color.Black,
+                                        titleContentColor = Color.Black,
+                                        actionIconContentColor = Color.Black
+                                    )
+                                }
+                                else -> {
+                                    TopAppBarColors(
+                                        containerColor = AppBg,
+                                        scrolledContainerColor = Color.Black,
+                                        navigationIconContentColor = Color.Black,
+                                        titleContentColor = Color.Black,
+                                        actionIconContentColor = Color.Black
+                                    )
+                                }
+                            }
+                            ,
+                            navigationIcon = {
+                                when(topbarstate){
+                                    TopAppBarState.AppNameBack -> {
+                                        Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "NavigationIcon",
+                                            modifier = Modifier.padding(start = 4.dp , end = 12.dp, top = 12.dp)
+                                                .size( (Screenwidth * 0.08).dp )
+                                                .clickable{ navController.popBackStack() },
+                                            tint = Color.White
+                                        )
+                                    }
+                                    else -> Unit
+                                }
+                            }
+
                         )
                     }
                 ){ innerPadding ->
-                    NavigationStack(modifier = Modifier.padding(innerPadding))
+                    NavigationStack(modifier = Modifier.padding(innerPadding) , navController , viewmodel)
                 }
             }
         }
     }
     @Composable
-    fun NavigationStack(modifier: Modifier = Modifier){
-        val navController = rememberNavController()
-        val factory = AuthVMF(navController)
-        val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
+    fun NavigationStack(modifier: Modifier = Modifier , navController: NavHostController , viewmodel : AppVM){
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){
                 LoginScreen(modifier, navController , viewmodel)
@@ -106,6 +190,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Destinations.PatientRegisterScreen.ref){
                 Paitent_Regis_Screen( modifier ,  navController , viewmodel)
+            }
+            composable( route = Destinations.ShiftReportScreen.ref){
+                ShiftReportPage(modifier , navController, viewmodel)
+            }
+            composable( route = Destinations.NurseNotes.ref){
+                NurseNotesPage(modifier , navController, viewmodel)
             }
 
         }
