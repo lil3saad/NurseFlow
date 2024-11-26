@@ -69,10 +69,10 @@ import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
 import com.example.nurseflowd1.ui.theme.SecClr
-import com.example.nurseflowd1.ui.theme.bottombar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 // NURSE DASHBOARD
@@ -155,23 +155,25 @@ fun TopPanel() {
 
     val ScreenHeight = LocalConfiguration.current.screenHeightDp  ;
     val toppanelshape = RoundedCornerShape(bottomEnd = 45.dp , bottomStart = 45.dp)
-    Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f).background(HTextClr , shape = toppanelshape).padding(vertical = 10.dp, horizontal = 20.dp)
+    Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f).background(panelcolor, shape = toppanelshape).padding(vertical = 10.dp, horizontal = 20.dp)
     ){
 
         Card( colors = CardDefaults.cardColors(
-            containerColor = Color.Black.copy(0.09f)
+            containerColor = Color.Black.copy(0.05f)
         )){
             Column(modifier = Modifier.fillMaxWidth().padding(12.dp)
             ){
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Total paitents" , fontSize = 30.sp , fontFamily = Bodyfont)
-                    Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier.size((ScreenHeight * 0.04).dp ))
+                    Text("Total paitents" , fontSize = 30.sp , fontFamily = Bodyfont , color = Color.White)
+                    Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier.size((ScreenHeight * 0.04).dp ) ,
+                         tint =Color.White
+                        )
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(start = 22.dp)
                 ){
-                    Text("45" , fontSize = 75.sp , fontFamily = Headingfont)
+                    Text("45" , fontSize = 75.sp , fontFamily = Headingfont , color = Color.White)
                 }
             }
         }
@@ -180,7 +182,7 @@ fun TopPanel() {
             verticalAlignment = Alignment.CenterVertically){
             Button( onClick = {},
                 colors = ButtonColors(
-                    containerColor = Color.Red.copy(alpha = 0.22f),
+                    containerColor = Color.Red.copy(alpha = 0.12f),
                     contentColor = Color.Black ,
                     disabledContentColor = Color.White.copy(alpha = 0.22f),
                     disabledContainerColor = Color.White.copy(alpha = 0.22f)
@@ -209,7 +211,8 @@ fun TopPanel() {
 fun PaitentCard(patient : CardPatient ){
     @Composable
     fun ScreenHeight(k : Double) : Double = (LocalConfiguration.current.screenHeightDp * k)
-    Card(Modifier.padding( bottom = ScreenHeight(0.02).dp ) .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
+    Card(Modifier.padding( bottom = ScreenHeight(0.02).dp )
+        .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
     ){
         ConstraintLayout(modifier = Modifier.height( ScreenHeight(0.16).dp ).width( ScreenHeight(0.9).dp )
             .background(SecClr)
@@ -225,7 +228,6 @@ fun PaitentCard(patient : CardPatient ){
                     }
             ){
                 Image(  painter = painterResource(R.drawable.hospitalisation) , contentDescription = "")
-
             }
 
             Column( verticalArrangement = Arrangement.SpaceEvenly ,
@@ -258,13 +260,15 @@ fun PaitentCard(patient : CardPatient ){
                         bottom.linkTo(parent.bottom , margin = 13.dp)
                     }
             ){
-                Image(  painter = painterResource(R.drawable.dashboard) , contentDescription = "" ,
-                    modifier = Modifier.size(50.dp))
+                Icon(  painter = painterResource(R.drawable.dashboard) , contentDescription = "" ,
+                    modifier = Modifier.size(50.dp),
+                    tint = HTextClr
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Ward no")
-                    Text("101")
+                    Text("Ward no" ,color = Color.White)
+                    Text("101" , color = Color.White)
                 }
             }
         }
@@ -285,7 +289,7 @@ fun BottomNavBar(navController: NavController = rememberNavController() , barSta
 
                   val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                  Box(modifier = Modifier.background(color = bottombar, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
                       .constrainAs(btmbar) {
                           start.linkTo(parent.start)
                           end.linkTo(parent.end)
@@ -409,7 +413,7 @@ fun BottomNavBar(navController: NavController = rememberNavController() , barSta
 
                   val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                  Box(modifier = Modifier.background(color = bottombar, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
                       .constrainAs(btmbar) {
                           start.linkTo(parent.start)
                           end.linkTo(parent.end)
@@ -539,7 +543,7 @@ fun BottomNavBar(navController: NavController = rememberNavController() , barSta
 
                   val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                  Box(modifier = Modifier.background(color = bottombar, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
                       .constrainAs(btmbar) {
                           start.linkTo(parent.start)
                           end.linkTo(parent.end)
@@ -672,7 +676,7 @@ fun BottomNavBar(navController: NavController = rememberNavController() , barSta
 
                   val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                  Box(modifier = Modifier.background(color = bottombar, shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                  Box(modifier = Modifier.background(color = SecClr , shape = btmbarshpae).border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
                       .constrainAs(btmbar) {
                           start.linkTo(parent.start)
                           end.linkTo(parent.end)

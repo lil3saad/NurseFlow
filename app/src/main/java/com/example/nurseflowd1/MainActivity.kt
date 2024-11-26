@@ -55,6 +55,7 @@ import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
 import com.example.nurseflowd1.ui.theme.HTextClr
+import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 class MainActivity : ComponentActivity() {
@@ -123,7 +124,7 @@ class MainActivity : ComponentActivity() {
                             colors = when(topbarstate){
                                 TopAppBarState.NurseDashBoard -> {
                                     TopAppBarColors(
-                                        containerColor = HTextClr,
+                                        containerColor = panelcolor,
                                         scrolledContainerColor = Color.Black,
                                         navigationIconContentColor = Color.Black,
                                         titleContentColor = Color.Black,
