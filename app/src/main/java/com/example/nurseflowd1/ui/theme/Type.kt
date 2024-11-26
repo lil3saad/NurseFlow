@@ -34,12 +34,21 @@ val Typography = Typography(
     )
     */
 )
-val jersery25 = FontFamily (
+val Headingfont = FontFamily (
     listOf(
-        Font(R.font.jersery25 , weight = FontWeight.Normal),
-        Font(R.font.jersery25 , weight = FontWeight.Bold),
-        Font(R.font.jersery25 , weight = FontWeight.Thin),
-        Font(R.font.jersery25 , weight = FontWeight.Medium),
-        Font(R.font.jersery25 , weight = FontWeight.ExtraBold)
+        Font( R.font.generalsans , weight = FontWeight.Normal),
+        Font(R.font.generalsans, weight = FontWeight.Bold),
+        Font(R.font.generalsans , weight = FontWeight.Thin),
+        Font(R.font.generalsans, weight = FontWeight.Medium),
+        Font(R.font.generalsans, weight = FontWeight.ExtraBold)
+    )
+)
+val Bodyfont  = FontFamily (
+    listOf(
+        Font( R.font.nunito , weight = FontWeight.Normal),
+        Font(R.font.nunito , weight = FontWeight.Bold),
+        Font(R.font.nunito , weight = FontWeight.Thin),
+        Font(R.font.nunito, weight = FontWeight.Medium),
+        Font(R.font.nunito, weight = FontWeight.ExtraBold)
     )
 )

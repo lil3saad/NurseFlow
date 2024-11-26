@@ -38,16 +38,19 @@ import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
-import com.example.nurseflowd1.ui.theme.jersery25
+import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
+import com.example.nurseflowd1.screens.TopAppBarState
 
 
 @Composable
 fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , viewmodel : AppVM){
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
+
+    viewmodel.SetTopBarState(TopAppBarState.AppNameBack)
 
     var user_name  = remember { mutableStateOf("") } ; var username_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var user_surname  = remember { mutableStateOf("") } ; var usersurname_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -66,6 +69,7 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
+
 
             SingupFeilds(
                 label = "FirstName",
@@ -160,7 +164,7 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
                 modifier = Modifier.padding(top = ScreenWidth (0.04).dp ).size(width = ScreenWidth(0.50).dp , height = ScreenWidth(0.11) .dp)
             ) {
-                Text("Finish" , fontFamily = jersery25 , fontWeight = FontWeight.Bold , fontSize = ScreenWidth (0.05).sp)
+                Text("Finish" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = ScreenWidth (0.05).sp)
             }
         }
 

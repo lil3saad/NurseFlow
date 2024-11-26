@@ -33,7 +33,7 @@ import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.nurseauth.SingupFeilds
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
-import com.example.nurseflowd1.ui.theme.jersery25
+import com.example.nurseflowd1.ui.theme.Headingfont
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.screens.nurseauth.SignupFeildsSecond
 import com.example.nurseflowd1.screens.nurseauth.SupportTextState
@@ -176,7 +176,7 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
                 modifier = Modifier.padding(top = ScreenWidth (0.04).dp ).size(width = ScreenWidth(0.50).dp , height = ScreenWidth(0.11) .dp)
             ){
-                Text("Continue -->" , fontFamily = jersery25 , fontWeight = FontWeight.Bold , fontSize = ScreenWidth (0.05).sp)
+                Text("Continue -->" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = ScreenWidth (0.05).sp)
             }
         }
 

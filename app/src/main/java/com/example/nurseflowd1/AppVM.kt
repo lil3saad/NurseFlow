@@ -3,14 +3,15 @@ package com.example.nurseflowd1
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.StorageUseCase
+import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
@@ -24,8 +25,6 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -280,9 +279,10 @@ class AppVM( private val navController: NavController,
 
                 val NursePatients = "n_patients"
                 val p_medicines = "medicines"
-                val p_notes = "notes"
-                val p_reports = "p_reports"
-                val patientdoc = hashMapOf("patient_info" to pinfo)
+
+                val patientdoc = hashMapOf("patient_info" to pinfo ,
+                        "IsCritical" to false
+                )
 
                 fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
                     viewModelScope.launch {
@@ -299,7 +299,6 @@ class AppVM( private val navController: NavController,
                                 callback(false) // Treat failure as non-existent
                             }
                     }
-
                 PatientExists(pinfo.p_patientid) { exists ->
                     if (exists) {
                         _Addpatientstate.value =
@@ -320,8 +319,6 @@ class AppVM( private val navController: NavController,
                                 )
                                 // Creating subcollections for the patient
                                 PatientDocRef.collection(p_medicines).add("test" to 1)
-                                PatientDocRef.collection(p_notes).add("test" to 1)
-                                PatientDocRef.collection(p_reports).add("test" to 1)
                                 _Addpatientstate.value = AddPatientState.idle
                                 navController.popBackStack(
                                     route = Destinations.NurseDboardScreen.ref,
@@ -384,6 +381,7 @@ class AppVM( private val navController: NavController,
                 try {
                     Log.d("TAGY", "Updated  NurseDoc with ${_NurseRegisinfo.profilepicid }!VM:UpdateNurseProfile")
                     firestoredb.collection("Nurses").document(nursedocid).set(_NurseRegisinfo).await()
+                    _NurseProfileState.value = NurseProfileState.UpdateDone
                     navController.popBackStack()
                     Log.d("TAGY", "the Document should be Updated !VM:UpdateNurseProfile")
 
@@ -467,6 +465,23 @@ class AppVM( private val navController: NavController,
             }
             else -> Unit
         }
+    }
+
+
+    // OTHERS
+    private  var _topappbarstate : MutableStateFlow<TopAppBarState> = MutableStateFlow(TopAppBarState.AppNameBar)
+    val topappbarstate : StateFlow<TopAppBarState> = _topappbarstate.asStateFlow()
+
+    fun SetTopBarState(barstate : TopAppBarState) = viewModelScope.launch{
+        _topappbarstate.value = barstate
+    }
+
+    private  var _bottombarstate : MutableStateFlow<BottomBarState> = MutableStateFlow(
+        BottomBarState.NurseDashBoard)
+    val bottombarstate : StateFlow<BottomBarState> = _bottombarstate.asStateFlow()
+
+    fun SetBottomBarState(barstate : BottomBarState) = viewModelScope.launch{
+        _bottombarstate.value = barstate
     }
 
 
