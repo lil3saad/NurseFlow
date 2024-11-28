@@ -6,7 +6,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.datamodels.NurseInfo
+import com.example.nurseflowd1.datamodels.PatientVitals
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.StorageUseCase
 import com.example.nurseflowd1.screens.BottomBarState
@@ -15,7 +17,7 @@ import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
-import com.example.nurseflowd1.screens.nurseauth.PatientListState
+import com.example.nurseflowd1.screens.nurseauth.CardPatientListState
 import com.example.nurseflowd1.screens.patientboarding.AddPatientState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -23,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.HashMap
+import kotlin.Boolean
 import kotlin.collections.get
 
 class AppVM( private val navController: NavController,
@@ -144,8 +146,8 @@ class AppVM( private val navController: NavController,
     private var _NurseDocId: MutableStateFlow<NurseDocIdState> = MutableStateFlow(NurseDocIdState.idle)
     var NurseDocId: StateFlow<NurseDocIdState> = _NurseDocId
 
-    private var _patientinfolist = MutableStateFlow<PatientListState>(PatientListState.emptylist)
-    val paitientinfolist: StateFlow<PatientListState> = _patientinfolist
+    private var _patientinfolist = MutableStateFlow<CardPatientListState>(CardPatientListState.emptylist)
+    val paitientinfolist: StateFlow<CardPatientListState> = _patientinfolist
 
     fun GetNurseDocId() {
         val uid = currentuser?.uid
@@ -176,7 +178,7 @@ class AppVM( private val navController: NavController,
     //Fetch the PatientInfo Object  Field  from FireStore // Function should be called only after receiving the NurseDocID
     fun FetchP_InfoList() {
         Log.d("TAGY" , "FETCH FUNCTION BEING CALLED")
-        _patientinfolist.value = PatientListState.Loadinglist
+        _patientinfolist.value = CardPatientListState.Loadinglist
         when (_NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
@@ -188,32 +190,36 @@ class AppVM( private val navController: NavController,
                             .addOnSuccessListener { documents ->
                                 if (!documents.isEmpty) {
                                     try {
-                                        val patientList = mutableListOf<PatientInfo>()
+                                        val patientList = mutableListOf<CardPatient>()
                                         for (doc in documents) {
                                             Log.d("TAGY", "Fetched Patient Full Doc :  $doc")
 
-                                            val result = doc.get("patient_info") as HashMap<*, *>
-                                            val name = result["p_name"] as String
-                                            val surname = result["p_surename"] as String
-                                            val age = result["p_age"] as Long
-                                            val docname = result["p_doctor"] as String
-                                            val gender = result["p_gender"] as String
-                                            val patientid = result["p_patientid"] as String
-                                            val phoneno = result["p_phoneno"] as String
+                                            val resultp_info = doc.get("patient_info") as HashMap<*, *>
 
-                                            val receivedpinfo = PatientInfo(
-                                                p_name = name,
-                                                p_surename = surname,
-                                                p_age = age.toInt(),
-                                                p_doctor = docname,
-                                                p_gender = gender,
-                                                p_patientid = patientid,
-                                                p_phoneno = phoneno
+                                            val name = resultp_info["p_name"] as String
+                                            val surname = resultp_info["p_surename"] as String
+                                            val docname = resultp_info["p_doctor"] as String
+                                            val age = resultp_info["p_age"] as Long
+                                            val gender = resultp_info["p_gender"] as String
+
+                                            val resultwardno = doc.get("wardno") as String
+                                            val resultcondition = doc.get("condition") as String
+                                            val resultiscritical = doc.get("IsCritical") as Boolean
+
+
+                                            val patientinfo = CardPatient(name = "$name $surname",
+                                                doctorname = docname,
+                                                age = age.toString(),
+                                                gender = gender,
+                                                wardno = resultwardno,
+                                                conditon = resultcondition,
+                                                iscritical = resultiscritical
                                             )
-                                            patientList.add(receivedpinfo)
+
+                                            patientList.add(patientinfo)
                                         }
                                         _patientinfolist.value =
-                                            PatientListState.PatientsReceived(patientList) // Update the StateFlow at Once
+                                            CardPatientListState.PatientsReceived(patientList) // Update the StateFlow at Once
                                     } catch (e: FirebaseFirestoreException) {
                                         Log.d(
                                             "TAGY",
@@ -222,15 +228,15 @@ class AppVM( private val navController: NavController,
                                     }
 
                                 } else {
-                                    _patientinfolist.value = PatientListState.emptylist
+                                    _patientinfolist.value = CardPatientListState.emptylist
                                     Log.d("TAGY", "No patients found")
                                 }
                             }.addOnFailureListener { e ->
-                                _patientinfolist.value = PatientListState.emptylist
+                                _patientinfolist.value = CardPatientListState.emptylist
                                 Log.e("TAGY", "Failed to fetch patients", e)
                             }
                     } else {
-                        _patientinfolist.value = PatientListState.emptylist
+                        _patientinfolist.value = CardPatientListState.emptylist
                     }
                 }
             }
@@ -269,7 +275,18 @@ class AppVM( private val navController: NavController,
     var addPatientState: StateFlow<AddPatientState> = _Addpatientstate
 
     //Save PatientInfo + _Pvitals and put in the Patients Collection with there own doc
-    fun SavePatientInfoFirestore(pinfo: PatientInfo) = viewModelScope.launch {
+    var PatientInfo = PatientInfo()
+    fun SavePatientInfo(pinfo : PatientInfo) {
+        PatientInfo.p_patientid = pinfo.p_patientid
+        PatientInfo.p_name = pinfo.p_name
+        PatientInfo.p_surename = pinfo.p_surename
+        PatientInfo.p_doctor = pinfo.p_doctor
+        PatientInfo.p_gender = pinfo.p_gender
+        PatientInfo.p_age = pinfo.p_age
+        PatientInfo.p_phoneno = pinfo.p_phoneno
+    }
+
+    fun SavePatientInfoFirestore(pinfo: PatientInfo, pvitals : PatientVitals) = viewModelScope.launch {
         _Addpatientstate.value = AddPatientState.AddingPatient
         when (_NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
@@ -280,8 +297,16 @@ class AppVM( private val navController: NavController,
                 val NursePatients = "n_patients"
                 val p_medicines = "medicines"
 
-                val patientdoc = hashMapOf("patient_info" to pinfo ,
-                        "IsCritical" to false
+                val patientdoc = hashMapOf(
+                    "wardno" to pvitals.wardno ,
+                "condition"  to pvitals.condition,
+                 "temp" to pvitals.temp , 
+                 "heartreate" to pvitals.heartreate , 
+                 "bloodpressure" to pvitals.bloodpressure,
+                 "oxygenlevel" to pvitals.oxygenlevel,
+                 "respiratoryrate" to pvitals.respiratoryrate ,
+                    "IsCritical" to pvitals.iscritical,
+                    "patient_info" to pinfo
                 )
 
                 fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
@@ -307,9 +332,9 @@ class AppVM( private val navController: NavController,
                             "TAGY",
                             "Patient with this ID already exists , Can't Create New Paitent with same Id "
                         )
-                    } else {
-                        val PatientDocRef = NurseDocRef.collection(NursePatients)
-                            .document(pinfo.p_patientid) // Doc with Patient_Id Gets Created
+                    }
+                    else {
+                        val PatientDocRef = NurseDocRef.collection(NursePatients).document(pinfo.p_patientid) // Doc with Patient_Id Gets Created
                         // Store patient info as an object
                         PatientDocRef.set(patientdoc)
                             .addOnCompleteListener { document ->

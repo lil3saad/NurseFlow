@@ -1,12 +1,12 @@
 package com.example.nurseflowd1.screens.nurseauth
 
-import android.text.InputFilter
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,34 +24,36 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -69,9 +71,12 @@ import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
 import com.example.nurseflowd1.ui.theme.SecClr
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.nurseflowd1.ui.theme.panelcolor
 
 
@@ -117,23 +122,27 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         verticalArrangement = Arrangement.SpaceBetween
     ){
 
-        TopPanel()
+        val displaycriticallist : MutableState<Boolean> = remember { mutableStateOf(false) }
+        val serachtext  : MutableState<String> = remember { mutableStateOf("") }
+        TopPanel(displaycriticallist , serachtext)
         LazyColumn(modifier = Modifier.padding(top = (ScreenHeight * 0.02).dp).fillMaxWidth(0.9f).fillMaxHeight(0.84f)) {
             when (patientliststate) {
-                is PatientListState.emptylist ->{ item { Text("No patients available. Please add patients.") } }
-                is PatientListState.PatientsReceived -> {
-                    val patientList = (patientliststate as PatientListState.PatientsReceived).patientlist
-                    items(patientList) { patient ->
-                        val cardPatient = CardPatient(
-                            name = "${patient.p_name} ${patient.p_surename}",
-                            gender = patient.p_gender,
-                            age = patient.p_age.toString(),
-                            conditon = patient.p_doctor,
-                        )
-                        PaitentCard(cardPatient)
+                is CardPatientListState.emptylist ->{ item { Text("No patients available. Please add patients.") } }
+                is CardPatientListState.PatientsReceived -> {
+                    val patientList = (patientliststate as CardPatientListState.PatientsReceived).patientlist
+
+
+                    items(patientList) {
+                        patient ->
+                        if(displaycriticallist.value == true){
+                            Log.d("TAGY" , "${patient.iscritical}")
+                            if(patient.iscritical == true) PaitentCard(patient)
+                        }else PaitentCard(patient)
+
+
                     }
                 }
-                is  PatientListState.Loadinglist -> { item{
+                is  CardPatientListState.Loadinglist -> { item{
                         Box(modifier = modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
@@ -151,64 +160,90 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 }
 
 @Composable
-fun TopPanel() {
+fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String>) {
 
+    val softwarekeybaord = LocalSoftwareKeyboardController.current!!
     val ScreenHeight = LocalConfiguration.current.screenHeightDp  ;
     val toppanelshape = RoundedCornerShape(bottomEnd = 45.dp , bottomStart = 45.dp)
     Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f).background(panelcolor, shape = toppanelshape).padding(vertical = 10.dp, horizontal = 20.dp)
     ){
 
         Card( colors = CardDefaults.cardColors(
-            containerColor = Color.Black.copy(0.05f)
+            containerColor = Color.Transparent
         )){
             Column(modifier = Modifier.fillMaxWidth().padding(12.dp)
             ){
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Total paitents" , fontSize = 30.sp , fontFamily = Bodyfont , color = Color.White)
-                    Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier.size((ScreenHeight * 0.04).dp ) ,
-                         tint =Color.White
-                        )
-                }
-                Row(modifier = Modifier.fillMaxWidth().padding(start = 22.dp)
-                ){
+                Text("Total paitents" , fontSize = 30.sp , fontFamily = Bodyfont , color = Color.White)
+                Row(modifier = Modifier.fillMaxWidth() ,
+                    horizontalArrangement = Arrangement.SpaceBetween ,
+                    verticalAlignment = Alignment.Bottom){
+
                     Text("45" , fontSize = 75.sp , fontFamily = Headingfont , color = Color.White)
+                    Button( onClick = {
+                        if(criticaliststate.value != true){
+                            criticaliststate.value = true
+                        }else criticaliststate.value = false
+
+                    },
+                        colors = ButtonColors(
+                            containerColor = Color.Red.copy(alpha = 0.12f),
+                            contentColor = Color.Black ,
+                            disabledContentColor = Color.White.copy(alpha = 0.22f),
+                            disabledContainerColor = Color.White.copy(alpha = 0.22f)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp , vertical = 2.dp )
+                    ){
+                        Row(horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically ,
+                            modifier = Modifier
+                        ) {
+                            Text("Critical" , fontSize = 20.sp , fontFamily = Bodyfont , color = Color.White)
+                            Spacer(modifier = Modifier.size( (ScreenHeight * 0.009).dp ) )
+                            Box(modifier = Modifier.background(color = Color.Red , shape = CircleShape ).size(12.dp)){}
+                        }
+
+                    }
                 }
             }
         }
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp) ,
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically){
-            Button( onClick = {},
-                colors = ButtonColors(
-                    containerColor = Color.Red.copy(alpha = 0.12f),
-                    contentColor = Color.Black ,
-                    disabledContentColor = Color.White.copy(alpha = 0.22f),
-                    disabledContainerColor = Color.White.copy(alpha = 0.22f)
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            TextField( value = Searchtext.value ,
+                onValueChange = { usertext -> Searchtext.value = usertext },
+                modifier = Modifier.fillMaxWidth()
+                    .size( (ScreenHeight * 0.05).dp ),
+                placeholder = { Text("Search patient" , color = Color.White.copy(alpha = 0.5f)) } ,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Black.copy(alpha = 0.22f),
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
+                    focusedIndicatorColor = Color.Transparent,
                 ),
-                contentPadding = PaddingValues(horizontal = 12.dp , vertical = 2.dp )
-            ){
-                Row(horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically ,
-                    modifier = Modifier
-                ) {
-                    Text("Critical" , fontSize = 20.sp , fontFamily = Bodyfont , color = Color.White)
-                    Spacer(modifier = Modifier.size( (ScreenHeight * 0.009).dp ) )
-                    Box(modifier = Modifier.background(color = Color.Red , shape = CircleShape ).size(12.dp)){}
-                }
+                trailingIcon = {
+                    Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size((ScreenHeight * 0.04).dp ) ,
+                        tint =Color.White)
+                },
+                shape =  RoundedCornerShape(45.dp),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Unspecified,
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        softwarekeybaord.hide()
+                    }
+                )
+            )
 
-            }
-            Spacer(modifier = Modifier.size( (ScreenHeight * 0.012).dp ) )
-            Icon( imageVector = Icons.Default.Edit , contentDescription = "Edit Paitent list" , Modifier.size((ScreenHeight * 0.028).dp ))
         }
-
-
     }
 }
-
 @Composable
-fun PaitentCard(patient : CardPatient ){
+fun PaitentCard(patient : CardPatient){
     @Composable
     fun ScreenHeight(k : Double) : Double = (LocalConfiguration.current.screenHeightDp * k)
     Card(Modifier.padding( bottom = ScreenHeight(0.02).dp )
@@ -227,7 +262,7 @@ fun PaitentCard(patient : CardPatient ){
                         top.linkTo(parent.top)
                     }
             ){
-                Image(  painter = painterResource(R.drawable.hospitalisation) , contentDescription = "")
+                Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture")
             }
 
             Column( verticalArrangement = Arrangement.SpaceEvenly ,
@@ -240,7 +275,7 @@ fun PaitentCard(patient : CardPatient ){
                     }
             ){
                 Text( "Name : ${patient.name}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , color = Color.White  )
-                Text( "Doctor name : ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Doctor name : ${patient.doctorname}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
                 Text( "Conditon: ${patient.conditon}" , style = TextStyle( fontSize = ScreenHeight(0.022).sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
 
                 Row( horizontalArrangement = Arrangement.spacedBy( ScreenHeight(0.022).dp ) ,
@@ -260,23 +295,22 @@ fun PaitentCard(patient : CardPatient ){
                         bottom.linkTo(parent.bottom , margin = 13.dp)
                     }
             ){
-                Icon(  painter = painterResource(R.drawable.dashboard) , contentDescription = "" ,
-                    modifier = Modifier.size(50.dp),
-                    tint = HTextClr
+
+                Icon( imageVector = ImageVector.vectorResource(R.drawable.dashboard),
+                    contentDescription = "DashboardIcon",
+                    tint = HTextClr,
+                    modifier = Modifier.size( ScreenHeight(0.04).dp )
                 )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Ward no" ,color = Color.White)
-                    Text("101" , color = Color.White)
+                    Text(patient.wardno, color = Color.White)
                 }
             }
         }
     }
 }
-
-
-
 @Composable
 fun BottomNavBar(navController: NavController = rememberNavController() , barState: TopAppBarState) {
     val ScreenHeight = LocalConfiguration.current.screenHeightDp

@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
+import com.example.nurseflowd1.screens.patientboarding.AddVitalsScreen
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.panelcolor
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                                 when(topbarstate){
                                     TopAppBarState.AppNameBar -> {
                                         Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Icon( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
                                             Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
                                                 modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
                                         }
@@ -198,6 +199,10 @@ class MainActivity : ComponentActivity() {
             composable( route = Destinations.NurseNotes.ref){
                 NurseNotesPage(modifier , navController, viewmodel)
             }
+            composable(route = Destinations.PatientVitalsScreen.ref){
+                AddVitalsScreen(modifier,navController,viewmodel)
+            }
+
 
         }
     }

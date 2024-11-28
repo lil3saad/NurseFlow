@@ -39,8 +39,10 @@ import com.example.nurseflowd1.screens.nurseauth.SignupFeildsSecond
 import com.example.nurseflowd1.screens.nurseauth.SupportTextState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.DefaultStrokeLineCap
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.example.nurseflowd1.screens.Destinations
 
 
 @Composable
@@ -161,13 +163,16 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
 
                 if(NotEmptyFeilds()){
                     try {
+                        // Store These in ViewModel
                         val patientinfo = PatientInfo(
                             p_name =  user_name.value, p_surename = user_surname.value ,
                             p_phoneno = phoneno.value,
                             p_patientid = patient_id.value ,
                             p_doctor = doctorname.value , p_age = age.value.toInt() , p_gender = gender.value
                         )
-                        viewmodel.SavePatientInfoFirestore(patientinfo)
+                        viewmodel.SavePatientInfo(patientinfo)
+                        navcontroller.navigate( route = Destinations.PatientVitalsScreen.ref)
+                    // Save a Copy of User Entered Patient Info in View Model
                     }catch (e : Exception){
                         errormessage = "Age can only have numbers"
                     }

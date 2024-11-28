@@ -13,6 +13,7 @@ sealed class Destinations(val ref : String) {
 
     object NurseDboardScreen : Destinations("nursedb")
     object PatientRegisterScreen : Destinations("patientinfo")
+    object PatientVitalsScreen : Destinations("patientvitals")
 
     object ShiftReportScreen : Destinations("ShiftReport")
     object NurseNotes : Destinations("NurseNotes")

@@ -50,8 +50,10 @@ import com.example.nurseflowd1.datamodels.NurseInfo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
@@ -72,7 +74,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
 
     @Composable
     fun DisplayTextFeild(text : String , label : String){
-        Text( text = text , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.03).sp),
+        Text( text = text , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.025).sp),
             modifier = Modifier
                 .border(
                     0.5.dp,
@@ -85,7 +87,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
         )
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End){
-            Text( text = label , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp), textAlign = TextAlign.End,
+            Text( text = label , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp), textAlign = TextAlign.End,
                 modifier = Modifier.width(ScreenHeight(0.30).dp)
             )
         }
@@ -138,16 +140,14 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
 
                 val profilepicstate by viewmodel.profilepiucstate.collectAsState()
                 when(val state = profilepicstate){
-                    ProfilePictureState.default -> { Image(
-                        bitmap = BitmapFactory.decodeResource(context.resources , R.drawable.profilepicture).asImageBitmap(),
+                    ProfilePictureState.default -> {
+                        Image(imageVector = ImageVector.vectorResource(R.drawable.profilepicture),
                         contentDescription = "Profile Picture",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(200.dp)
-                            .clip(CircleShape)
-                    )
+                            .clip(CircleShape))
                     } // Let ProfileImage Stay Default
                     ProfilePictureState.Added -> viewmodel.getProfilePicState()
-
                     is ProfilePictureState.Fetched -> {
                         Image(
                             bitmap =  state.image.asImageBitmap(),
@@ -164,8 +164,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                         )
                     }
                     else -> {
-                        Image(
-                            bitmap = BitmapFactory.decodeResource(context.resources , R.drawable.profilepicture).asImageBitmap(),
+                        Image(imageVector = ImageVector.vectorResource(R.drawable.profilepicture),
                             contentDescription = "Profile Picture",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.size(200.dp)
@@ -220,11 +219,11 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                     horizontalArrangement = Arrangement.spacedBy(25.dp)){
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text( text = "Gender : " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp) , color = HTextClr)
-                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.03).sp))
+                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text( text = "Age : " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp) , color = HTextClr)
-                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.03).sp))
+                        Text( text = "Age : " , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp) , color = HTextClr)
+                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp))
                     }
                 }
             }
