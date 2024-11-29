@@ -25,6 +25,5 @@ fun ShiftReportPage(modifier: Modifier , navController: NavController ,viewmodel
     ) {
         Text("THIS IS SHIFTREPORT PAGE")
         val barstate by viewmodel.topappbarstate.collectAsState()
-        BottomNavBar(navController,barstate)
     }
 }

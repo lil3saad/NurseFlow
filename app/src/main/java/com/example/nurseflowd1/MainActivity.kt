@@ -1,15 +1,18 @@
 package com.example.nurseflowd1
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,7 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nurseflowd1.domain.AuthVMF
-import com.example.nurseflowd1.domain.StorageUseCase
+import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
 import com.example.nurseflowd1.screens.accountmanage.AccountScreen
 import com.example.nurseflowd1.screens.nurseauth.AuthScreen
 import com.example.nurseflowd1.screens.Destinations
@@ -50,36 +53,50 @@ import com.example.nurseflowd1.ui.theme.Headingfont
 import io.appwrite.Client
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.font.FontWeight
-import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.room.RoomDB
 import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
 import com.example.nurseflowd1.screens.patientboarding.AddVitalsScreen
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
-import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT // NOT WORKING
+
         val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
+
+        val patientdao  = RoomDB.invoke(this).getpatientcardDAO()
+
+        val roomuse = RoomUseCase(patientdao)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+
             val navController = rememberNavController()
-            val factory = AuthVMF(navController , StorageUseCase(client, context = LocalContext.current))
+            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roomuse)
             val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
+
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
                 val topbarstate by viewmodel.topappbarstate.collectAsState()
-                Scaffold(modifier = Modifier.fillMaxSize(),
+
+                Scaffold(modifier = Modifier.background(AppBg)
+                    .systemBarsPadding() // LOAD SCAFFOLD RESPECTING THE USER'S GESTURES / BUTTON SYSTEM BARS
+                    .fillMaxSize(),
                     topBar = {
                         TopAppBar(
                             title = {
                                 when(topbarstate){
                                     TopAppBarState.AppNameBar -> {
                                         Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Icon( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
+                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
                                             Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
                                                 modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
                                         }
@@ -120,6 +137,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
 
+                                    TopAppBarState.DoNotDisplay -> {
+                                        Unit
+                                    }
                                 }
                             },
                             colors = when(topbarstate){
@@ -158,6 +178,9 @@ class MainActivity : ComponentActivity() {
                             }
 
                         )
+                    },
+                    bottomBar = { val barstate by viewmodel.topappbarstate.collectAsState()
+                        BottomNavBar(navController , barstate)
                     }
                 ){ innerPadding ->
                     NavigationStack(modifier = Modifier.padding(innerPadding) , navController , viewmodel)

@@ -1,51 +1,45 @@
-package com.example.nurseflowd1.domain
+package com.example.nurseflowd1.domain.usecases
 
-import android.appwidget.AppWidgetHost
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.OpenableColumns
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
+import com.example.nurseflowd1.domain.AWCreds
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import io.appwrite.Client
 import io.appwrite.ID
 import io.appwrite.exceptions.AppwriteException
 import io.appwrite.models.InputFile
 import io.appwrite.services.Storage
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Arrays
 
-class StorageUseCase(val client: Client ,val context: Context) {
+class AWStorageUseCase(val client: Client, val context: Context) {
 
     val AppwriteStorage = Storage(client)
     val awcred = AWCreds()
 
     suspend fun getProfilePicture(fieldid : String) : MutableStateFlow<ProfilePictureState> {
         val profilepicstate  : MutableStateFlow<ProfilePictureState>  = MutableStateFlow(ProfilePictureState.empty)
-        android.util.Log.d("TAGY", "Fetching $fieldid from Fs")
+        Log.d("TAGY", "Fetching $fieldid from Fs")
         try {
             val fetchfile = AppwriteStorage.getFileView(
                 awcred.bucketid,
                 fieldid
             )
-            android.util.Log.d("AW", "Success fetched   file with ID $fieldid" +
+            Log.d("AW", "Success fetched   file with ID $fieldid" +
                     " ${Arrays.toString(fetchfile)}")
             //Converts ByteArray in Bitmap
             val bitmap = BitmapFactory.decodeByteArray(fetchfile, 0 , fetchfile.size)
             profilepicstate.value = ProfilePictureState.Fetched(bitmap)
         }catch (e : AppwriteException) {
-            android.util.Log.e("AW", "NO file with ID :  $fieldid ,  ${e.message}")
+            Log.e("AW", "NO file with ID :  $fieldid ,  ${e.message}")
         }
         return profilepicstate
     }
@@ -71,7 +65,7 @@ class StorageUseCase(val client: Client ,val context: Context) {
                     )
                 )
                 previousid = uploadedFile.id
-                android.util.Log.d("AW", "Success fully saved file with ID: ${uploadedFile.id}")
+                Log.d("AW", "Success fully saved file with ID: ${uploadedFile.id}")
                 // Save ProfilePicId in FB
                 val newfeild = hashMapOf( "profilepicid" to uploadedFile.id)
                 path.set(newfeild, SetOptions.merge()).await()
@@ -95,12 +89,12 @@ class StorageUseCase(val client: Client ,val context: Context) {
                         )
                     )
                     previousid = uploadedFile.id
-                    android.util.Log.d("AW", "Success fully saved file with ID: ${uploadedFile.id}")
+                    Log.d("AW", "Success fully saved file with ID: ${uploadedFile.id}")
                     val newfeild = hashMapOf( "profilepicid" to uploadedFile.id)
                     path.set(newfeild, SetOptions.merge()).await()
                     defaultstate.value = ProfilePictureState.Added
                 }catch (e: Exception) {
-                    android.util.Log.e("AW", "Appwrite error: ${e.message}")
+                    Log.e("AW", "Appwrite error: ${e.message}")
                     defaultstate.value = ProfilePictureState.failed(e.message!!)
 
                 }
@@ -110,7 +104,7 @@ class StorageUseCase(val client: Client ,val context: Context) {
             }
         }
         catch (e: Exception) {
-            android.util.Log.e("AW", "Appwrite error: ${e.message}")
+            Log.e("AW", "Appwrite error: ${e.message}")
             defaultstate.value = ProfilePictureState.failed(e.message!!)
 
         }
@@ -129,7 +123,7 @@ class StorageUseCase(val client: Client ,val context: Context) {
             defaultstate.value = ProfilePictureState.Added
         } catch (e: Exception) {
             defaultstate.value = ProfilePictureState.failed(e.message!!)
-            android.util.Log.e("AW", "Appwrite error: ${e.message}")
+            Log.e("AW", "Appwrite error: ${e.message}")
         }
       return  defaultstate
     }

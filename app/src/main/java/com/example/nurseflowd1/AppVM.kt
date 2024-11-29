@@ -10,7 +10,9 @@ import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientVitals
 import com.example.nurseflowd1.datamodels.PatientInfo
-import com.example.nurseflowd1.domain.StorageUseCase
+import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
+import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.room.PatientCardEntity
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.TopAppBarState
@@ -37,7 +39,8 @@ import kotlin.Boolean
 import kotlin.collections.get
 
 class AppVM( private val navController: NavController,
-  private val  storageuc : StorageUseCase
+  private val  storageuc : AWStorageUseCase ,
+    private val roomuc : RoomUseCase
 ) : ViewModel() {
 
     // USER AUTHENTICATION
@@ -110,7 +113,7 @@ class AppVM( private val navController: NavController,
 
 
     private var _NurseRegisinfo = NurseInfo()
-    fun SaveNurseInfo(nurse: NurseInfo) {
+    fun SaveNurseInfoInVm(nurse: NurseInfo) {
         _NurseRegisinfo.N_age = nurse.N_age
         _NurseRegisinfo.N_gender = nurse.N_gender
         _NurseRegisinfo.N_name = nurse.N_name
@@ -287,6 +290,20 @@ class AppVM( private val navController: NavController,
     }
 
     fun SavePatientInfoFirestore(pinfo: PatientInfo, pvitals : PatientVitals) = viewModelScope.launch {
+        Log.d("TAGY" , "Adding Patient To Room")
+        val roompatientcard = PatientCardEntity(
+            patientid = pinfo.p_patientid ,
+            name = pinfo.p_name,
+            condition = pvitals.condition,
+            doctorname = pinfo.p_doctor,
+            gender = pinfo.p_gender,
+            age = pinfo.p_age.toString(),
+            wardno = pvitals.wardno,
+            iscrictal = pvitals.iscritical
+        )
+        savePatientCardInRoom(roompatientcard)
+
+
         _Addpatientstate.value = AddPatientState.AddingPatient
         when (_NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
@@ -308,6 +325,7 @@ class AppVM( private val navController: NavController,
                     "IsCritical" to pvitals.iscritical,
                     "patient_info" to pinfo
                 )
+
 
                 fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
                     viewModelScope.launch {
@@ -344,6 +362,12 @@ class AppVM( private val navController: NavController,
                                 )
                                 // Creating subcollections for the patient
                                 PatientDocRef.collection(p_medicines).add("test" to 1)
+
+
+
+
+
+
                                 _Addpatientstate.value = AddPatientState.idle
                                 navController.popBackStack(
                                     route = Destinations.NurseDboardScreen.ref,
@@ -367,6 +391,7 @@ class AppVM( private val navController: NavController,
     //NurseProfile Operations
     private var _NurseProfileState: MutableStateFlow<NurseProfileState> = MutableStateFlow(NurseProfileState.Loading)
     val nurseprofilestate: MutableStateFlow<NurseProfileState> = _NurseProfileState
+
     fun FetchNurseProfile() = viewModelScope.launch {
         when (_NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
@@ -493,6 +518,10 @@ class AppVM( private val navController: NavController,
     }
 
 
+    // ROOM OPERATIONS
+    fun savePatientCardInRoom(patientCardEntity: PatientCardEntity) = viewModelScope.launch{
+        roomuc.insertPatientCard(patientCardEntity)
+    }
     // OTHERS
     private  var _topappbarstate : MutableStateFlow<TopAppBarState> = MutableStateFlow(TopAppBarState.AppNameBar)
     val topappbarstate : StateFlow<TopAppBarState> = _topappbarstate.asStateFlow()

@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -153,7 +154,7 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                                 N_hospitalname =  hospital_name.value, N_hospitalid = hospital_id.value , N_council = Council.value,
                                 N_registrationid = nurse_license_id.value , N_gender = gender.value , N_age = age.value.toInt()
                             )
-                            viewmodel.SaveNurseInfo(nurseinfo)
+                            viewmodel.SaveNurseInfoInVm(nurseinfo)
                             navController.navigate( route = Destinations.AuthScreen.ref)
                         }catch (e : Exception){
                                 errormessage = "Age can only have numbers"
@@ -205,7 +206,12 @@ fun SignupFeildsSecond( modifier: Modifier,
                     else -> Unit
                 }
             },
-            isError = iserror.value
+            isError = iserror.value,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color.White.copy(alpha = 0.55f),
+                focusedBorderColor = HTextClr
+
+            )
         )
 }
 

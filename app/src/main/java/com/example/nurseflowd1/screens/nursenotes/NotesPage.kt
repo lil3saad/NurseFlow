@@ -19,12 +19,11 @@ import com.example.nurseflowd1.ui.theme.AppBg
 @Composable
 fun NurseNotesPage(modifier: androidx.compose.ui.Modifier , navController: NavController, viewmodel : AppVM){
     viewmodel.SetTopBarState(TopAppBarState.NurseNotes)
-    Column(modifier = modifier.fillMaxSize().background(AppBg),
+    Column(modifier = modifier
+        .background(AppBg)
+        .fillMaxSize(),
         Arrangement.SpaceBetween
     ) {
         Text("THIS IS NURSE NOTES PAGE")
-
-        val barstate by viewmodel.topappbarstate.collectAsState()
-        BottomNavBar(navController,barstate)
     }
 }

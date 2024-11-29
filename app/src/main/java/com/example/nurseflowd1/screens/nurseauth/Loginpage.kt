@@ -2,6 +2,7 @@ package com.example.nurseflowd1.screens.nurseauth
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -45,15 +48,20 @@ import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.TopAppBarState
+import com.google.android.play.integrity.internal.k
 
 // NURSE LOGIN
 @Composable
-fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight : Int, placeholder : String , supportingText : MutableState<SupportTextState> ){
+fun LoginFields(label : String, textstate : MutableState<String>, placeholder : String , supportingText : MutableState<SupportTextState> ){
+
+    @Composable
+    fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
+
     // "Nurse Id" Label
     Text(label,
         color = HTextClr,
         modifier = Modifier.padding(bottom = 2.dp, start = 6.dp),
-        style = TextStyle(fontFamily = Headingfont, fontWeight = FontWeight.Thin, fontSize = (ScreenHeight * 0.03).sp  )
+        style = TextStyle(fontFamily = Headingfont, fontWeight = FontWeight.Thin, fontSize = ScreenWidth(0.07).sp  )
     )
     // Nurse Id OutlinedTextField
     val softwarekeyboard = giveKeyboard()
@@ -62,7 +70,7 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
         value = textstate.value,
         onValueChange = { input -> textstate.value = input },
         placeholder = {
-            Text(placeholder, color = Color.White.copy(alpha = 0.6f) , fontSize = (ScreenHeight * 0.02).sp)
+            Text(placeholder, color = Color.White.copy(alpha = 0.6f) , fontSize = ScreenWidth(0.055).sp )
         },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -82,6 +90,10 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
             onDone = {
                softwarekeyboard.hide()
             }
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = Color.White,
+            focusedBorderColor = HTextClr.copy(alpha = 0.75f)
         )
         // Apply the same height
     )
@@ -90,7 +102,6 @@ fun LoginFields(label : String, textstate : MutableState<String>, ScreenHeight :
 
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, viewmodel: AppVM) {
-    val ScreenHeight = LocalConfiguration.current.screenHeightDp
 
 
     viewmodel.SetTopBarState(TopAppBarState.AppNameBar)
@@ -112,38 +123,42 @@ fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, vie
             }
             else -> Unit
         }
-    LoginContent(modifier , ScreenHeight , navcontroller , viewmodel , errormessage , isloading)
+    LoginContent(modifier , navcontroller , viewmodel , errormessage , isloading)
 
 }
 
 @Composable
 fun LoginContent(modifier: Modifier,
-                 ScreenHeight: Int,
                  navcontroller : NavController,
                  viewmodel: AppVM,
                  errormessage : MutableState<String>,
                  isloading : MutableState<Boolean>
 ){
+    @Composable
+    fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
+
+
     var userin_id = remember { mutableStateOf("") } ; var supportingtext_email : MutableState<SupportTextState> = remember{ mutableStateOf(SupportTextState.ideal) }
     var userin_password = remember { mutableStateOf("") } ; var supportingtext_password : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+
 
     Column (modifier = modifier.background(AppBg).fillMaxSize().verticalScroll( rememberScrollState() ),
         verticalArrangement =  Arrangement.Center , horizontalAlignment = Alignment.CenterHorizontally
     ){
         // Login Fields
         Column(modifier = Modifier.fillMaxWidth(0.8f)){
-            LoginFields( label = "Email Id" , textstate = userin_id , ScreenHeight = ScreenHeight , "Enter your Email Id" , supportingtext_email)
-            Spacer(Modifier.size ( (ScreenHeight * 0.015).dp ) )
-            LoginFields( label = "Password" , textstate = userin_password , ScreenHeight = ScreenHeight , "Enter your password" , supportingtext_password)
+            LoginFields( label = "Email Id" , textstate = userin_id  , "Enter your Email Id" , supportingtext_email)
+            Spacer(Modifier.size ( ScreenWidth(0.025).dp ) )
+            LoginFields( label = "Password" , textstate = userin_password ,  "Enter your password" , supportingtext_password)
         }
         // Login / Signup Button
 
         Column( modifier = Modifier.fillMaxWidth(0.8f), horizontalAlignment = Alignment.CenterHorizontally){
             if (errormessage.value.isNotBlank()) {
                 Text( text = errormessage.value,
-                    style = TextStyle(fontSize = (ScreenHeight * 0.018).sp),
+                    style = TextStyle(fontSize = ScreenWidth(0.07).sp ),
                     color = Color.Red.copy(alpha = 0.8f),
-                    modifier = Modifier.width( ( ScreenHeight * 0.3).dp )
+                    modifier = Modifier.width( ScreenWidth(0.1).dp )
                 )
             }
             if(isloading.value){
@@ -169,24 +184,28 @@ fun LoginContent(modifier: Modifier,
                 }
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
-                modifier = Modifier.padding(top = (ScreenHeight * 0.02).dp )
-                    .size(width = (ScreenHeight * 0.15).dp , height = (ScreenHeight * 0.05) .dp),
+                modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
+                    .size(width = ScreenWidth(0.3).dp  , height =  ScreenWidth(0.1).dp  ),
                 contentPadding = PaddingValues(0.dp)
             ){
-                Text("Login" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.03).sp)
+                Text("Login" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = ScreenWidth(0.07).sp)
             }
 
 
             // Signup Row
-            Row(verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Absolute.Center ,  modifier = Modifier.fillMaxWidth().padding(top = (ScreenHeight * 0.01).dp)
+            Row(verticalAlignment = Alignment.CenterVertically ,
+                horizontalArrangement = Arrangement.Absolute.Center ,
+                modifier = Modifier.fillMaxWidth().padding(top =ScreenWidth(0.1).dp )
             ){
 
                 Text( "Have not singed up at NurseFlow yet?" , color = Color.White ,
                     softWrap = true,
-                    modifier = Modifier.padding( end = (ScreenHeight * 0.001).dp )
-                        .width( (ScreenHeight * 0.2).dp ),
-                    fontSize = (ScreenHeight * 0.02).sp,
-                    lineHeight = (ScreenHeight * 0.02).sp
+                    modifier = Modifier
+                        .padding( end = ScreenWidth(0.02).dp )
+                        .width( ScreenWidth(0.5).dp )
+                        .wrapContentWidth(),
+                    fontSize = ScreenWidth(0.045).sp ,
+                    lineHeight = ScreenWidth(0.06).sp
                 )
                 Button( onClick = {
                     navcontroller.navigate(Destinations.RegisScreen.ref)
@@ -194,10 +213,10 @@ fun LoginContent(modifier: Modifier,
                     contentColor = Color.Black,
                     disabledContentColor = Color.Black,
                     disabledContainerColor = Color.White ),
-                    modifier = Modifier.size(width = (ScreenHeight * 0.14).dp , height = (ScreenHeight * 0.05).dp),
+                    modifier = Modifier.size(width = ScreenWidth(0.25).dp  , height = ScreenWidth(0.1).dp  ),
                     contentPadding = PaddingValues(0.dp)
                 ){
-                    Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = (ScreenHeight * 0.02).sp )
+                    Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = ScreenWidth(0.055).sp )
                 }
 
             }

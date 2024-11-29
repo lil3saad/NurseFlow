@@ -181,7 +181,7 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
                                         uid = fetchednurseinfo.uid ,
                                         profilepicid = viewmodel.getProfilePicID()
                                     )
-                                    viewmodel.SaveNurseInfo(nurseinfo)
+                                    viewmodel.SaveNurseInfoInVm(nurseinfo)
                                     viewmodel.UpdateNurseProfile()
                                 }
                             }catch (e : Exception){

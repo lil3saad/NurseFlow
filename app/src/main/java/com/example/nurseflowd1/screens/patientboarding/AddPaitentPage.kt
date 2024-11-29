@@ -61,7 +61,8 @@ fun Paitent_Regis_Screen( modifier: Modifier = Modifier , navcontroller : NavCon
     var age = remember { mutableStateOf("") }; var age_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
 
-    Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll( rememberScrollState() ) ,
+    Column( modifier = modifier.fillMaxSize().background(AppBg)
+        .verticalScroll( rememberScrollState() ) ,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Column(modifier = Modifier.padding(top = ScreenWidth(0.05).dp).fillMaxHeight().fillMaxWidth(0.9f),

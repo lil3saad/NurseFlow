@@ -53,7 +53,7 @@ fun giveKeyboard() : SoftwareKeyboardController =  LocalSoftwareKeyboardControll
 @Composable
 fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext: String , supportextstate : MutableState<SupportTextState>){
 
-    Column(modifier = Modifier.padding(bottom =screenHeight(0.02).dp)){
+    Column(modifier = Modifier.padding(bottom =screenHeight(0.01).dp)){
 
         Column(modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
@@ -73,7 +73,12 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
             placeholder = {
                 Text(placeholdertext, color = Color.White.copy(0.50f))
             },
-            colors = TextFieldDefaults.colors( unfocusedContainerColor = AppBg , unfocusedIndicatorColor = Color.White.copy(0.50f) ),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = AppBg ,
+                unfocusedIndicatorColor = Color.White.copy(0.50f) ,
+                focusedIndicatorColor = HTextClr,
+                focusedContainerColor = Color.Black.copy(alpha = 0.25f)
+            ),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done

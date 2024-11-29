@@ -8,4 +8,6 @@ sealed class TopAppBarState {
     object  Profile : TopAppBarState()
     object  NurseNotes : TopAppBarState()
     object  ShitfReport : TopAppBarState()
+
+    object DoNotDisplay : TopAppBarState()
 }

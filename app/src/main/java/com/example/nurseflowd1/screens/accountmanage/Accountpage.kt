@@ -1,6 +1,5 @@
 package com.example.nurseflowd1.screens.accountmanage
 
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -9,6 +8,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,8 +21,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,46 +67,50 @@ import com.example.nurseflowd1.ui.theme.Bodyfont
 fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontroller: NavController){
 
     viewmodel.SetTopBarState(TopAppBarState.Profile)
-    viewmodel.SetBottomBarState(barstate = BottomBarState.AccountPage)
 
 
     @Composable
-    fun ScreenHeight(k : Double) : Double = LocalConfiguration.current.screenHeightDp * k
+    fun ScreenWidth(k : Double) : Double = LocalConfiguration.current.screenWidthDp * k
 
 
 
     @Composable
     fun DisplayTextFeild(text : String , label : String){
-        Text( text = text , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.025).sp),
+        Text( text = text , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenWidth(0.055).sp),
             modifier = Modifier
-                .border(
-                    0.5.dp,
+                .border(0.5.dp,
                     color = Color.White.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(12.dp)
                 )
                 .fillMaxWidth()
-                .height(ScreenHeight(0.055).dp)
-                .padding(ScreenHeight(0.013).dp)
+                .height(ScreenWidth(0.1).dp)
+                .padding(ScreenWidth(0.02).dp)
         )
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End){
-            Text( text = label , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp), textAlign = TextAlign.End,
-                modifier = Modifier.width(ScreenHeight(0.30).dp)
+            Text( text = label , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenWidth(0.055).sp), textAlign = TextAlign.End,
+                modifier = Modifier.width(ScreenWidth(0.30).dp)
             )
         }
 
     }
 
 
-    Column(modifier = Modifier.fillMaxSize().background(AppBg) ,
+
+    Column(modifier = Modifier.background(AppBg)
+        .fillMaxSize()
+        .verticalScroll( rememberScrollState() ),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column( modifier = modifier.fillMaxWidth().background(AppBg).padding(top = ScreenHeight(0.1).dp),
+
+
+        Column( modifier = modifier.fillMaxWidth().background(AppBg).padding(top = ScreenWidth(0.1).dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally){
 
             val nurseprofilestate by viewmodel.nurseprofilestate.collectAsState()
             var fetchenurseinfo = NurseInfo()
+
 
             LaunchedEffect(nurseprofilestate) { viewmodel.FetchNurseProfile()
                 viewmodel.getProfilePicState() }
@@ -184,16 +191,16 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                         }
                     ) {
                         Text("Change Profile" ,
-                            modifier = Modifier.padding(top = ScreenHeight(0.01).dp)
+                            modifier = Modifier.padding(top = ScreenWidth(0.01).dp)
                         )
                         Icon( imageVector = Icons.Default.Add , contentDescription =  "Edit Profile",
                             modifier = Modifier.padding(top = 12.dp)
                                 .size(25.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.size(ScreenHeight(0.03).dp))
+                    Spacer(modifier = Modifier.size(ScreenWidth(0.03).dp))
                     Text("Remove",
-                        modifier = Modifier.padding(top = ScreenHeight(0.01).dp).clickable{
+                        modifier = Modifier.padding(top = ScreenWidth(0.01).dp).clickable{
                             viewmodel.DeleteProfilePicState()
                         }
                     )
@@ -204,13 +211,13 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
             // Profile
             Column(modifier = Modifier.fillMaxWidth(0.9f),
             ){
-                Text( text = "Name" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp, bottom = 4.dp))
+                Text( text = "Name" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.050).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp, bottom = 4.dp))
                 DisplayTextFeild(text = "${fetchenurseinfo.N_name} ${fetchenurseinfo.N_surname}" , "")
 
-                Text( text = "Hospital Id " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp , bottom = 4.dp)  )
+                Text( text = "Hospital Id " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.050).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp , bottom = 4.dp)  )
                 DisplayTextFeild(text = fetchenurseinfo.N_hospitalid, label = fetchenurseinfo.N_hospitalname)
 
-                Text( text = "Registration Id" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp, bottom = 4.dp))
+                Text( text = "Registration Id" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.050).sp , color = HTextClr) , modifier = Modifier.padding(start = 12.dp, bottom = 4.dp))
                 DisplayTextFeild(text = fetchenurseinfo.N_registrationid, label = fetchenurseinfo.N_council)
 
                 Row(modifier = Modifier
@@ -218,12 +225,12 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                     .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(25.dp)){
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text( text = "Gender : " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp) , color = HTextClr)
-                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.02).sp))
+                        Text( text = "Gender : " , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.055).sp) , color = HTextClr)
+                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.055).sp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text( text = "Age : " , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp) , color = HTextClr)
-                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenHeight(0.02).sp))
+                        Text( text = "Age : " , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenWidth(0.055).sp) , color = HTextClr)
+                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Bodyfont, fontSize = ScreenWidth(0.055).sp))
                     }
                 }
             }
@@ -232,16 +239,16 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
             // Menu Options
             Column( modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .padding(top = ScreenHeight(0.05).dp),
+                .padding(top = ScreenWidth(0.05).dp),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(12.dp)){
-                Text( text = "Settings" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.03).sp , color = HTextClr),
+                Text( text = "Settings" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.065).sp , color = HTextClr),
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable{
                         navcontroller.navigate( route = Destinations.AccSettingsScreen.ref)
                     }
                 )
-                Text( text = "Logout" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenHeight(0.03).sp , color = HTextClr),textDecoration = TextDecoration.Underline,
+                Text( text = "Logout" , style = TextStyle(fontFamily = Headingfont, fontSize = ScreenWidth(0.065).sp , color = HTextClr),textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable{
                         // Throw a Confirmation Alert Box
                         viewmodel.SingOut()
@@ -252,7 +259,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
         }
 
         val barstate by viewmodel.topappbarstate.collectAsState()
-        BottomNavBar(navcontroller, barstate)
+
     }
 
 
