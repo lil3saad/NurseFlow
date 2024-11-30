@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -77,21 +78,22 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 // NURSE DASHBOARD
 // if a Authenticated user coming from the login screen (AFTER NORMAL LOGIN ) is Authenticated and sent to N_Dashboard and the user keeps pressing back the user will be sent back to the login page , not for the first time , not for second time but he will be surely sent back
 @Composable
 fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM) {
 
-    val ScreenHeight = LocalConfiguration.current.screenHeightDp  ; val context = LocalContext.current
+   val context = LocalContext.current
 
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
 
     viewmodel.SetTopBarState(TopAppBarState.NurseDashBoard)
-     viewmodel.SetBottomBarState(BottomBarState.NurseDashBoard)
     //Authentication State
 
     viewmodel.authStatus() // For AutoLog
@@ -112,12 +114,10 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
             else -> Unit
         }
     }
-
-    //PatientList Stat
-    val patientliststate by viewmodel.paitientinfolist.collectAsState()
+    val roompatientliststate by viewmodel.cardpatientlist.collectAsState()
     LaunchedEffect(gotnursedocid) {
         if(gotnursedocid is NurseDocIdState.CurrentNurseId) {
-            viewmodel.FetchP_InfoList()
+            viewmodel.getCardPatietnList()
         }
     }
      // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
@@ -128,28 +128,35 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         val displaycriticallist : MutableState<Boolean> = remember { mutableStateOf(false) }
         val serachtext  : MutableState<String> = remember { mutableStateOf("") }
 
-        TopPanel(displaycriticallist , serachtext)
+        TopPanel(displaycriticallist , serachtext, viewmodel)
 
         LazyColumn(modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
-
             .fillMaxWidth(0.9f).fillMaxHeight()) {
-            when (patientliststate) {
-                is CardPatientListState.emptylist ->{ item { Text("No patients available. Please add patients.") } }
-                is CardPatientListState.PatientsReceived -> {
-                    val patientList = (patientliststate as CardPatientListState.PatientsReceived).patientlist
 
+            when(val state = roompatientliststate){
+                RoomPatientListState.idle -> { viewmodel.getCardPatietnList() }
+                is RoomPatientListState.FetchedList -> {
+                         val patientlist = state.patientlist
+                         items(patientlist){
+                                 patient ->
+                             if(displaycriticallist.value){
+                                 if(patient.iscrictal == true){
 
-                    items(patientList) {
-                        patient ->
-                        if(displaycriticallist.value == true){
-                            Log.d("TAGY" , "${patient.iscritical}")
-                            if(patient.iscritical == true) PaitentCard(patient)
-                        }else PaitentCard(patient)
-
-
-                    }
+                                     PaitentCard(patient)
+                                 }
+                             }else {
+                                 PaitentCard(patient)
+                             }
+                         }
                 }
-                is  CardPatientListState.Loadinglist -> { item{
+                RoomPatientListState.NewAdded -> {
+                    viewmodel.getCardPatietnList()
+                }
+                RoomPatientListState.emptylist -> {
+                    item { Text("No patients available. Please add patients.") }
+                }
+                RoomPatientListState.loading -> {
+                    item{
                         Box(modifier = modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
@@ -157,24 +164,17 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                         }
                     }
                 }
-                else -> Unit
             }
         }
-
-        val barstate by viewmodel.topappbarstate.collectAsState()
-
     }
 }
 
 @Composable
-fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String>) {
+fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM) {
 
     val softwarekeybaord = LocalSoftwareKeyboardController.current!!
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
-
-
-
     val toppanelshape = RoundedCornerShape(bottomEnd = 45.dp , bottomStart = 45.dp)
     Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f)
         .background(panelcolor, shape = toppanelshape)
@@ -219,6 +219,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
             }
         }
         // Search Row
+        var isSearch by remember { mutableStateOf(true) }
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -237,10 +238,28 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                     focusedIndicatorColor = Color.Transparent,
                 ),
                 trailingIcon = {
-                    Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier
-                        .padding(end = 12.dp)
-                        .size( 38.dp ) ,
-                        tint =Color.White)
+                    if(isSearch){
+                        Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size( 38.dp ).clickable{
+                                isSearch = false
+                                val username = "%${Searchtext.value}%"
+                                viewmodel.getSearchResult(username)
+                                Searchtext.value = ""
+                                softwarekeybaord.hide()
+                            } ,
+                            tint =Color.White)
+                    }else {
+                        Icon( imageVector = Icons.Default.Close , contentDescription = "Search Patiens" , modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size( 38.dp )
+                            .clickable{
+                                viewmodel.getCardPatietnList()
+                                isSearch = true
+                            }
+                            ,
+                            tint = HTextClr)
+                    }
                 },
                 shape =  RoundedCornerShape(45.dp),
                 keyboardOptions = KeyboardOptions(
@@ -249,7 +268,11 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        softwarekeybaord.hide()
+                         isSearch = false
+                         val username = "%${Searchtext.value}%"
+                         viewmodel.getSearchResult(username)
+                         Searchtext.value = ""
+                         softwarekeybaord.hide()
                     }
                 )
             )
@@ -283,7 +306,7 @@ fun PaitentCard(patient : CardPatient){
             ){
                 Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , color = Color.White  )
                 Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-                Text( "Conditon: ${patient.conditon}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Conditon: ${patient.condition}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
 
                 Row( horizontalArrangement = Arrangement.spacedBy( ScreenWidth(0.05).dp ) ,
                     modifier = Modifier.fillMaxWidth()) {

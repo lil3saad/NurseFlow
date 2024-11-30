@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.nurseflowd1.datamodels.CardPatient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -14,18 +15,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 interface PatientCardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE ) // what does this do
-    fun insertcard(patientcard : PatientCardEntity) : Long
+    fun insertcard(patientcard : CardPatient) : Long
 
     @Update
-    fun updatecard(patientcard : PatientCardEntity)
+    fun updatecard(patientcard : CardPatient)
 
     @Delete
-    fun deletecard(patentcard : PatientCardEntity)
+    fun deletecard(patentcard : CardPatient)
 
-    @Query("Select * from patientcards")
-    fun selectallpatientcard() : Flow<List<PatientCardEntity>>
+    @Query("Select * from patientcard")
+    fun selectallpatientcard() : List<CardPatient>
 
-    @Query("Select * from patientcards where Name like :username")
-    fun searchbyname(username : String) : Flow<List<PatientCardEntity>>
+    @Query("Select * from patientcard Where  Name Like :username")
+    fun searchbyname(username : String) : List<CardPatient>
+
+    @Query("Delete from patientcard")
+    fun emptyPatientCards()
 
 }

@@ -1,11 +1,29 @@
 package com.example.nurseflowd1.datamodels
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "patientcard")
 data class CardPatient(
-    val name : String = "testP",
-    val conditon : String = "testc",
-    val doctorname : String = "testc",
-    val gender : String = "testg",
-    val age : String = "",
-    val wardno : String = "testw",
-    val iscritical : Boolean = false
+
+    @PrimaryKey()
+    @ColumnInfo(name = "Patientid")
+    val patientid : String,
+
+    @ColumnInfo(name = "Name")
+    val name : String,
+    @ColumnInfo()
+    val condition : String,
+    @ColumnInfo()
+    val doctorname : String,
+    @ColumnInfo
+    val gender : String,
+    @ColumnInfo
+    val age : String,
+    @ColumnInfo
+    val wardno : String,
+    @ColumnInfo
+    val iscrictal : Boolean
+
 )
