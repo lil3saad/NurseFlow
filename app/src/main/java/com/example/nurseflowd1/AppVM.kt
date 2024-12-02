@@ -3,13 +3,11 @@ package com.example.nurseflowd1
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.datamodels.NurseInfo
-import com.example.nurseflowd1.datamodels.PatientVitals
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
 import com.example.nurseflowd1.domain.usecases.RoomUseCase
@@ -21,7 +19,7 @@ import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
 import com.example.nurseflowd1.screens.nurseauth.FBPatientListState
-import com.example.nurseflowd1.screens.patientboarding.AddPatientState
+import com.example.nurseflowd1.screens.paitentdash.AddPatientState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -29,16 +27,12 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
@@ -285,30 +279,17 @@ class AppVM( private val navController: NavController,
     private var _Addpatientstate = MutableStateFlow<AddPatientState>(AddPatientState.idle)
     var addPatientState: StateFlow<AddPatientState> = _Addpatientstate
 
-    //Save PatientInfo + _Pvitals and put in the Patients Collection with there own doc
-    var PatientInfo = PatientInfo()
-    fun SavePatientInfo(pinfo : PatientInfo) {
-        PatientInfo.p_patientid = pinfo.p_patientid
-        PatientInfo.p_name = pinfo.p_name.trim().replace(" ", "")
-        PatientInfo.p_surename = pinfo.p_surename.trim().replace(" ", "")
-        PatientInfo.p_doctor = pinfo.p_doctor
-        PatientInfo.p_gender = pinfo.p_gender
-        PatientInfo.p_age = pinfo.p_age
-        PatientInfo.p_phoneno = pinfo.p_phoneno
-    }
-
-    fun SavePatientInfoFirestore(pinfo: PatientInfo, pvitals : PatientVitals) = viewModelScope.launch {
+    fun SavePatientInfoFirestore(pinfo: PatientInfo) = viewModelScope.launch {
         Log.d("TAGY" , "Adding Patient To Room")
         val roompatientcard = CardPatient(
             patientid = pinfo.p_patientid ,
-            name = "${pinfo.p_name} ${pinfo.p_surename}",
-            condition = pvitals.condition,
+            name = "${pinfo.p_firstname} ${pinfo.p_surename}",
+            condition = pinfo.condition,
             doctorname = pinfo.p_doctor,
             gender = pinfo.p_gender,
             age = pinfo.p_age.toString(),
-            wardno = pvitals.wardno,
-            iscrictal = pvitals.iscritical
-        )
+            wardno = pinfo.wardno,
+            iscrictal = pinfo.iscritical)
         savePatientCardInRoom(roompatientcard)
 
         _Addpatientstate.value = AddPatientState.AddingPatient
@@ -322,14 +303,6 @@ class AppVM( private val navController: NavController,
                 val p_medicines = "medicines"
 
                 val patientdoc = hashMapOf(
-                    "wardno" to pvitals.wardno ,
-                "condition"  to pvitals.condition,
-                 "temp" to pvitals.temp , 
-                 "heartreate" to pvitals.heartreate , 
-                 "bloodpressure" to pvitals.bloodpressure,
-                 "oxygenlevel" to pvitals.oxygenlevel,
-                 "respiratoryrate" to pvitals.respiratoryrate ,
-                    "IsCritical" to pvitals.iscritical,
                     "patient_info" to pinfo
                 )
 
@@ -457,8 +430,9 @@ class AppVM( private val navController: NavController,
     private var _profilepicstate : MutableStateFlow<ProfilePictureState> = MutableStateFlow(ProfilePictureState.empty)
     val profilepiucstate : StateFlow<ProfilePictureState> = _profilepicstate
 
+
     // Accounts Page Operations
-    fun saveProfileUri(uri: Uri, context: Context) = viewModelScope.launch {
+     fun saveProfileUri(uri: Uri, context: Context) = viewModelScope.launch {
         _profilepicstate.value = ProfilePictureState.Loading
         when (val state = _NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
@@ -523,10 +497,7 @@ class AppVM( private val navController: NavController,
 
 
     // ROOM OPERATIONS
-
-
-    private var _CardPatientList : MutableStateFlow<RoomPatientListState> = MutableStateFlow(
-        RoomPatientListState.idle)
+    private var _CardPatientList : MutableStateFlow<RoomPatientListState> = MutableStateFlow(RoomPatientListState.idle)
     var cardpatientlist : StateFlow<RoomPatientListState> = _CardPatientList.asStateFlow()
 
     suspend fun savePatientCardInRoom(patientCardEntity: CardPatient) = viewModelScope.launch{
@@ -550,7 +521,7 @@ class AppVM( private val navController: NavController,
                     for( patient in firebaselist){
                         intialjob = savePatientCardInRoom(patient)
                     }
-                    _CardPatientList.value = RoomPatientListState.FetchedList( roomuc.readPatientCardList() )
+                    _CardPatientList.value = RoomPatientListState.FullReadList( roomuc.readPatientCardList() )
 
                 }
                 FBPatientListState.emptylist -> {
@@ -559,14 +530,19 @@ class AppVM( private val navController: NavController,
             }
 
             }
-        }else _CardPatientList.value = RoomPatientListState.FetchedList(roomlist)
+        }else _CardPatientList.value = RoomPatientListState.FullReadList(roomlist)
     }
-
     fun getSearchResult(usertext : String) = viewModelScope.launch{
         val roompatienlist = roomuc.SearchPatient(usertext)
         if(roompatienlist.isEmpty()){
+            _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
+        }else _CardPatientList.value = RoomPatientListState.SearchList(roompatienlist)
+    }
+    fun getCriticalList() = viewModelScope.launch{
+        val roompatienlist = roomuc.getCriticalist()
+        if(roompatienlist.isEmpty()){
             Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
-        }else _CardPatientList.value = RoomPatientListState.FetchedList(roompatienlist)
+        }else _CardPatientList.value = RoomPatientListState.CriticalList(roompatienlist)
     }
 
 

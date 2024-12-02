@@ -46,7 +46,7 @@ import com.example.nurseflowd1.screens.accountmanage.UpdateProfilePage
 import com.example.nurseflowd1.screens.nurseauth.LoginScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseDashBoardScreen
 import com.example.nurseflowd1.screens.nurseauth.NurseRegister
-import com.example.nurseflowd1.screens.patientboarding.Paitent_Regis_Screen
+import com.example.nurseflowd1.screens.paitentdash.Add_PatientInfo_Screen
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.Headingfont
@@ -58,7 +58,6 @@ import com.example.nurseflowd1.room.RoomDB
 import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
-import com.example.nurseflowd1.screens.patientboarding.AddVitalsScreen
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
 import com.example.nurseflowd1.ui.theme.panelcolor
 
@@ -214,7 +213,7 @@ class MainActivity : ComponentActivity() {
                 AccountSettingPage(modifier)
             }
             composable(route = Destinations.PatientRegisterScreen.ref){
-                Paitent_Regis_Screen( modifier ,  navController , viewmodel)
+                Add_PatientInfo_Screen( modifier ,  navController , viewmodel)
             }
             composable( route = Destinations.ShiftReportScreen.ref){
                 ShiftReportPage(modifier , navController, viewmodel)
@@ -222,10 +221,6 @@ class MainActivity : ComponentActivity() {
             composable( route = Destinations.NurseNotes.ref){
                 NurseNotesPage(modifier , navController, viewmodel)
             }
-            composable(route = Destinations.PatientVitalsScreen.ref){
-                AddVitalsScreen(modifier,navController,viewmodel)
-            }
-
 
         }
     }

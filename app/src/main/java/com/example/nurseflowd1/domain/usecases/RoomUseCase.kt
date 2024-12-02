@@ -37,9 +37,15 @@ class RoomUseCase(val patientcardao : PatientCardDao) {
         patientcardao.searchbyname(usertext)
     }
 
+    suspend fun getCriticalist() = withContext(Dispatchers.IO){
+        patientcardao.getcriticalpatients()
+    }
+
     suspend fun DeletePaitentCards() = withContext(Dispatchers.IO){
         patientcardao.emptyPatientCards()
     }
+
+
 
 
 }

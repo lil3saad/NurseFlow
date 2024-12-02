@@ -1,4 +1,4 @@
-package com.example.nurseflowd1.screens.patientboarding
+package com.example.nurseflowd1.screens.paitentdash
 
 sealed class AddPatientState{
     object idle : AddPatientState()

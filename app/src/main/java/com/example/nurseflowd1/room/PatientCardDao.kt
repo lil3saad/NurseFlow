@@ -29,7 +29,13 @@ interface PatientCardDao {
     @Query("Select * from patientcard Where  Name Like :username")
     fun searchbyname(username : String) : List<CardPatient>
 
+    @Query("Select * from patientcard where iscrictal = 1")
+    fun getcriticalpatients() : List<CardPatient>
+
+
     @Query("Delete from patientcard")
     fun emptyPatientCards()
+
+
 
 }

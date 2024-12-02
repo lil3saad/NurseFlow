@@ -18,19 +18,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -64,7 +60,6 @@ import com.example.nurseflowd1.R
 import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.AuthState
-import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.TopAppBarState
 import com.example.nurseflowd1.ui.theme.AppBg
@@ -80,7 +75,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 // NURSE DASHBOARD
@@ -128,29 +122,21 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         val displaycriticallist : MutableState<Boolean> = remember { mutableStateOf(false) }
         val serachtext  : MutableState<String> = remember { mutableStateOf("") }
 
-        TopPanel(displaycriticallist , serachtext, viewmodel)
+        val listsize : MutableState<String> = remember { mutableStateOf("0") }
+        TopPanel(displaycriticallist , serachtext, viewmodel , listsize)
 
         LazyColumn(modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
             .fillMaxWidth(0.9f).fillMaxHeight()) {
 
             when(val state = roompatientliststate){
                 RoomPatientListState.idle -> { viewmodel.getCardPatietnList() }
-                is RoomPatientListState.FetchedList -> {
+                RoomPatientListState.NewAdded -> { viewmodel.getCardPatietnList() }
+                is RoomPatientListState.FullReadList -> {
                          val patientlist = state.patientlist
+                          listsize.value = patientlist.size.toString()
                          items(patientlist){
-                                 patient ->
-                             if(displaycriticallist.value){
-                                 if(patient.iscrictal == true){
-
-                                     PaitentCard(patient)
-                                 }
-                             }else {
-                                 PaitentCard(patient)
-                             }
+                                 patient -> PaitentCard(patient)
                          }
-                }
-                RoomPatientListState.NewAdded -> {
-                    viewmodel.getCardPatietnList()
                 }
                 RoomPatientListState.emptylist -> {
                     item { Text("No patients available. Please add patients.") }
@@ -164,18 +150,44 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                         }
                     }
                 }
+                is RoomPatientListState.CriticalList -> {
+                    val patientlist = state.patientlist
+                    listsize.value = patientlist.size.toString()
+                    items(patientlist){
+                            patient -> PaitentCard(patient)
+                    }
+                }
+                is RoomPatientListState.SearchList -> {
+                    val patientlist = state.patientlist
+                    items(patientlist){
+                            patient -> PaitentCard(patient)
+                    }
+                }
+                is RoomPatientListState.Error -> {
+                    item { Text("${state.msg}") }
+                }
             }
         }
     }
 }
 
 @Composable
-fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM) {
+fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM,
+             listsize : MutableState<String>
+) {
 
     val softwarekeybaord = LocalSoftwareKeyboardController.current!!
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
     val toppanelshape = RoundedCornerShape(bottomEnd = 45.dp , bottomStart = 45.dp)
+
+
+    var displaytext =  "Total patients"
+    var displaylabel = "critical"
+    if(criticaliststate.value){
+        displaytext = "Critical Patients"
+        displaylabel = "total"
+    }
     Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f)
         .background(panelcolor, shape = toppanelshape)
         .padding(vertical = 10.dp, horizontal = 20.dp)
@@ -186,33 +198,48 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
         )){
             Column(modifier = Modifier.fillMaxWidth().padding(6.dp)
             ){
-                Text("Total paitents" , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White)
+                Text(displaytext , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White)
                 Row(modifier = Modifier.fillMaxWidth() ,
                     horizontalArrangement = Arrangement.SpaceBetween ,
                     verticalAlignment = Alignment.Bottom){
 
-                    Text("45" , fontSize = 55.sp , fontFamily = Headingfont , color = Color.White ,
+                    Text(listsize.value, fontSize = 55.sp , fontFamily = Headingfont , color = Color.White ,
                         modifier = Modifier.padding(start = 10.dp )
                         )
-                    Button( onClick = {
-                        if(criticaliststate.value != true){
-                            criticaliststate.value = true
-                        }else criticaliststate.value = false },
-                        colors = ButtonColors(
-                            containerColor = Color.Red.copy(alpha = 0.12f),
-                            contentColor = Color.Black ,
-                            disabledContentColor = Color.White.copy(alpha = 0.22f),
-                            disabledContainerColor = Color.White.copy(alpha = 0.22f)
-                        ),
+                    Button( onClick = { if(criticaliststate.value == false ){
+                                               criticaliststate.value = true
+                                               viewmodel.getCriticalList()
+                                           }else {
+                                               viewmodel.getCardPatietnList()
+                                               criticaliststate.value = false
+                                           }
+                                      },
+                        colors = if(criticaliststate.value) {
+                            ButtonColors(
+                                containerColor = Color.Black.copy(alpha = 0.15f),
+                                contentColor = Color.Black ,
+                                disabledContentColor = Color.White.copy(alpha = 0.22f),
+                                disabledContainerColor = Color.White.copy(alpha = 0.22f)
+                            )
+                        }else {
+                            ButtonColors(
+                                containerColor = Color.Red.copy(alpha = 0.12f),
+                                contentColor = Color.Black ,
+                                disabledContentColor = Color.White.copy(alpha = 0.22f),
+                                disabledContainerColor = Color.White.copy(alpha = 0.22f)
+                            )
+                        },
                         contentPadding = PaddingValues(horizontal = 12.dp , vertical = 2.dp )
                     ){
                         Row(horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically ,
                             modifier = Modifier
                         ) {
-                            Text("Critical" , fontSize = 15.sp  , fontFamily = Bodyfont , color = Color.White)
+                            Text( displaylabel , fontSize = 15.sp  , fontFamily = Bodyfont , color = Color.White)
                             Spacer(modifier = Modifier.size( 8.dp ) )
-                            Box(modifier = Modifier.background(color = Color.Red , shape = CircleShape ).size( 9.dp ) ){}
+                            if( criticaliststate.value){
+                                Box(modifier = Modifier.background(color = Color.White , shape = CircleShape ).size( 9.dp ) ){}
+                            }else Box(modifier = Modifier.background(color = Color.Red , shape = CircleShape ).size( 9.dp ) ){}
                         }
                     }
                 }

@@ -1,6 +1,5 @@
 package com.example.nurseflowd1.room
 
-import androidx.compose.runtime.MutableState
 import com.example.nurseflowd1.datamodels.CardPatient
 
 sealed class RoomPatientListState{
@@ -9,6 +8,10 @@ sealed class RoomPatientListState{
     object emptylist : RoomPatientListState()
     object loading : RoomPatientListState()
     object NewAdded : RoomPatientListState()
-    data class FetchedList(val patientlist : List<CardPatient>) : RoomPatientListState()
+    data class FullReadList(val patientlist : List<CardPatient>) : RoomPatientListState()
+    data class SearchList(val patientlist : List<CardPatient>) : RoomPatientListState()
+    data class CriticalList(val patientlist : List<CardPatient>) : RoomPatientListState()
+    data class Error(val msg : String) : RoomPatientListState()
+
 
 }
