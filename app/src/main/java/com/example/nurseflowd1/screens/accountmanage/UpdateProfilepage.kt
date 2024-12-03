@@ -41,6 +41,10 @@ import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.screens.nurseauth.SupportTextState.*
 import com.example.nurseflowd1.screens.nurseauth.screenHeight
 import kotlinx.coroutines.CoroutineScope
@@ -50,6 +54,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmodel : AppVM){
+
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        colorState = AppBarColorState.DefaultColors,
+        NavigationIconState.DefaultBack
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
     Column( modifier = modifier.fillMaxSize().background(AppBg).verticalScroll(rememberScrollState()),

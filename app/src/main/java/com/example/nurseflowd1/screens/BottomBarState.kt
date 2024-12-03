@@ -5,4 +5,9 @@ sealed class BottomBarState {
    object AccountPage : BottomBarState()
    object ReportsPage : BottomBarState()
    object NotesPage : BottomBarState()
+
+   object FlatNavigation : BottomBarState()
+   object PaitentDash : BottomBarState()
+
+   object NoBottomBar : BottomBarState()
 }

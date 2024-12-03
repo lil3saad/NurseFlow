@@ -6,19 +6,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
-import com.example.nurseflowd1.screens.TopAppBarState
-import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.ui.theme.AppBg
 
 
 @Composable
 fun NurseNotesPage(modifier: androidx.compose.ui.Modifier , navController: NavController, viewmodel : AppVM){
-    viewmodel.SetTopBarState(TopAppBarState.NurseNotes)
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("Notes"),
+        colorState = AppBarColorState.DefaultColors,
+        NavigationIconState.None
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NotesPage)
     Column(modifier = modifier
         .background(AppBg)
         .fillMaxSize(),

@@ -43,7 +43,10 @@ import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
-import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 
 
 @Composable
@@ -51,7 +54,12 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)
 
-    viewmodel.SetTopBarState(TopAppBarState.AppNameBack)
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        colorState = AppBarColorState.DefaultColors,
+        NavigationIconState.DefaultBack
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
 
     var user_name  = remember { mutableStateOf("") } ; var username_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var user_surname  = remember { mutableStateOf("") } ; var usersurname_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }

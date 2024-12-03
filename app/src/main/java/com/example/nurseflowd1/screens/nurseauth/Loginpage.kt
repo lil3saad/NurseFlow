@@ -2,7 +2,6 @@ package com.example.nurseflowd1.screens.nurseauth
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,9 +45,11 @@ import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
+import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.Destinations
-import com.example.nurseflowd1.screens.TopAppBarState
-import com.google.android.play.integrity.internal.k
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 
 // NURSE LOGIN
 @Composable
@@ -104,7 +105,12 @@ fun LoginFields(label : String, textstate : MutableState<String>, placeholder : 
 fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, viewmodel: AppVM) {
 
 
-    viewmodel.SetTopBarState(TopAppBarState.AppNameBar)
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        colorState = AppBarColorState.DefaultColors,
+        NavigationIconState.None
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
     // If users keep entering null fields it will show message or execute statement once but not again and again
     // The same Functionality works with wrong email and password tho , if they keep using wrong creds , it keeps messaging the user with same authstate which is failed
     val authState by viewmodel.authstate.collectAsState()

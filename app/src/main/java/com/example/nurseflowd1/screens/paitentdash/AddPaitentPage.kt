@@ -41,11 +41,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
+import com.example.nurseflowd1.screens.NavigationIconState
 
 
 @Composable
 fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavController, viewmodel: AppVM){
+
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        colorState = AppBarColorState.DefaultColors,
+        iconState = NavigationIconState.DefaultBack
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
 
     @Composable
     fun ScreenWidth(k : Double ) : Double = (LocalConfiguration.current.screenWidthDp * k)

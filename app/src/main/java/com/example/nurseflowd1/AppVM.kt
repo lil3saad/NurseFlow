@@ -12,9 +12,11 @@ import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
 import com.example.nurseflowd1.domain.usecases.RoomUseCase
 import com.example.nurseflowd1.room.RoomPatientListState
+import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
-import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
@@ -201,15 +203,14 @@ class AppVM( private val navController: NavController,
                                             val resultp_info = doc.get("patient_info") as HashMap<*, *>
 
                                             val id = resultp_info["p_patientid"] as String
-                                            val name = resultp_info["p_name"] as String
+                                            val name = resultp_info["p_firstname"] as String
                                             val surname = resultp_info["p_surename"] as String
                                             val docname = resultp_info["p_doctor"] as String
                                             val age = resultp_info["p_age"] as Long
                                             val gender = resultp_info["p_gender"] as String
-
-                                            val resultwardno = doc.get("wardno") as String
-                                            val resultcondition = doc.get("condition") as String
-                                            val resultiscritical = doc.get("IsCritical") as Boolean
+                                            val resultwardno = resultp_info["wardno"] as String
+                                            val resultcondition =  resultp_info["condition"] as String
+                                            val resultiscritical = resultp_info["iscritical"]as Boolean
 
 
                                             val patientinfo = CardPatient(
@@ -305,7 +306,6 @@ class AppVM( private val navController: NavController,
                 val patientdoc = hashMapOf(
                     "patient_info" to pinfo
                 )
-
 
                 fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
                     viewModelScope.launch {
@@ -547,18 +547,28 @@ class AppVM( private val navController: NavController,
 
 
     // OTHERS
-    private  var _topappbarstate : MutableStateFlow<TopAppBarState> = MutableStateFlow(TopAppBarState.AppNameBar)
-    val topappbarstate : StateFlow<TopAppBarState> = _topappbarstate.asStateFlow()
+    private  var _AppBarTitleState : MutableStateFlow<AppBarTitleState> = MutableStateFlow(AppBarTitleState.NoTopAppBar)
+    val appbartitlestate : StateFlow<AppBarTitleState> = _AppBarTitleState.asStateFlow()
 
-    fun SetTopBarState(barstate : TopAppBarState) = viewModelScope.launch{
-        _topappbarstate.value = barstate
+
+    private  var _AppBarNavIconState : MutableStateFlow<NavigationIconState> = MutableStateFlow(NavigationIconState.None)
+    val appbariconstate : StateFlow<NavigationIconState>  = _AppBarNavIconState.asStateFlow()
+
+    private  var _AppBarColorsState : MutableStateFlow<AppBarColorState> = MutableStateFlow(
+        AppBarColorState.DefaultColors)
+    val appbarcolorstate : StateFlow<AppBarColorState> = _AppBarColorsState.asStateFlow()
+
+    fun ChangeTopBarState(barstate : AppBarTitleState, colorState: AppBarColorState, iconState: NavigationIconState  ) = viewModelScope.launch{
+        _AppBarTitleState.value = barstate
+        _AppBarNavIconState.value = iconState
+        _AppBarColorsState.value = colorState
     }
 
     private  var _bottombarstate : MutableStateFlow<BottomBarState> = MutableStateFlow(
         BottomBarState.NurseDashBoard)
     val bottombarstate : StateFlow<BottomBarState> = _bottombarstate.asStateFlow()
 
-    fun SetBottomBarState(barstate : BottomBarState) = viewModelScope.launch{
+    fun ChangeBottomBarState(barstate : BottomBarState) = viewModelScope.launch{
         _bottombarstate.value = barstate
     }
 

@@ -39,8 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.AuthState
+import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.Destinations
-import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
@@ -104,8 +107,13 @@ fun screenHeight(k : Double ) : Double = (LocalConfiguration.current.screenHeigh
 @Composable
 fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , viewmodel : AppVM){
 
-    viewmodel.SetTopBarState(TopAppBarState.AppNameBack)
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        colorState = AppBarColorState.DefaultColors,
+        NavigationIconState.None
 
+    )
+   viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
     var user_email = remember { mutableStateOf("") } ; var useremail_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var password1 = remember { mutableStateOf("") } ; var password1_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var password2 = remember { mutableStateOf("") }; var password2_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }

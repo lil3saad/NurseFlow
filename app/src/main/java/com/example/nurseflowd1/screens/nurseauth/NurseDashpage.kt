@@ -1,5 +1,7 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.app.NotificationManager
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -61,7 +63,7 @@ import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.AuthState
 import com.example.nurseflowd1.screens.Destinations
-import com.example.nurseflowd1.screens.TopAppBarState
+import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
@@ -76,18 +78,29 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat.getSystemService
+import com.example.nurseflowd1.MediNotiService
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
 
 // NURSE DASHBOARD
 // if a Authenticated user coming from the login screen (AFTER NORMAL LOGIN ) is Authenticated and sent to N_Dashboard and the user keeps pressing back the user will be sent back to the login page , not for the first time , not for second time but he will be surely sent back
 @Composable
-fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM) {
+fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM , notificationmanager: NotificationManager) {
 
    val context = LocalContext.current
 
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
 
-    viewmodel.SetTopBarState(TopAppBarState.NurseDashBoard)
+    // Change Bar States
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("Dashboard"),
+        colorState = AppBarColorState.NurseDashColors,
+        iconState = NavigationIconState.None
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.NurseDashBoard)
     //Authentication State
 
     viewmodel.authStatus() // For AutoLog
@@ -135,7 +148,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                          val patientlist = state.patientlist
                           listsize.value = patientlist.size.toString()
                          items(patientlist){
-                                 patient -> PaitentCard(patient)
+                                 patient -> PaitentCard(patient , navController, notificationmanager)
                          }
                 }
                 RoomPatientListState.emptylist -> {
@@ -154,13 +167,13 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                     val patientlist = state.patientlist
                     listsize.value = patientlist.size.toString()
                     items(patientlist){
-                            patient -> PaitentCard(patient)
+                            patient -> PaitentCard(patient , navController , notificationmanager)
                     }
                 }
                 is RoomPatientListState.SearchList -> {
                     val patientlist = state.patientlist
                     items(patientlist){
-                            patient -> PaitentCard(patient)
+                            patient -> PaitentCard(patient , navController , notificationmanager)
                     }
                 }
                 is RoomPatientListState.Error -> {
@@ -308,9 +321,10 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
     }
 }
 @Composable
-fun PaitentCard(patient : CardPatient){
+fun PaitentCard(patient : CardPatient , navigator: NavController , notificationmanager: NotificationManager){
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
+    val context = LocalContext.current
 
     Card(Modifier.padding( bottom = 10.dp )
         .height(160.dp)
@@ -324,7 +338,10 @@ fun PaitentCard(patient : CardPatient){
 
             ){
                 Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
-                    ,modifier = Modifier.size( 65.dp )
+                    ,modifier = Modifier.size( 65.dp ).clickable{
+                             val medinotiservice = MediNotiService(context)
+                             notificationmanager.notify(1, medinotiservice.showNotifcation("${patient.name}" , "Hello Mf").build())
+                    }
                 )
             }
             Column( verticalArrangement = Arrangement.Center ,
@@ -346,11 +363,14 @@ fun PaitentCard(patient : CardPatient){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxHeight().fillMaxWidth()
                     .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )
+
             ){
                 Icon( imageVector = ImageVector.vectorResource(R.drawable.dashboard),
                     contentDescription = "DashboardIcon",
                     tint = HTextClr,
-                    modifier = Modifier.size( 40.dp )
+                    modifier = Modifier.size( 40.dp ).clickable {
+                        navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
+                    }
                 )
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -363,507 +383,499 @@ fun PaitentCard(patient : CardPatient){
     }
 }
 
-
 @Composable
-fun BottomNavBar(navController: NavController = rememberNavController() , barState: TopAppBarState) {
-
+fun MyBottomNavBar(navController: NavController = rememberNavController(), bottombarstate : BottomBarState ){
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
-    val ScreenHeight = LocalConfiguration.current.screenHeightDp
-    // BOTTOM BAR
-      when(barState) {
-          TopAppBarState.NurseDashBoard -> {
-              ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
-              ){
-                  val (btmbar, dcricle, addbtn) = createRefs()
 
-                  val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
+    when(bottombarstate){
+        BottomBarState.NurseDashBoard -> {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
+            ){
+                val (btmbar, dcricle, addbtn) = createRefs()
 
-                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
-                      .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
-                      .constrainAs(btmbar) {
-                          start.linkTo(parent.start)
-                          end.linkTo(parent.end)
-                          bottom.linkTo(parent.bottom)
-                      }.fillMaxWidth()
-                          .height( ScreenWidth(0.15).dp )
-                  ) {
+                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                      Row (modifier = Modifier.matchParentSize()
-                          .background(color = SecClr, shape = btmbarshpae)
-                          .padding(start = 50.dp , end = 50.dp),
-                          horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically
+                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
+                    .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                    .constrainAs(btmbar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }.fillMaxWidth()
+                    .height( ScreenWidth(0.15).dp )
+                ) {
 
-                      ){
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center
-                          ) {
-                              Icon(painter = painterResource(R.drawable.home),
-                                  tint = HTextClr,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Home" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr , fontSize = 9.sp)
-                              )
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                  .clickable{
-                                  navController.navigate(route = Destinations.ShiftReportScreen.ref)
-                              }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.key),
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                                  .clickable{
-                                  navController.navigate(route = Destinations.NurseNotes.ref)
-                              }
-                          ){
+                    Row (modifier = Modifier.matchParentSize()
+                        .background(color = SecClr, shape = btmbarshpae)
+                        .padding(start = 50.dp , end = 50.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
 
-                              Icon(painter = painterResource(R.drawable.stickynote),
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                  navController.navigate(Destinations.AccountScreen.ref)
-                              }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  modifier = Modifier
-                                      .size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                      }
-                  }
-                  val bottomgline = createGuidelineFromBottom(0.25f)
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.size( 70.dp )
-                          .constrainAs(dcricle) {
-                              bottom.linkTo(bottomgline)
-                              start.linkTo(btmbar.start)
-                              end.linkTo(btmbar.end)
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = AppBg,
-                  ) {}
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
-                          .size( 56.dp )
-                          .constrainAs(addbtn) {
-                              start.linkTo(dcricle.start)
-                              end.linkTo(dcricle.end)
-                              bottom.linkTo(dcricle.bottom, margin = 7.dp )
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = HTextClr,
-                      contentColor = Color.White,
-                  ) {
-                      Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                          modifier = Modifier.size( 25.dp )
-                              .clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          }
-                      )
-                  }
+                    ){
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(painter = painterResource(R.drawable.home),
+                                tint = HTextClr,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr , fontSize = 9.sp)
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.navigate(route = Destinations.ShiftReportScreen.ref)
+                                }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.White.copy(alpha = 0.55f),
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.navigate(route = Destinations.NurseNotes.ref)
+                                }
+                        ){
 
-
-              }
-          }
-
-          TopAppBarState.ShitfReport -> {
-              ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
-              ){
-                  val (btmbar, dcricle, addbtn) = createRefs()
-
-                  val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
-
-                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
-                      .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
-                      .constrainAs(btmbar) {
-                          start.linkTo(parent.start)
-                          end.linkTo(parent.end)
-                          bottom.linkTo(parent.bottom)
-                      }.fillMaxWidth()
-                      .height( ScreenWidth(0.15).dp )
-                  ) {
-
-                      Row (modifier = Modifier.matchParentSize()
-                          .background(color = SecClr, shape = btmbarshpae)
-                          .padding(start = 50.dp , end = 50.dp),
-                          horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically
-
-                      ){
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier
-                                  .clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.home),
-                                  tint = Color.White.copy(alpha = 0.55f) ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                          ){
-                              Icon(painter = painterResource(R.drawable.key),
-                                  tint = HTextClr ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                                  .clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                      navController.navigate(route = Destinations.NurseNotes.ref)
-                                  }
-                          ){
-
-                              Icon(painter = painterResource(R.drawable.stickynote),
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                  navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  navController.navigate(Destinations.AccountScreen.ref)
-                              }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  modifier = Modifier
-                                      .size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                      }
-
-                  }
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint = Color.White.copy(alpha = 0.55f),
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.navigate(Destinations.AccountScreen.ref)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
+                                tint = Color.White.copy(alpha = 0.55f),
+                                modifier = Modifier
+                                    .size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                    }
+                }
+                val bottomgline = createGuidelineFromBottom(0.25f)
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.size( 70.dp )
+                        .constrainAs(dcricle) {
+                            bottom.linkTo(bottomgline)
+                            start.linkTo(btmbar.start)
+                            end.linkTo(btmbar.end)
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = AppBg,
+                ) {}
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
+                        .size( 56.dp )
+                        .constrainAs(addbtn) {
+                            start.linkTo(dcricle.start)
+                            end.linkTo(dcricle.end)
+                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = HTextClr,
+                    contentColor = Color.White,
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
+                        modifier = Modifier.size( 25.dp )
+                            .clickable {
+                                navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            }
+                    )
+                }
 
 
-                  val bottomgline = createGuidelineFromBottom(0.25f)
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.size( 70.dp )
-                          .constrainAs(dcricle) {
-                              bottom.linkTo(bottomgline)
-                              start.linkTo(btmbar.start)
-                              end.linkTo(btmbar.end)
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = AppBg,
-                  ) {}
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
-                          .size( 56.dp )
-                          .constrainAs(addbtn) {
-                              start.linkTo(dcricle.start)
-                              end.linkTo(dcricle.end)
-                              bottom.linkTo(dcricle.bottom, margin = 7.dp )
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = HTextClr,
-                      contentColor = Color.White,
-                  ) {
-                      Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                          modifier = Modifier.size( 25.dp )
-                              .clickable {
-                                  navController.navigate(Destinations.PatientRegisterScreen.ref)
-                              }
-                      )
-                  }
+            }
+        }
+        BottomBarState.NotesPage -> {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
+            ){
+                val (btmbar, dcricle, addbtn) = createRefs()
 
+                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-              }
-          }
+                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
+                    .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                    .constrainAs(btmbar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }.fillMaxWidth()
+                    .height( ScreenWidth(0.15).dp )
+                ) {
+                    Row (modifier = Modifier.matchParentSize()
+                        .background(color = SecClr, shape = btmbarshpae)
+                        .padding(start = 50.dp , end = 50.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
 
-          TopAppBarState.NurseNotes -> {
-              ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
-              ){
-                  val (btmbar, dcricle, addbtn) = createRefs()
+                    ){
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.home),
+                                tint = Color.White.copy(alpha = 0.55f),
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                    navController.navigate( route = Destinations.ShiftReportScreen.ref )
+                                }
+                        ){
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.White.copy(alpha = 0.55f) ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                        ){
 
-                  val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint = HTextClr ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,  color =  HTextClr, fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                navController.navigate(Destinations.AccountScreen.ref)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
+                                tint = Color.White.copy(alpha = 0.55f),
+                                modifier = Modifier
+                                    .size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                    }
 
-                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
-                      .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
-                      .constrainAs(btmbar) {
-                          start.linkTo(parent.start)
-                          end.linkTo(parent.end)
-                          bottom.linkTo(parent.bottom)
-                      }.fillMaxWidth()
-                      .height( ScreenWidth(0.15).dp )
-                  ) {
-                      Row (modifier = Modifier.matchParentSize()
-                          .background(color = SecClr, shape = btmbarshpae)
-                          .padding(start = 50.dp , end = 50.dp),
-                          horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically
-
-                      ){
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.home),
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                  .clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                      navController.navigate( route = Destinations.ShiftReportScreen.ref )
-                                  }
-                          ){
-                              Icon(painter = painterResource(R.drawable.key),
-                                  tint = Color.White.copy(alpha = 0.55f) ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                          ){
-
-                              Icon(painter = painterResource(R.drawable.stickynote),
-                                  tint = HTextClr ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Notes" , style = TextStyle( fontFamily = Headingfont ,  color =  HTextClr, fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                  navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  navController.navigate(Destinations.AccountScreen.ref)
-                              }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                  tint = Color.White.copy(alpha = 0.55f),
-                                  modifier = Modifier
-                                      .size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                          }
-                      }
-
-                  }
+                }
 
 
 
 
-                  val bottomgline = createGuidelineFromBottom(0.25f)
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.size( 70.dp )
-                          .constrainAs(dcricle) {
-                              bottom.linkTo(bottomgline)
-                              start.linkTo(btmbar.start)
-                              end.linkTo(btmbar.end)
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = AppBg,
-                  ) {}
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
-                          .size( 56.dp )
-                          .constrainAs(addbtn) {
-                              start.linkTo(dcricle.start)
-                              end.linkTo(dcricle.end)
-                              bottom.linkTo(dcricle.bottom, margin = 7.dp )
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = HTextClr,
-                      contentColor = Color.White,
-                  ) {
-                      Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                          modifier = Modifier.size( 25.dp )
-                              .clickable {
-                                  navController.navigate(Destinations.PatientRegisterScreen.ref)
-                              }
-                      )
-                  }
+                val bottomgline = createGuidelineFromBottom(0.25f)
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.size( 70.dp )
+                        .constrainAs(dcricle) {
+                            bottom.linkTo(bottomgline)
+                            start.linkTo(btmbar.start)
+                            end.linkTo(btmbar.end)
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = AppBg,
+                ) {}
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
+                        .size( 56.dp )
+                        .constrainAs(addbtn) {
+                            start.linkTo(dcricle.start)
+                            end.linkTo(dcricle.end)
+                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = HTextClr,
+                    contentColor = Color.White,
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
+                        modifier = Modifier.size( 25.dp )
+                            .clickable {
+                                navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            }
+                    )
+                }
 
 
-              }
-          }
+            }
+        }
+        BottomBarState.ReportsPage -> {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
+            ){
+                val (btmbar, dcricle, addbtn) = createRefs()
 
-          TopAppBarState.Profile -> {
-              ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
-              ){
-                  val (btmbar, dcricle, addbtn) = createRefs()
+                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
 
-                  val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
+                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
+                    .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                    .constrainAs(btmbar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }.fillMaxWidth()
+                    .height( ScreenWidth(0.15).dp )
+                ) {
 
-                  Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
-                      .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
-                      .constrainAs(btmbar) {
-                          start.linkTo(parent.start)
-                          end.linkTo(parent.end)
-                          bottom.linkTo(parent.bottom)
-                      }.fillMaxWidth()
-                      .height( ScreenWidth(0.15).dp )
-                  ) {
+                    Row (modifier = Modifier.matchParentSize()
+                        .background(color = SecClr, shape = btmbarshpae)
+                        .padding(start = 50.dp , end = 50.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
 
-                      Row (modifier = Modifier.matchParentSize()
-                          .background(color = SecClr, shape = btmbarshpae)
-                          .padding(start = 50.dp , end = 50.dp),
-                          horizontalArrangement = Arrangement.SpaceBetween,
-                          verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.home),
+                                tint = Color.White.copy(alpha = 0.55f) ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                        ){
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = HTextClr ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                    navController.navigate(route = Destinations.NurseNotes.ref)
+                                }
+                        ){
 
-                      ){
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.home),
-                                  tint = Color.White.copy(alpha = 0.55f) ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                  .clickable{
-                                      navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                      navController.navigate( route = Destinations.ShiftReportScreen.ref )
-                                  }
-                          ){
-                              Icon(painter = painterResource(R.drawable.key),
-                                  tint = Color.White.copy(alpha = 0.55f) ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                          ){
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint = Color.White.copy(alpha = 0.55f),
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                navController.navigate(Destinations.AccountScreen.ref)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
+                                tint = Color.White.copy(alpha = 0.55f),
+                                modifier = Modifier
+                                    .size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                        }
+                    }
 
-                              Icon(painter = painterResource(R.drawable.stickynote),
-                                  tint =  Color.White.copy(alpha = 0.55f) ,
-                                  contentDescription = "Paitent Image",
-                                  modifier = Modifier.size( ScreenWidth(0.08).dp )
-                                      .clickable{
-                                          navController.popBackStack( route = Destinations.NurseDboardScreen.ref , false)
-                                          navController.navigate(Destinations.NurseNotes.ref)
-                                      }
-                              )
-                              Text("Notes" , style = TextStyle( fontFamily = Headingfont ,   color = Color.White , fontSize = 9.sp))
-                          }
-                          Column(horizontalAlignment = Alignment.CenterHorizontally,
-                              verticalArrangement = Arrangement.Center,
-                              modifier = Modifier.clickable{
-                                  navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                  navController.navigate(Destinations.AccountScreen.ref)
-                              }
-                          ) {
-                              Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                  tint = HTextClr ,
-                                  modifier = Modifier
-                                      .size( ScreenWidth(0.08).dp )
-                              )
-                              Text("Account" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr, fontSize = 9.sp))
-                          }
-                      }
-
-                  }
-
-                  val bottomgline = createGuidelineFromBottom(0.25f)
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.size( 70.dp )
-                          .constrainAs(dcricle) {
-                              bottom.linkTo(bottomgline)
-                              start.linkTo(btmbar.start)
-                              end.linkTo(btmbar.end)
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = AppBg,
-                  ) {}
-                  FloatingActionButton(
-                      onClick = {}, shape = CircleShape.copy(),
-                      modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
-                          .size( 56.dp )
-                          .constrainAs(addbtn) {
-                              start.linkTo(dcricle.start)
-                              end.linkTo(dcricle.end)
-                              bottom.linkTo(dcricle.bottom, margin = 7.dp )
-                          }.clickable {
-                              navController.navigate(Destinations.PatientRegisterScreen.ref)
-                          },
-                      containerColor = HTextClr,
-                      contentColor = Color.White,
-                  ) {
-                      Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                          modifier = Modifier.size( 25.dp )
-                              .clickable {
-                                  navController.navigate(Destinations.PatientRegisterScreen.ref)
-                              }
-                      )
-                  }
+                }
 
 
-              }
-          }
+                val bottomgline = createGuidelineFromBottom(0.25f)
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.size( 70.dp )
+                        .constrainAs(dcricle) {
+                            bottom.linkTo(bottomgline)
+                            start.linkTo(btmbar.start)
+                            end.linkTo(btmbar.end)
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = AppBg,
+                ) {}
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
+                        .size( 56.dp )
+                        .constrainAs(addbtn) {
+                            start.linkTo(dcricle.start)
+                            end.linkTo(dcricle.end)
+                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = HTextClr,
+                    contentColor = Color.White,
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
+                        modifier = Modifier.size( 25.dp )
+                            .clickable {
+                                navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            }
+                    )
+                }
 
-          else -> Unit
-      }
 
+            }
+        }
+        BottomBarState.AccountPage -> {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
+            ){
+                val (btmbar, dcricle, addbtn) = createRefs()
+
+                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
+
+                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
+                    .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
+                    .constrainAs(btmbar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }.fillMaxWidth()
+                    .height( ScreenWidth(0.15).dp )
+                ) {
+
+                    Row (modifier = Modifier.matchParentSize()
+                        .background(color = SecClr, shape = btmbarshpae)
+                        .padding(start = 50.dp , end = 50.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+
+                    ){
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.home),
+                                tint = Color.White.copy(alpha = 0.55f) ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                    navController.navigate( route = Destinations.ShiftReportScreen.ref )
+                                }
+                        ){
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.White.copy(alpha = 0.55f) ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                        ){
+
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint =  Color.White.copy(alpha = 0.55f) ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                    .clickable{
+                                        navController.popBackStack( route = Destinations.NurseDboardScreen.ref , false)
+                                        navController.navigate(Destinations.NurseNotes.ref)
+                                    }
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,   color = Color.White , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                navController.navigate(Destinations.AccountScreen.ref)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
+                                tint = HTextClr ,
+                                modifier = Modifier
+                                    .size( ScreenWidth(0.08).dp )
+                            )
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr, fontSize = 9.sp))
+                        }
+                    }
+
+                }
+
+                val bottomgline = createGuidelineFromBottom(0.25f)
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.size( 70.dp )
+                        .constrainAs(dcricle) {
+                            bottom.linkTo(bottomgline)
+                            start.linkTo(btmbar.start)
+                            end.linkTo(btmbar.end)
+                        }.clickable {
+                            navController.navigate(Destinations.UpdateProfileScreen.ref)
+                        },
+                    containerColor = AppBg,
+                ) {}
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
+                        .size( 56.dp )
+                        .constrainAs(addbtn) {
+                            start.linkTo(dcricle.start)
+                            end.linkTo(dcricle.end)
+                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
+                        }.clickable {
+                            navController.navigate(Destinations.UpdateProfileScreen.ref)
+                        },
+                    containerColor = HTextClr,
+                    contentColor = Color.White,
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
+                        modifier = Modifier.size( 25.dp )
+                            .clickable {
+                                navController.navigate(Destinations.UpdateProfileScreen.ref)
+                            }
+                    )
+                }
+
+
+            }
+        }
+        BottomBarState.NoBottomBar -> Unit
+        else -> Unit
+    }
 }
-
 

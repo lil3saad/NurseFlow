@@ -1,5 +1,7 @@
 package com.example.nurseflowd1
 
+import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -52,12 +54,19 @@ import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.Headingfont
 import io.appwrite.Client
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.text.font.FontWeight
+import androidx.core.content.ContextCompat
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.nurseflowd1.domain.usecases.RoomUseCase
 import com.example.nurseflowd1.room.RoomDB
-import com.example.nurseflowd1.screens.TopAppBarState
-import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
+import com.example.nurseflowd1.screens.BottomBarState
+import com.example.nurseflowd1.screens.NavigationIconState
+import com.example.nurseflowd1.screens.nurseauth.MyBottomNavBar
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
+import com.example.nurseflowd1.screens.paitentdash.PatientDashBoardScreen
+import com.example.nurseflowd1.screens.paitentdash.medication.AddMedScreen
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
 import com.example.nurseflowd1.ui.theme.panelcolor
 
@@ -68,10 +77,10 @@ class MainActivity : ComponentActivity() {
         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT // NOT WORKING
 
         val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
-
         val patientdao  = RoomDB.invoke(this).getpatientcardDAO()
-
         val roomuse = RoomUseCase(patientdao)
+
+        val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -84,74 +93,30 @@ class MainActivity : ComponentActivity() {
 
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
-                val topbarstate by viewmodel.topappbarstate.collectAsState()
-
                 Scaffold(modifier = Modifier.background(AppBg)
                     .systemBarsPadding() // LOAD SCAFFOLD RESPECTING THE USER'S GESTURES / BUTTON SYSTEM BARS
                     .fillMaxSize(),
                     topBar = {
+
+                        val titlestate by viewmodel.appbartitlestate.collectAsState()
+                        val iconstate by viewmodel.appbariconstate.collectAsState()
+                        val colorstate by viewmodel.appbarcolorstate.collectAsState()
                         TopAppBar(
                             title = {
-                                when(topbarstate){
-                                    TopAppBarState.AppNameBar -> {
+                                when(val state = titlestate){
+                                    is AppBarTitleState.DisplayTitle -> {
                                         Row( verticalAlignment = Alignment.CenterVertically) {
                                             Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                            Text( state.display , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
                                                 modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
                                         }
                                     }
-                                    TopAppBarState.AppNameBack -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "NurseFlow" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-                                        }
-                                    }
-                                    TopAppBarState.NurseDashBoard -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "DashBoard" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp , fontWeight = FontWeight.ExtraBold,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-                                        }
-                                    }
-                                    TopAppBarState.Profile -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "Profile" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-                                        }
-                                    }
-                                    TopAppBarState.ShitfReport -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "Shift Reports" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-                                        }
-                                    }
-                                    TopAppBarState.NurseNotes -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( "Notes" , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
-                                        }
-                                    }
-
-                                    TopAppBarState.DoNotDisplay -> {
-                                        Unit
-                                    }
+                                    is AppBarTitleState.DisplayTitleWithBack -> Unit
+                                    AppBarTitleState.NoTopAppBar -> Unit
                                 }
                             },
-                            colors = when(topbarstate){
-                                TopAppBarState.NurseDashBoard -> {
-                                    TopAppBarColors(
-                                        containerColor = panelcolor,
-                                        scrolledContainerColor = Color.Black,
-                                        navigationIconContentColor = Color.Black,
-                                        titleContentColor = Color.Black,
-                                        actionIconContentColor = Color.Black
-                                    )
-                                }
-                                else -> {
+                            colors = when(colorstate){
+                                AppBarColorState.DefaultColors -> {
                                     TopAppBarColors(
                                         containerColor = AppBg,
                                         scrolledContainerColor = Color.Black,
@@ -160,35 +125,69 @@ class MainActivity : ComponentActivity() {
                                         actionIconContentColor = Color.Black
                                     )
                                 }
+                                AppBarColorState.NurseDashColors -> {
+                                    TopAppBarColors(
+                                        containerColor = panelcolor,
+                                        scrolledContainerColor = Color.Black,
+                                        navigationIconContentColor = Color.Black,
+                                        titleContentColor = Color.Black,
+                                        actionIconContentColor = Color.Black
+                                    )
+
+                                }
                             }
                             ,
                             navigationIcon = {
-                                when(topbarstate){
-                                    TopAppBarState.AppNameBack -> {
+                                when(iconstate){
+                                    NavigationIconState.DefaultBack -> {
                                         Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "NavigationIcon",
                                             modifier = Modifier.padding(start = 4.dp , end = 12.dp, top = 12.dp)
                                                 .size( (Screenwidth * 0.08).dp )
                                                 .clickable{ navController.popBackStack() },
-                                            tint = Color.White
-                                        )
+                                            tint = Color.White)
                                     }
-                                    else -> Unit
+                                    NavigationIconState.None -> Unit
                                 }
                             }
 
+
+
                         )
                     },
-                    bottomBar = { val barstate by viewmodel.topappbarstate.collectAsState()
-                        BottomNavBar(navController , barstate)
-                    }
+                    bottomBar = {
+                        val bottombarstate by viewmodel.bottombarstate.collectAsState()
+                        when(val state = bottombarstate){
+                            BottomBarState.NurseDashBoard -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.NotesPage -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.ReportsPage -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.AccountPage -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.FlatNavigation -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.PaitentDash -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                            BottomBarState.NoBottomBar -> {
+                                MyBottomNavBar(navController, state)
+                            }
+                        }
+                    },
                 ){ innerPadding ->
-                    NavigationStack(modifier = Modifier.padding(innerPadding) , navController , viewmodel)
+                    NavigationStack(modifier = Modifier.padding(innerPadding) , navController , viewmodel , notimanager)
                 }
             }
         }
     }
     @Composable
-    fun NavigationStack(modifier: Modifier = Modifier , navController: NavHostController , viewmodel : AppVM){
+    fun NavigationStack(modifier: Modifier = Modifier , navController: NavHostController , viewmodel : AppVM , notimanager: NotificationManager){
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){
                 LoginScreen(modifier, navController , viewmodel)
@@ -201,7 +200,7 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Destinations.NurseDboardScreen.ref ,
             ){
-                NurseDashBoardScreen(modifier, navController , viewmodel)
+                NurseDashBoardScreen(modifier, navController , viewmodel , notimanager)
             }
             composable(route = Destinations.AccountScreen.ref){
                 AccountScreen(modifier , viewmodel , navController)
@@ -220,6 +219,30 @@ class MainActivity : ComponentActivity() {
             }
             composable( route = Destinations.NurseNotes.ref){
                 NurseNotesPage(modifier , navController, viewmodel)
+            }
+            composable( route = Destinations.PatientDashboardScreen.ref , arguments = listOf(
+                navArgument(name = "patientid"){
+                    defaultValue = "patientidnotpassed"
+                    type = NavType.StringType
+                } ,
+                navArgument(name = "patientname"){
+                    defaultValue = "nopaitentnamepassed"
+                    type = NavType.StringType
+                }
+            )){
+                navbackstackentry ->
+                val patientid = navbackstackentry.arguments!!.getString("patientid")!!
+                val patientname = navbackstackentry.arguments!!.getString("patientname")!!
+                PatientDashBoardScreen(modifier,viewmodel, navController , patientid , patientname )
+            }
+            composable(route = Destinations.AddMediceneScreen.ref , arguments = listOf(
+                navArgument(name = "patientid" ){
+                    defaultValue = "idnotpassed"
+                    type = NavType.StringType
+                }
+            )){ navbackstackentry ->
+                val patientid = navbackstackentry.arguments!!.getString("patientid")!!
+                AddMedScreen(modifier , viewmodel ,patientid )
             }
 
         }

@@ -8,8 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,16 +55,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import com.example.nurseflowd1.screens.AppBarColorState
+import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
-import com.example.nurseflowd1.screens.TopAppBarState
-import com.example.nurseflowd1.screens.nurseauth.BottomNavBar
+import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.ui.theme.Bodyfont
 
 
 @Composable
 fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontroller: NavController){
 
-    viewmodel.SetTopBarState(TopAppBarState.Profile)
+    // Change State of TopBarState
+    viewmodel.ChangeTopBarState(
+        barstate = AppBarTitleState.DisplayTitle("Profle"),
+        colorState = AppBarColorState.DefaultColors,
+        iconState = NavigationIconState.DefaultBack
+    )
+    viewmodel.ChangeBottomBarState(BottomBarState.AccountPage)
 
 
     @Composable
@@ -258,7 +263,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
             }
         }
 
-        val barstate by viewmodel.topappbarstate.collectAsState()
+        val barstate by viewmodel.appbartitlestate.collectAsState()
 
     }
 
