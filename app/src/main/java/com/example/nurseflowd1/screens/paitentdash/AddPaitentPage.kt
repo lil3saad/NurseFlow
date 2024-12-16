@@ -154,7 +154,6 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                 AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
                 AddPatientState.idle -> Unit
             }
-
             if(errormessage.isNotBlank()){
                 Text( text = errormessage,
                     style = TextStyle(fontSize =  ScreenWidth(0.037).sp ),

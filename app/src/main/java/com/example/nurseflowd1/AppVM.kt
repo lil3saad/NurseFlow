@@ -3,14 +3,21 @@ package com.example.nurseflowd1
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.nurseflowd1.datamodels.CardPatient
+import com.example.nurseflowd1.datamodels.MedieneInfo
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
-import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.domain.usecases.RoomMediUC
+import com.example.nurseflowd1.domain.usecases.RoomPatientUC
 import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
@@ -29,19 +36,22 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
 
-class AppVM( private val navController: NavController,
-  private val  storageuc : AWStorageUseCase ,
-    private val roomuc : RoomUseCase
+class AppVM(private val navController: NavController,
+            private val  storageuc : AWStorageUseCase,
+            private val roompatientuc : RoomPatientUC,
+            private val roommeduc : RoomMediUC
 ) : ViewModel() {
 
     // USER AUTHENTICATION
@@ -102,7 +112,7 @@ class AppVM( private val navController: NavController,
             currentuser = null
             _authState.value = AuthState.UnAuthenticated
             _NurseDocId.value = NurseDocIdState.NoId
-            roomuc.DeletePaitentCards()
+            roompatientuc.DeletePaitentCards()
          // Removes Profile Picture from APP VM
             Log.d("TAGY", "User SignedOut !VM:SingOut")
         } catch (e: FirebaseAuthException) {
@@ -501,14 +511,13 @@ class AppVM( private val navController: NavController,
     var cardpatientlist : StateFlow<RoomPatientListState> = _CardPatientList.asStateFlow()
 
     suspend fun savePatientCardInRoom(patientCardEntity: CardPatient) = viewModelScope.launch{
-        roomuc.insertPatientCard(patientCardEntity)
+        roompatientuc.insertPatientCard(patientCardEntity)
         _CardPatientList.value = RoomPatientListState.NewAdded
     }
 
-
     fun getCardPatietnList() = viewModelScope.launch {
         Log.d("TAGY" , "List is idle so called !VM:530")
-        val roomlist = roomuc.readPatientCardList() // As soon as new patient is added it is added to fibe and room and this line is called again with the updated list
+        val roomlist = roompatientuc.readPatientCardList() // As soon as new patient is added it is added to fibe and room and this line is called again with the updated list
         if(roomlist.isEmpty()){ FetchP_InfoList()
             Log.d("TAGY" , "END HERE MF")
             fbpatientliststate.collect{
@@ -521,7 +530,7 @@ class AppVM( private val navController: NavController,
                     for( patient in firebaselist){
                         intialjob = savePatientCardInRoom(patient)
                     }
-                    _CardPatientList.value = RoomPatientListState.FullReadList( roomuc.readPatientCardList() )
+                    _CardPatientList.value = RoomPatientListState.FullReadList( roompatientuc.readPatientCardList() )
 
                 }
                 FBPatientListState.emptylist -> {
@@ -533,16 +542,37 @@ class AppVM( private val navController: NavController,
         }else _CardPatientList.value = RoomPatientListState.FullReadList(roomlist)
     }
     fun getSearchResult(usertext : String) = viewModelScope.launch{
-        val roompatienlist = roomuc.SearchPatient(usertext)
+        val roompatienlist = roompatientuc.SearchPatient(usertext)
         if(roompatienlist.isEmpty()){
             _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
         }else _CardPatientList.value = RoomPatientListState.SearchList(roompatienlist)
     }
     fun getCriticalList() = viewModelScope.launch{
-        val roompatienlist = roomuc.getCriticalist()
+        val roompatienlist = roompatientuc.getCriticalist()
         if(roompatienlist.isEmpty()){
             Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
         }else _CardPatientList.value = RoomPatientListState.CriticalList(roompatienlist)
+    }
+
+
+    // MEDICINE FUNCTIONS
+     fun insertmedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.insertPatientCard(medieneInfo)
+    }
+    fun deletemedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.deletePatientCard(medieneInfo)
+    }
+    fun updatemedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.updatePatientCard(medieneInfo)
+    }
+
+    private var _PatientMediList :  MutableStateFlow<List<MedieneInfo>> = MutableStateFlow(emptyList())
+    var patientmedilist : StateFlow<List<MedieneInfo>> = _PatientMediList
+
+
+   fun patientmedilist(patientid: String )  = viewModelScope.launch{
+         _PatientMediList.value = emptyList<MedieneInfo>()
+        _PatientMediList.value =   roommeduc.fetchPatientMedi(patientid)
     }
 
 
@@ -571,9 +601,6 @@ class AppVM( private val navController: NavController,
     fun ChangeBottomBarState(barstate : BottomBarState) = viewModelScope.launch{
         _bottombarstate.value = barstate
     }
-
-
-
 
 }
 sealed class AuthState {

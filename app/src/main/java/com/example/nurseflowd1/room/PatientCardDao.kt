@@ -32,7 +32,6 @@ interface PatientCardDao {
     @Query("Select * from patientcard where iscrictal = 1")
     fun getcriticalpatients() : List<CardPatient>
 
-
     @Query("Delete from patientcard")
     fun emptyPatientCards()
 

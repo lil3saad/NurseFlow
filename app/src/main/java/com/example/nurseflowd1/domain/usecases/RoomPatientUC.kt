@@ -5,13 +5,10 @@ import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.room.PatientCardDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RoomUseCase(val patientcardao : PatientCardDao) {
+class RoomPatientUC(val patientcardao : PatientCardDao) {
 
     suspend fun insertPatientCard(patientcard : CardPatient) {
         CoroutineScope(Dispatchers.IO).launch{
@@ -44,8 +41,5 @@ class RoomUseCase(val patientcardao : PatientCardDao) {
     suspend fun DeletePaitentCards() = withContext(Dispatchers.IO){
         patientcardao.emptyPatientCards()
     }
-
-
-
 
 }

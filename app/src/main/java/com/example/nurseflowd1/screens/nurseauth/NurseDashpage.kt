@@ -79,7 +79,6 @@ import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat.getSystemService
-import com.example.nurseflowd1.MediNotiService
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
@@ -147,7 +146,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                 is RoomPatientListState.FullReadList -> {
                          val patientlist = state.patientlist
                           listsize.value = patientlist.size.toString()
-                         items(patientlist){
+                         items(patientlist) {
                                  patient -> PaitentCard(patient , navController, notificationmanager)
                          }
                 }
@@ -196,10 +195,10 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
 
 
     var displaytext =  "Total patients"
-    var displaylabel = "critical"
+    var displaylabel = "Critical"
     if(criticaliststate.value){
         displaytext = "Critical Patients"
-        displaylabel = "total"
+        displaylabel = "Total"
     }
     Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f)
         .background(panelcolor, shape = toppanelshape)
@@ -338,10 +337,7 @@ fun PaitentCard(patient : CardPatient , navigator: NavController , notificationm
 
             ){
                 Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
-                    ,modifier = Modifier.size( 65.dp ).clickable{
-                             val medinotiservice = MediNotiService(context)
-                             notificationmanager.notify(1, medinotiservice.showNotifcation("${patient.name}" , "Hello Mf").build())
-                    }
+                    ,modifier = Modifier.size( 65.dp ).clickable{}
                 )
             }
             Column( verticalArrangement = Arrangement.Center ,
@@ -362,13 +358,11 @@ fun PaitentCard(patient : CardPatient , navigator: NavController , notificationm
             Column( verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxHeight().fillMaxWidth()
-                    .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )
-
-            ){
-                Icon( imageVector = ImageVector.vectorResource(R.drawable.dashboard),
+                    .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )) {
+                Icon( imageVector = ImageVector.vectorResource(R.drawable.dashopen),
                     contentDescription = "DashboardIcon",
-                    tint = HTextClr,
-                    modifier = Modifier.size( 40.dp ).clickable {
+                    tint = Color.White,
+                    modifier = Modifier.size( 38.dp ).clickable {
                         navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
                     }
                 )
