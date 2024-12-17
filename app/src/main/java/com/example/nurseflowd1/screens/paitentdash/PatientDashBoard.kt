@@ -90,7 +90,7 @@ fun PatientDashBoardScreen(modifier: Modifier = Modifier, viewmodel : AppVM, nav
             }
 
             FloatingActionButton( onClick = {
-                navcontroller.navigate(Destinations.AddMediceneScreen.ref.replace(oldValue = "{patientid}" , newValue = patientid))
+                navcontroller.navigate("addmedi/$patientid/$patientname")
             },
                 modifier = Modifier.padding(end = 18.dp , bottom = 18.dp),
                 shape = CircleShape,

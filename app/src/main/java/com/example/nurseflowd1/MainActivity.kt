@@ -244,13 +244,18 @@ class MainActivity : ComponentActivity() {
                 PatientDashBoardScreen(modifier,viewmodel, navController , patientid , patientname )
             }
             composable(route = Destinations.AddMediceneScreen.ref , arguments = listOf(
-                navArgument(name = "patientid" ){
+                navArgument(name = "patientid" ) {
                     defaultValue = "idnotpassed"
+                    type = NavType.StringType
+                },
+                navArgument("patientname") {
+                    defaultValue = "notpatientname"
                     type = NavType.StringType
                 }
             )){ navbackstackentry ->
                 val patientid = navbackstackentry.arguments!!.getString("patientid")!!
-                AddMedScreen(modifier , navController, viewmodel ,patientid )
+                val patientname = navbackstackentry.arguments!!.getString("patientname")!!
+                AddMedScreen(modifier , navController, viewmodel ,patientid , patientname )
             }
 
         }

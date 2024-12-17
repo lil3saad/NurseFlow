@@ -35,6 +35,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -42,6 +44,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
@@ -62,11 +65,13 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,viewmodel : AppVM , patientid : String){
-    Column(modifier = modifier.fillMaxSize().background(AppBg) , horizontalAlignment = Alignment.CenterHorizontally ) {
+fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,viewmodel : AppVM , patientid : String , patientname : String){
+    Column(modifier = modifier.fillMaxSize().background(AppBg)
+        , horizontalAlignment = Alignment.CenterHorizontally ) {
 
 
-        Column(modifier = Modifier.fillMaxWidth(0.9f).fillMaxHeight(0.9f ) ,  horizontalAlignment = Alignment.CenterHorizontally ){
+        Column(modifier = Modifier.fillMaxWidth(0.9f).fillMaxHeight(0.9f)
+            ,  horizontalAlignment = Alignment.CenterHorizontally ){
 
             val user_mediname = remember { mutableStateOf("") }
             var user_medinamestate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -104,8 +109,6 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                     ){ Text("Tablet" , color = Color.White)  }
                 }
                 item{
-
-
                     Button(
                         onClick = {
                             if(medibuttonstate.value != MediTypeState.Tonic) medibuttonstate.value = MediTypeState.Tonic
@@ -244,10 +247,12 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
             val currentdosage = remember { mutableStateOf(1) }
             val itemtimemap = remember { mutableStateMapOf( currentdosage.value to "Set Dose") }
             val itemnumberforpicker = remember { mutableStateOf(1) }
+
+            val launchPicker  = remember { mutableStateOf(false) }
+
             Column(modifier = Modifier.padding(top = 18.dp).fillMaxWidth())  {
                 DosageRow(currentdosage , itemtimemap)
 
-                val launchPicker  = remember { mutableStateOf(false) }
                 // Timmer Box
                 Box(modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
@@ -288,27 +293,71 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                 }
             }
 
+            val isSwitchOn = remember { mutableStateOf(false) }
+            val launchDatePicker = remember { mutableStateOf(false) }
+            val getendtime : MutableState<Long> = remember {  mutableStateOf(6969)  }
 
-            val ischecked = remember { mutableStateOf(false) }
+            if(!launchPicker.value){
+                Box {
+                    Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween ,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Set Medicine Reminder Notifications?")
+                        Switch(checked = isSwitchOn.value , onCheckedChange = {
+                            isSwitchOn.value = it ; launchDatePicker.value = true })
+                    }
 
-            Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
-                 Text("Set Reminder Notifications?")
-                 Switch(checked = ischecked.value , onCheckedChange = {
-                    ischecked.value = it })
+
+                    if(isSwitchOn.value && !launchPicker.value) {
+                        if(launchDatePicker.value){
+                            val datestate = rememberDatePickerState(
+                                initialDisplayMode = DisplayMode.Input,
+                                initialSelectedDateMillis = System.currentTimeMillis(),
+                                yearRange = 2024..2026
+                            )
+                            Column(modifier = Modifier.border(1.dp, Color.Red)){
+                                DatePicker(datestate ,
+                                    title = { },
+                                    showModeToggle = false,
+                                    headline = {
+                                        Text("Set Reminder duration until" , fontSize = 15.sp)
+                                    },
+                                    modifier = Modifier.border(1.dp, Color.White).background(AppBg)
+                                )
+                                Row(  modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween){
+                                    Button(onClick = {
+                                        isSwitchOn.value = false
+                                        launchDatePicker.value = false
+                                    }, modifier = Modifier.padding(start = 36.dp)
+                                    ){ Text("Cancel") }
+                                    Button(onClick = {
+                                        getendtime.value =   datestate.selectedDateMillis!!
+                                        launchDatePicker.value = false
+                                    },
+                                        modifier = Modifier.padding(end = 36.dp)
+                                    ) { Text("Confirm") }
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
 
             val context = LocalContext.current
             Button(onClick = {
-
                 for(item in itemtimemap){
                     val mediinfo = MedieneInfo(medi_name = user_mediname.value,
                         medid = patientid+user_mediname.value,
                         medi_type = medibuttonstate.value.ref,
                         patientid = patientid,
                         dosageno = item.key,
-                        meditime = item.value)
+                        meditime = item.value ,
+                        patientname = patientname ,
+                        endmeditime = getendtime.value)
                     val alarmscheduler = AlarmScheduler(context)
-                    if(ischecked.value) alarmscheduler.SchedulerAlarm(mediinfo)
+                    if(isSwitchOn.value) alarmscheduler.ScheduleAlarmNotification(mediinfo)
                     viewmodel.insertmedi(mediinfo)
                     // Insert very Dosage with time into room table
                 }
@@ -322,8 +371,6 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
             ) {
                 Text("Add Medicine")
             }
-
-
         }
     }
 }
