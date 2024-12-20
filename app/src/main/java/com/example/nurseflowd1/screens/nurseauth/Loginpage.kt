@@ -121,10 +121,11 @@ fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, vie
             is AuthState.Authenticated ->{
                 navcontroller.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
             }
-            is AuthState.Failed -> {  errormessage.value = state.message ; isloading.value = false
-
+            is AuthState.LoginFailed -> {
+                errormessage.value = state.message ; isloading.value = false
             }
-            is AuthState.LoadingAuth -> { errormessage.value = ""; isloading.value = true
+            is AuthState.LoadingAuth -> {
+                errormessage.value = ""; isloading.value = true
                 Log.d("TAGY" , "Loging in.......")
             }
             else -> Unit
@@ -162,9 +163,8 @@ fun LoginContent(modifier: Modifier,
         Column( modifier = Modifier.fillMaxWidth(0.8f), horizontalAlignment = Alignment.CenterHorizontally){
             if (errormessage.value.isNotBlank()) {
                 Text( text = errormessage.value,
-                    style = TextStyle(fontSize = ScreenWidth(0.07).sp ),
-                    color = Color.Red.copy(alpha = 0.8f),
-                    modifier = Modifier.width( ScreenWidth(0.1).dp )
+                    style = TextStyle(fontSize = 17.sp ),
+                    color = Color.Red.copy(alpha = 0.8f)
                 )
             }
             if(isloading.value){

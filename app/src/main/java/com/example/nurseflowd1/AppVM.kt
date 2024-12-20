@@ -3,11 +3,6 @@ package com.example.nurseflowd1
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -36,6 +31,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,7 +39,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
@@ -75,7 +70,7 @@ class AppVM(private val navController: NavController,
         _authState.value = AuthState.LoadingAuth
         delay(15) // to  obeserve can react to the change state
         if (email.isEmpty() && password.isEmpty()) {
-            _authState.value = AuthState.Failed("Please Enter your Credentials")
+            _authState.value = AuthState.LoginFailed("Please Enter your Credentials")
         } else {
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
@@ -85,7 +80,7 @@ class AppVM(private val navController: NavController,
                 _authState.value = AuthState.Authenticated
             } catch (e: FirebaseAuthException) {
                 Log.w("TAGY", "createUserWithEmail:failure ${e.message}")
-                _authState.value = AuthState.Failed("${e.message}")
+                _authState.value = AuthState.SinupFailed("${e.message}")
             }
         }
     }
@@ -102,7 +97,7 @@ class AppVM(private val navController: NavController,
             Log.d("TAGY", "User Logged In !VM:LoginUser")
         } catch (e: FirebaseAuthException) {
             Log.w("TAGY", "createUserWithEmail:failure ${e.message}")
-            _authState.value = AuthState.Failed("Login Failed, no Account Found with entered Credentials ")
+            _authState.value = AuthState.LoginFailed("Login Failed, no Account Found with entered Credentials ")
         }
     }
 
@@ -301,7 +296,6 @@ class AppVM(private val navController: NavController,
             age = pinfo.p_age.toString(),
             wardno = pinfo.wardno,
             iscrictal = pinfo.iscritical)
-        savePatientCardInRoom(roompatientcard)
 
         _Addpatientstate.value = AddPatientState.AddingPatient
         when (_NurseDocId.value) {
@@ -317,7 +311,7 @@ class AppVM(private val navController: NavController,
                     "patient_info" to pinfo
                 )
 
-                fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
+                suspend fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
                     viewModelScope.launch {
                         NurseDocRef.collection(NursePatients).document(patientid).get()
                             .addOnSuccessListener { document ->
@@ -346,23 +340,14 @@ class AppVM(private val navController: NavController,
                         // Store patient info as an object
                         PatientDocRef.set(patientdoc)
                             .addOnCompleteListener { document ->
-                                Log.d(
-                                    "TAGY",
-                                    "New Patient Doc Added with DocId: ${PatientDocRef.id}"
-                                )
+                                Log.d("TAGY", "New Patient Doc Added with DocId: ${PatientDocRef.id} !VM:343")
                                 // Creating subcollections for the patient
                                 PatientDocRef.collection(p_medicines).add("test" to 1)
+                                CoroutineScope(Dispatchers.IO).launch{
+                                    savePatientCardInRoom(roompatientcard)
+                                }
+                                _Addpatientstate.value = AddPatientState.PatientAdded
 
-
-
-
-
-
-                                _Addpatientstate.value = AddPatientState.idle
-                                navController.popBackStack(
-                                    route = Destinations.NurseDboardScreen.ref,
-                                    inclusive = false
-                                )
                             }
                             .addOnFailureListener { e ->
                                 Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
@@ -370,7 +355,6 @@ class AppVM(private val navController: NavController,
                     }
                 }
             }
-
             NurseDocIdState.NoId -> {
                 Log.d("TAGY", "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
             }
@@ -518,7 +502,8 @@ class AppVM(private val navController: NavController,
     fun getCardPatietnList() = viewModelScope.launch {
         Log.d("TAGY" , "List is idle so called !VM:530")
         val roomlist = roompatientuc.readPatientCardList() // As soon as new patient is added it is added to fibe and room and this line is called again with the updated list
-        if(roomlist.isEmpty()){ FetchP_InfoList()
+        if(roomlist.isEmpty()){
+            FetchP_InfoList()
             Log.d("TAGY" , "END HERE MF")
             fbpatientliststate.collect{
                 state ->  when(state){
@@ -608,5 +593,6 @@ sealed class AuthState {
     object Authenticated : AuthState()
     object UnAuthenticated : AuthState()
     object LoadingAuth : AuthState()
-    data class Failed(val message: String) : AuthState()
+    data class LoginFailed(val message: String) : AuthState()
+    data class SinupFailed(val message : String) : AuthState()
 }

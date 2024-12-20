@@ -128,9 +128,11 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     LaunchedEffect(authState.value) {
         when(authState.value) {
             is AuthState.Authenticated -> { navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false) }
-            is AuthState.Failed -> { isLoading.value  = false ; ErrorMessage.value = (authState.value as AuthState.Failed).message }
-            is AuthState.LoadingAuth -> { ErrorMessage.value = "" ;  isLoading.value = true
-                Log.d("TAGY" , "Creating user please wait...") }
+            is AuthState.SinupFailed -> { isLoading.value  = false ; ErrorMessage.value = (authState.value as AuthState.LoginFailed).message }
+            is AuthState.LoadingAuth -> {
+                ErrorMessage.value = "" ;  isLoading.value = true
+                Log.d("TAGY" , "Creating user please wait...")
+            }
             else -> Unit
         }
     }

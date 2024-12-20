@@ -11,8 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RoomMediUC(private val medidao : MedicineDao){
-
-
     suspend fun insertPatientCard(medi_info : MedieneInfo) {
         CoroutineScope(Dispatchers.IO).launch{
            medidao.InsertMedi(medi_info)

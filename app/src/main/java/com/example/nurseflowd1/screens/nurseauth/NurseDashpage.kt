@@ -1,7 +1,6 @@
 package com.example.nurseflowd1.screens.nurseauth
 
 import android.app.NotificationManager
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -69,7 +68,6 @@ import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
 import com.example.nurseflowd1.ui.theme.SecClr
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
@@ -78,7 +76,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.compose.ui.Alignment
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
@@ -111,7 +109,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         when (authState) {
             is AuthState.Idle -> { navController.navigate(Destinations.LoginScreen.ref) }
             is AuthState.UnAuthenticated -> { navController.navigate(Destinations.LoginScreen.ref) }
-            is AuthState.Failed -> { Toast.makeText(context, (authState as AuthState.Failed).message, Toast.LENGTH_LONG).show() }
+            is AuthState.LoginFailed -> { Toast.makeText(context, (authState as AuthState.LoginFailed).message, Toast.LENGTH_LONG).show() }
             is AuthState.Authenticated ->  {
                 Log.d("TAGY" , "HOW IS THIS NURSE AUTHENTICATED")
                 if (gotnursedocid is NurseDocIdState.CurrentNurseId) Unit
@@ -139,7 +137,6 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 
         LazyColumn(modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
             .fillMaxWidth(0.9f).fillMaxHeight()) {
-
             when(val state = roompatientliststate){
                 RoomPatientListState.idle -> { viewmodel.getCardPatietnList() }
                 RoomPatientListState.NewAdded -> { viewmodel.getCardPatietnList() }
@@ -151,7 +148,13 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                          }
                 }
                 RoomPatientListState.emptylist -> {
-                    item { Text("No patients available. Please add patients.") }
+                    item {
+                        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight() ,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("No patients available. Please add patients.")
+                        } }
                 }
                 RoomPatientListState.loading -> {
                     item{

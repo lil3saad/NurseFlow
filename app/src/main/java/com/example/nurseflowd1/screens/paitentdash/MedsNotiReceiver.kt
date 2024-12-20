@@ -8,11 +8,12 @@ import android.content.Intent
 import android.util.Log
 import com.example.nurseflowd1.R
 import androidx.core.app.NotificationCompat
+import com.example.nurseflowd1.NotificationReferences
 import kotlin.random.Random
 
 class MedsNotiReceiver() : BroadcastReceiver() {
     override fun onReceive(context: Context, passedintent : Intent) {
-        Log.d("FUCKME" , "BROADCAST RECEIVED BUT AND NOTIFICATION LAUNCHED")
+        Log.d("MYNOTIES" , "BROADCAST RECEIVED BUT AND NOTIFICATION LAUNCHED")
         val notiManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 
         val broadcastcode = passedintent.getIntExtra("BroadcastKey" , 1)
@@ -21,7 +22,7 @@ class MedsNotiReceiver() : BroadcastReceiver() {
         val meditype = passedintent.getStringExtra("MedType")
 
 
-        val medinotification = NotificationCompat.Builder(context , "notichannel101")
+        val medinotification = NotificationCompat.Builder(context , NotificationReferences.MediChannelId.ref)
             .setSmallIcon(R.drawable.syringe)
             .setContentTitle(patientname) // Patient Name
             .setContentText("Time for  $mediname $meditype") // Time for

@@ -15,10 +15,10 @@ class MyApplication : Application() {
     }
 
     private fun CreateNotiChannel() {
-        val MediChannel = NotificationChannel( "notichannel101" , "Medication Reminder"  ,
+        val MediChannel = NotificationChannel( NotificationReferences.MediChannelId.ref , "Medication Reminder"  ,
             NotificationManager.IMPORTANCE_HIGH   ).apply {
                 description = "Get Patient Reminders"
-        } // What Do Importance levels do , i think default has no pop up and High has pop up
+        }
 
         val notiManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -26,4 +26,8 @@ class MyApplication : Application() {
     }
 
 
+}
+
+sealed class NotificationReferences(val ref : String){
+    object MediChannelId : NotificationReferences(ref = "notichannel101")
 }
