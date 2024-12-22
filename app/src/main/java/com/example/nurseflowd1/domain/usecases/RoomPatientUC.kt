@@ -1,6 +1,7 @@
 package com.example.nurseflowd1.domain.usecases
 
 
+import android.util.Log
 import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.room.PatientCardDao
 import kotlinx.coroutines.CoroutineScope
@@ -11,9 +12,10 @@ import kotlinx.coroutines.withContext
 class RoomPatientUC(val patientcardao : PatientCardDao) {
 
     suspend fun insertPatientCard(patientcard : CardPatient) {
-        CoroutineScope(Dispatchers.IO).launch{
             patientcardao.insertcard(patientcard)
-        }
+    }
+    suspend fun insertPatientList(patientlist : List<CardPatient>){
+        patientcardao.insertAllPatients(patientlist)
     }
     suspend fun updatePatientCard(patientcard : CardPatient) {
         CoroutineScope(Dispatchers.IO).launch{
@@ -27,6 +29,7 @@ class RoomPatientUC(val patientcardao : PatientCardDao) {
     }
 
     suspend fun readPatientCardList() : List<CardPatient> = withContext(Dispatchers.IO){
+        Log.d("TAGY" , "Fetching Patients from Room !RoomPatientUC:31")
         patientcardao.selectallpatientcard()
     }
 

@@ -87,7 +87,6 @@ import com.example.nurseflowd1.screens.NavigationIconState
 fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM , notificationmanager: NotificationManager) {
 
    val context = LocalContext.current
-
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
 
@@ -103,27 +102,31 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
     viewmodel.authStatus() // For AutoLog
     val authState by viewmodel.authstate.collectAsState() // Observing the AuthState
     val gotnursedocid by viewmodel.NurseDocId.collectAsState() // Get Nurse DocumentId by Uid
-
-
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Idle -> { navController.navigate(Destinations.LoginScreen.ref) }
             is AuthState.UnAuthenticated -> { navController.navigate(Destinations.LoginScreen.ref) }
             is AuthState.LoginFailed -> { Toast.makeText(context, (authState as AuthState.LoginFailed).message, Toast.LENGTH_LONG).show() }
             is AuthState.Authenticated ->  {
-                Log.d("TAGY" , "HOW IS THIS NURSE AUTHENTICATED")
-                if (gotnursedocid is NurseDocIdState.CurrentNurseId) Unit
-                else viewmodel.GetNurseDocId()
+                Log.d("TAGY" , "NURSE AUTHENTICATED !NurseDash:111")
+                when (gotnursedocid) {
+                    is  NurseDocIdState.CurrentNurseId -> Unit
+                    else ->  viewmodel.GetNurseDocId()
+                }
+            }
+            else -> Unit
+        }
+    }
+    LaunchedEffect(gotnursedocid) {
+        when (gotnursedocid) {
+            is NurseDocIdState.CurrentNurseId -> {
+                Log.d("TAGY" , "FROM NurseDocState  NURSEDASH: 123")
+                viewmodel.getCardPatietnList()
             }
             else -> Unit
         }
     }
     val roompatientliststate by viewmodel.cardpatientlist.collectAsState()
-    LaunchedEffect(gotnursedocid) {
-        if(gotnursedocid is NurseDocIdState.CurrentNurseId) {
-            viewmodel.getCardPatietnList()
-        }
-    }
      // Just Get NurseId Once & Fetch paitents everytime NDASH Is Launched but only do this once
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -138,17 +141,21 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
         LazyColumn(modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
             .fillMaxWidth(0.9f).fillMaxHeight()) {
             when(val state = roompatientliststate){
-                RoomPatientListState.idle -> { viewmodel.getCardPatietnList() }
-                RoomPatientListState.NewAdded -> { viewmodel.getCardPatietnList() }
+
+                is RoomPatientListState.idle -> { Log.d("TAGY" , "THIS IS WHY FROM ROOM LIST IDLE !NURSEDASH : 143" ) }
+                is RoomPatientListState.NewAdded -> {
+                    Log.d("TAGY" , "FROM HERE  NURSEDASH: 145") ; viewmodel.getCardPatietnList() }
                 is RoomPatientListState.FullReadList -> {
                          val patientlist = state.patientlist
+                    Log.d("TAGY" , "IN NURSHDASHBOARD ${patientlist.size} : 144")
                           listsize.value = patientlist.size.toString()
                          items(patientlist) {
                                  patient -> PaitentCard(patient , navController, notificationmanager)
                          }
                 }
-                RoomPatientListState.emptylist -> {
+                is RoomPatientListState.emptylist -> {
                     item {
+                        listsize.value = "0"
                         Column(modifier = Modifier.fillMaxWidth().fillMaxHeight() ,
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -156,7 +163,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                             Text("No patients available. Please add patients.")
                         } }
                 }
-                RoomPatientListState.loading -> {
+                is RoomPatientListState.loading -> {
                     item{
                         Box(modifier = modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -174,6 +181,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                 }
                 is RoomPatientListState.SearchList -> {
                     val patientlist = state.patientlist
+                    listsize.value = patientlist.size.toString()
                     items(patientlist){
                             patient -> PaitentCard(patient , navController , notificationmanager)
                     }
@@ -188,8 +196,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 
 @Composable
 fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM,
-             listsize : MutableState<String>
-) {
+             listsize : MutableState<String>){
 
     val softwarekeybaord = LocalSoftwareKeyboardController.current!!
     @Composable
@@ -281,7 +288,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                 ),
                 trailingIcon = {
                     if(isSearch){
-                        Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patiens" , modifier = Modifier
+                        Icon( imageVector = Icons.Default.Search , contentDescription = "Search Patients" , modifier = Modifier
                             .padding(end = 12.dp)
                             .size( 38.dp ).clickable{
                                 isSearch = false
@@ -458,8 +465,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         ) {
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
                                 tint = Color.White.copy(alpha = 0.55f),
-                                modifier = Modifier
-                                    .size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( ScreenWidth(0.075).dp )
                             )
                             Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
                         }
@@ -576,7 +582,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
                                 tint = Color.White.copy(alpha = 0.55f),
                                 modifier = Modifier
-                                    .size( ScreenWidth(0.08).dp )
+                                    .size( ScreenWidth(0.075).dp )
                             )
                             Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
                         }
@@ -700,7 +706,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
                                 tint = Color.White.copy(alpha = 0.55f),
                                 modifier = Modifier
-                                    .size( ScreenWidth(0.08).dp )
+                                    .size( ScreenWidth(0.075).dp )
                             )
                             Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
                         }
@@ -825,7 +831,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
                                 tint = HTextClr ,
                                 modifier = Modifier
-                                    .size( ScreenWidth(0.08).dp )
+                                    .size( ScreenWidth(0.075).dp )
                             )
                             Text("Account" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr, fontSize = 9.sp))
                         }
@@ -834,18 +840,15 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                 }
 
                 val bottomgline = createGuidelineFromBottom(0.25f)
-                FloatingActionButton(
-                    onClick = {}, shape = CircleShape.copy(),
+                FloatingActionButton(onClick = {}, shape = CircleShape.copy(),
                     modifier = Modifier.size( 70.dp )
                         .constrainAs(dcricle) {
                             bottom.linkTo(bottomgline)
                             start.linkTo(btmbar.start)
                             end.linkTo(btmbar.end)
-                        }.clickable {
-                            navController.navigate(Destinations.UpdateProfileScreen.ref)
-                        },
+                        }.clickable { navController.navigate(Destinations.UpdateProfileScreen.ref) },
                     containerColor = AppBg,
-                ) {}
+                ){}
                 FloatingActionButton(
                     onClick = {}, shape = CircleShape.copy(),
                     modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
@@ -858,14 +861,11 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             navController.navigate(Destinations.UpdateProfileScreen.ref)
                         },
                     containerColor = HTextClr,
-                    contentColor = Color.White,
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                        modifier = Modifier.size( 25.dp )
-                            .clickable {
+                    contentColor = Color.White){
+                    Icon(imageVector = ImageVector.vectorResource(R.drawable.editaccount), contentDescription = "",
+                        modifier = Modifier.padding(start = 2.dp ).size( 28.dp ).clickable {
                                 navController.navigate(Destinations.UpdateProfileScreen.ref)
-                            }
-                    )
+                            })
                 }
 
 

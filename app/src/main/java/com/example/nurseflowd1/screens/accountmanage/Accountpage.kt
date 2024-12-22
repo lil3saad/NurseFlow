@@ -239,8 +239,7 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
 
             // Drop Down Menu
             // Menu Options
-            Column( modifier = Modifier
-                .fillMaxWidth(0.9f)
+            Column( modifier = Modifier.fillMaxWidth(0.9f)
                 .padding(top = ScreenWidth(0.05).dp),
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -259,97 +258,5 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                 )
             }
         }
-
-
-    }
-
-
-}
-
-
-@Composable
-fun CustomScrollbar (
-    state: LazyListState ,
-    modifier: Modifier = Modifier ,
-    content: @Composable ()-> Unit) {
-
-
-    Box(modifier = modifier) {
-
-        content()
-
-        val scrollbarHeight by remember {
-            derivedStateOf {
-                val visibleItemsInfo = state.layoutInfo.visibleItemsInfo
-                if (visibleItemsInfo.isEmpty()) {
-                    return@derivedStateOf 0f
-                }
-
-                val firstVisibleItem = visibleItemsInfo.first()
-                val lastVisibleItem = visibleItemsInfo.last()
-
-                val totalHeight = state.layoutInfo.viewportEndOffset +
-                        state.layoutInfo.viewportStartOffset
-
-                val scrollableArea = firstVisibleItem.offset.toFloat()..
-                        (lastVisibleItem.offset + lastVisibleItem.size).toFloat()
-
-                scrollableArea.endInclusive / totalHeight
-            }
-        }
-
-        val scrollbarPosition by remember {
-            derivedStateOf {
-                state.firstVisibleItemIndex.toFloat() /
-                        (state.layoutInfo.totalItemsCount.toFloat().coerceAtLeast(1f))
-            }
-        }
-
-        val coroutineScope = rememberCoroutineScope()
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .width(8.dp)
-                .fillMaxHeight()
-                .background(Color.LightGray.copy(alpha = 0.1f))
-                .padding(horizontal = 2.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
-                    .draggable(
-                        orientation = Orientation.Vertical,
-                        state = rememberDraggableState { delta ->
-                            coroutineScope.launch {
-                                state.scrollToItem(
-                                    (state.firstVisibleItemIndex + delta / 10).toInt()
-                                        .coerceIn(0, state.layoutInfo.totalItemsCount - 1)
-                                )
-                            }
-                        }
-                    )
-                    .offset(y = (scrollbarPosition * state.layoutInfo.viewportSize.height.toFloat()).dp)
-            )
-        }
     }
 }
-
-// Example usage
-@Composable
-fun ScrollableContent() {
-
-
-    val listState = rememberLazyListState()
-
-    CustomScrollbar(
-        state = listState,
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-    }
-}
-

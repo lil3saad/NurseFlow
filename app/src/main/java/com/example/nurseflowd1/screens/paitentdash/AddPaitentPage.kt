@@ -151,8 +151,7 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
             when(val state = addPatientState){
                 is AddPatientState.AddPatientFailed -> { isloading = false ; errormessage = state.errormsg }
                 AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
-                AddPatientState.PatientAdded -> { navcontroller.popBackStack(route = Destinations.NurseDboardScreen.ref, inclusive = false) }
-                AddPatientState.idle -> Unit
+                else -> Unit
 
             }
             if(errormessage.isNotBlank()){

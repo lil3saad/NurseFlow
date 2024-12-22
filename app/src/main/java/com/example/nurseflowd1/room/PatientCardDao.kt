@@ -15,7 +15,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 interface PatientCardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE ) // what does this do
-    fun insertcard(patientcard : CardPatient) : Long
+    suspend fun insertcard(patientcard : CardPatient) : Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllPatients(patientList: List<CardPatient>)
 
     @Update
     fun updatecard(patientcard : CardPatient)
@@ -27,13 +30,13 @@ interface PatientCardDao {
     fun selectallpatientcard() : List<CardPatient>
 
     @Query("Select * from patientcard Where  Name Like :username")
-    fun searchbyname(username : String) : List<CardPatient>
+    suspend fun searchbyname(username : String) : List<CardPatient>
 
     @Query("Select * from patientcard where iscrictal = 1")
-    fun getcriticalpatients() : List<CardPatient>
+    suspend fun getcriticalpatients() : List<CardPatient>
 
     @Query("Delete from patientcard")
-    fun emptyPatientCards()
+    suspend fun emptyPatientCards()
 
 
 
