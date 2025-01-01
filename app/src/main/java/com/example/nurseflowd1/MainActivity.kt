@@ -2,7 +2,6 @@ package com.example.nurseflowd1
 
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,10 +53,10 @@ import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.Headingfont
 import io.appwrite.Client
 import androidx.compose.runtime.getValue
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.domain.usecases.RoomMediUC
+import com.example.nurseflowd1.domain.usecases.RoomPatientUC
 import com.example.nurseflowd1.room.RoomDB
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.AppBarTitleState
@@ -72,13 +71,21 @@ import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 class MainActivity : ComponentActivity() {
+
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT // NOT WORKING
+
 
         val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
-        val patientdao  = RoomDB.invoke(this).getpatientcardDAO()
-        val roomuse = RoomUseCase(patientdao)
+        val roomdatabase  = RoomDB.invoke(this)
+
+
+        val patientdao =roomdatabase.getpatientcardDAO()
+        val medidao = roomdatabase.getmedicinedDAO()
+
+        val roompatientuse = RoomPatientUC(patientdao)
+        val roommediuc = RoomMediUC(medidao)
 
         val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -88,7 +95,7 @@ class MainActivity : ComponentActivity() {
 
 
             val navController = rememberNavController()
-            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roomuse)
+            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc)
             val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
 
             NurseFlowD1Theme {
@@ -186,6 +193,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     @Composable
     fun NavigationStack(modifier: Modifier = Modifier , navController: NavHostController , viewmodel : AppVM , notimanager: NotificationManager){
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
@@ -236,13 +244,18 @@ class MainActivity : ComponentActivity() {
                 PatientDashBoardScreen(modifier,viewmodel, navController , patientid , patientname )
             }
             composable(route = Destinations.AddMediceneScreen.ref , arguments = listOf(
-                navArgument(name = "patientid" ){
+                navArgument(name = "patientid" ) {
                     defaultValue = "idnotpassed"
+                    type = NavType.StringType
+                },
+                navArgument("patientname") {
+                    defaultValue = "notpatientname"
                     type = NavType.StringType
                 }
             )){ navbackstackentry ->
                 val patientid = navbackstackentry.arguments!!.getString("patientid")!!
-                AddMedScreen(modifier , viewmodel ,patientid )
+                val patientname = navbackstackentry.arguments!!.getString("patientname")!!
+                AddMedScreen(modifier , navController, viewmodel ,patientid , patientname )
             }
 
         }

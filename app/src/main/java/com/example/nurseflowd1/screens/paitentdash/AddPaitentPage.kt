@@ -144,7 +144,6 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
 
 
 
-
             val addPatientState by viewmodel.addPatientState.collectAsState()
             var errormessage by remember { mutableStateOf("") }
             var isloading by remember { mutableStateOf(false) }
@@ -152,9 +151,9 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
             when(val state = addPatientState){
                 is AddPatientState.AddPatientFailed -> { isloading = false ; errormessage = state.errormsg }
                 AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
-                AddPatientState.idle -> Unit
-            }
+                else -> Unit
 
+            }
             if(errormessage.isNotBlank()){
                 Text( text = errormessage,
                     style = TextStyle(fontSize =  ScreenWidth(0.037).sp ),

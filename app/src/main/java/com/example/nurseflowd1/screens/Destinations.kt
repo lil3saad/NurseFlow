@@ -16,7 +16,7 @@ sealed class Destinations(val ref : String) {
 
     // Patient DashBoard
     object PatientDashboardScreen : Destinations("patientdash/{patientid}/{patientname}")
-    object AddMediceneScreen : Destinations("addmedi/{patientid}")
+    object AddMediceneScreen : Destinations("addmedi/{patientid}/{patientname}")
 
 
     object ShiftReportScreen : Destinations("ShiftReport")

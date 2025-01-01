@@ -6,21 +6,23 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import androidx.room.Transaction
 import com.example.nurseflowd1.datamodels.CardPatient
+import com.example.nurseflowd1.datamodels.MedieneInfo
 import com.example.nurseflowd1.datamodels.NurseInfo
 import com.example.nurseflowd1.datamodels.PatientInfo
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
-import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.domain.usecases.RoomMediUC
+import com.example.nurseflowd1.domain.usecases.RoomPatientUC
 import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
-import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.screens.accountmanage.NurseProfileState
 import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
 import com.example.nurseflowd1.screens.nurseauth.NurseDocIdState
-import com.example.nurseflowd1.screens.nurseauth.FBPatientListState
+import com.example.nurseflowd1.screens.nurseauth.FStorePatientListState
 import com.example.nurseflowd1.screens.paitentdash.AddPatientState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -29,19 +31,29 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
 
-class AppVM( private val navController: NavController,
-  private val  storageuc : AWStorageUseCase ,
-    private val roomuc : RoomUseCase
+class AppVM(private val navController: NavController,
+            private val  storageuc : AWStorageUseCase,
+            private val roompatientuc : RoomPatientUC,
+            private val roommeduc : RoomMediUC
 ) : ViewModel() {
 
     // USER AUTHENTICATION
@@ -65,7 +77,7 @@ class AppVM( private val navController: NavController,
         _authState.value = AuthState.LoadingAuth
         delay(15) // to  obeserve can react to the change state
         if (email.isEmpty() && password.isEmpty()) {
-            _authState.value = AuthState.Failed("Please Enter your Credentials")
+            _authState.value = AuthState.LoginFailed("Please Enter your Credentials")
         } else {
             try {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
@@ -75,7 +87,7 @@ class AppVM( private val navController: NavController,
                 _authState.value = AuthState.Authenticated
             } catch (e: FirebaseAuthException) {
                 Log.w("TAGY", "createUserWithEmail:failure ${e.message}")
-                _authState.value = AuthState.Failed("${e.message}")
+                _authState.value = AuthState.SinupFailed("${e.message}")
             }
         }
     }
@@ -92,7 +104,7 @@ class AppVM( private val navController: NavController,
             Log.d("TAGY", "User Logged In !VM:LoginUser")
         } catch (e: FirebaseAuthException) {
             Log.w("TAGY", "createUserWithEmail:failure ${e.message}")
-            _authState.value = AuthState.Failed("Login Failed, no Account Found with entered Credentials ")
+            _authState.value = AuthState.LoginFailed("Login Failed, no Account Found with entered Credentials ")
         }
     }
 
@@ -102,7 +114,7 @@ class AppVM( private val navController: NavController,
             currentuser = null
             _authState.value = AuthState.UnAuthenticated
             _NurseDocId.value = NurseDocIdState.NoId
-            roomuc.DeletePaitentCards()
+            roompatientuc.DeletePaitentCards()
          // Removes Profile Picture from APP VM
             Log.d("TAGY", "User SignedOut !VM:SingOut")
         } catch (e: FirebaseAuthException) {
@@ -151,8 +163,8 @@ class AppVM( private val navController: NavController,
     private var _NurseDocId: MutableStateFlow<NurseDocIdState> = MutableStateFlow(NurseDocIdState.idle)
     var NurseDocId: StateFlow<NurseDocIdState> = _NurseDocId
 
-    private var _FBpatientinfolist = MutableStateFlow<FBPatientListState>(FBPatientListState.emptylist)
-    var fbpatientliststate = _FBpatientinfolist.asStateFlow()
+    private var _firestorePatientList = MutableStateFlow<FStorePatientListState>(FStorePatientListState.emptylist)
+    var fstorepatientliststate = _firestorePatientList.asStateFlow()
 
     fun GetNurseDocId() {
         val uid = currentuser?.uid
@@ -164,7 +176,7 @@ class AppVM( private val navController: NavController,
                     if (!querySnapshot.isEmpty) {
                         for (document in querySnapshot.documents) {
                             // Process each document
-                            Log.d("TAGY", "Document ID : ${document.id} => ${document.data} !VM:GetNurseDocId")
+                            Log.d("TAGY", "Document ID : ${document.id}  !VM:GetNurseDocId")
                             _NurseDocId.value = NurseDocIdState.CurrentNurseId(document.id)
                         }
                     } else {
@@ -181,25 +193,21 @@ class AppVM( private val navController: NavController,
 
     val patientsCollection = "n_patients"
     //Fetch the PatientInfo Object  Field  from FireStore // Function should be called only after receiving the NurseDocID
-   fun FetchP_InfoList()  {
-        Log.d("TAGY" , "FETCH FUNCTION BEING CALLED")
-        _FBpatientinfolist.value = FBPatientListState.Loadinglist
-
+   fun FetchP_InfoList(){
+        _firestorePatientList.value = FStorePatientListState.Loadinglist
         when (_NurseDocId.value) {
             is NurseDocIdState.CurrentNurseId -> {
                 val nursedocid = (_NurseDocId.value as NurseDocIdState.CurrentNurseId).string
                 IfPatientsExists(nursedocid) { exists ->
                     if (exists) {
-                        Log.d("TAGY", "FETCHING PATIENT DETAILS FROM PATIENT COLLECTION")
-                        firestoredb.collection("Nurses").document(nursedocid)
-                            .collection(patientsCollection).get()
+                        Log.d("TAGY", "FETCHING PATIENT DETAILS FROM PATIENT COLLECTION !VM:196")
+                        firestoredb.collection("Nurses").document(nursedocid).collection(patientsCollection).get()
                             .addOnSuccessListener { documents ->
                                 if (!documents.isEmpty) {
                                     try {
+
                                         val patientList = mutableListOf<CardPatient>()
                                         for (doc in documents) {
-                                            Log.d("TAGY", "Fetched Patient Full Doc :  $doc")
-
                                             val resultp_info = doc.get("patient_info") as HashMap<*, *>
 
                                             val id = resultp_info["p_patientid"] as String
@@ -212,7 +220,6 @@ class AppVM( private val navController: NavController,
                                             val resultcondition =  resultp_info["condition"] as String
                                             val resultiscritical = resultp_info["iscritical"]as Boolean
 
-
                                             val patientinfo = CardPatient(
                                                 patientid = id,
                                                 name = "$name $surname",
@@ -223,39 +230,32 @@ class AppVM( private val navController: NavController,
                                                 condition = resultcondition,
                                                 iscrictal = resultiscritical
                                             )
-
                                             patientList.add(patientinfo)
                                         }
-                                        _FBpatientinfolist.value =   FBPatientListState.PatientsReceived(patientList)
-                                    } catch (e: FirebaseFirestoreException) {
-                                        Log.d(
-                                            "TAGY",
-                                            "Error while fetching patientlist ${e.message}"
-                                        )
-                                    }
-
+                                        Log.d("TAGY", "FETCHED ${patientList.size} Patients from FireBase")
+                                        _firestorePatientList.value =   FStorePatientListState.PatientsReceived(patientList)
+                                    } catch (e: FirebaseFirestoreException) { Log.d("TAGY", "Error while fetching patientlist ${e.message}") }
                                 } else {
-                                    _FBpatientinfolist.value = FBPatientListState.emptylist
+                                    _firestorePatientList.value = FStorePatientListState.emptylist
                                     Log.d("TAGY", "No patients found")
                                 }
                             }.addOnFailureListener { e ->
-                                _FBpatientinfolist.value = FBPatientListState.emptylist
+                                _firestorePatientList.value = FStorePatientListState.emptylist
                                 Log.e("TAGY", "Failed to fetch patients", e)
                             }
-                    } else {
-                        _FBpatientinfolist.value = FBPatientListState.emptylist
+                    }
+                    else {
+                        _firestorePatientList.value = FStorePatientListState.emptylist
                     }
                 }
             }
-            NurseDocIdState.NoId -> {
-                Log.d("TAGY", "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
-            }
+            NurseDocIdState.NoId -> { Log.d("TAGY", "NO NURSEDOC FOUND WITH ANY ID !VM:254") }
             else -> Unit
         }
         // Check If Nurse has added patients collection // just check if the there is patient collection // if there fetch others tell her to add patients
     }
     fun IfPatientsExists(nursedocid: String, callback: (Boolean) -> Unit) {
-        Log.d("TAGY", "Patients Check Called ")
+        Log.d("TAGY", "Patients Check Called")
         firestoredb.collection("Nurses").document(nursedocid).collection(patientsCollection)
             .limit(1).get()
             .addOnSuccessListener { querySnapshot ->
@@ -291,7 +291,6 @@ class AppVM( private val navController: NavController,
             age = pinfo.p_age.toString(),
             wardno = pinfo.wardno,
             iscrictal = pinfo.iscritical)
-        savePatientCardInRoom(roompatientcard)
 
         _Addpatientstate.value = AddPatientState.AddingPatient
         when (_NurseDocId.value) {
@@ -307,7 +306,7 @@ class AppVM( private val navController: NavController,
                     "patient_info" to pinfo
                 )
 
-                fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
+                suspend fun PatientExists(patientid: String, callback: (Boolean) -> Unit) =
                     viewModelScope.launch {
                         NurseDocRef.collection(NursePatients).document(patientid).get()
                             .addOnSuccessListener { document ->
@@ -336,23 +335,14 @@ class AppVM( private val navController: NavController,
                         // Store patient info as an object
                         PatientDocRef.set(patientdoc)
                             .addOnCompleteListener { document ->
-                                Log.d(
-                                    "TAGY",
-                                    "New Patient Doc Added with DocId: ${PatientDocRef.id}"
-                                )
+                                Log.d("TAGY", "New Patient Doc Added with DocId: ${PatientDocRef.id} !VM:343")
                                 // Creating subcollections for the patient
                                 PatientDocRef.collection(p_medicines).add("test" to 1)
-
-
-
-
-
-
+                                CoroutineScope(Dispatchers.IO).launch{
+                                    savePatientCardInRoom(roompatientcard)
+                                }
                                 _Addpatientstate.value = AddPatientState.idle
-                                navController.popBackStack(
-                                    route = Destinations.NurseDboardScreen.ref,
-                                    inclusive = false
-                                )
+                                navController.popBackStack()
                             }
                             .addOnFailureListener { e ->
                                 Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
@@ -360,7 +350,6 @@ class AppVM( private val navController: NavController,
                     }
                 }
             }
-
             NurseDocIdState.NoId -> {
                 Log.d("TAGY", "NO NURSEDOC FOUND WITH ANY ID !VM:SavePatientInfoFireStore")
             }
@@ -474,7 +463,6 @@ class AppVM( private val navController: NavController,
             }
             else -> Unit
         }
-
         return  profilepicid
     }
     fun DeleteProfilePicState() = viewModelScope.launch {
@@ -494,55 +482,81 @@ class AppVM( private val navController: NavController,
             else -> Unit
         }
     }
-
-
     // ROOM OPERATIONS
     private var _CardPatientList : MutableStateFlow<RoomPatientListState> = MutableStateFlow(RoomPatientListState.idle)
     var cardpatientlist : StateFlow<RoomPatientListState> = _CardPatientList.asStateFlow()
 
-    suspend fun savePatientCardInRoom(patientCardEntity: CardPatient) = viewModelScope.launch{
-        roomuc.insertPatientCard(patientCardEntity)
+    fun savePatientCardInRoom(patientCardEntity: CardPatient) = viewModelScope.launch {
+        roompatientuc.insertPatientCard(patientCardEntity)
         _CardPatientList.value = RoomPatientListState.NewAdded
     }
 
-
     fun getCardPatietnList() = viewModelScope.launch {
-        Log.d("TAGY" , "List is idle so called !VM:530")
-        val roomlist = roomuc.readPatientCardList() // As soon as new patient is added it is added to fibe and room and this line is called again with the updated list
-        if(roomlist.isEmpty()){ FetchP_InfoList()
-            Log.d("TAGY" , "END HERE MF")
-            fbpatientliststate.collect{
-                state ->  when(state){
-                FBPatientListState.Loadinglist -> { _CardPatientList.value = RoomPatientListState.loading }
-                is FBPatientListState.PatientsReceived -> {
-                    Log.d("TAGY" , "CALLED AFTER PATIENTS RECEVIED FROM FB")
-                    val firebaselist = state.patientlist
-                    var intialjob = launch{ Unit }
-                    for( patient in firebaselist){
-                        intialjob = savePatientCardInRoom(patient)
-                    }
-                    _CardPatientList.value = RoomPatientListState.FullReadList( roomuc.readPatientCardList() )
-
+        Log.d("TAGY", "GET PATIENTS FUNCTION CALLED !VM:491")
+        try {
+            _CardPatientList.value = RoomPatientListState.loading
+            val roomlist = roompatientuc.readPatientCardList()
+            Log.d("TAGY", "GOT LIST FROM ROOM ${roomlist.size} !VM : 522")
+              if( roomlist.isEmpty()) { FetchP_InfoList()
+                _firestorePatientList.collect { state ->
+                        when (state) {
+                            FStorePatientListState.Loadinglist -> { _CardPatientList.value = RoomPatientListState.loading }
+                            is FStorePatientListState.PatientsReceived -> {
+                                Log.d("TAGY", "CALLED AFTER PATIENTS ${state.patientlist.size} RECEVIED FROM FIRESTORE !VM : 503")
+                                // Save all patients concurrently and wait for completion
+                                roompatientuc.insertPatientList(state.patientlist)
+                                val getroomlist = roompatientuc.readPatientCardList()
+                                Log.d("TAGY", "GOT LIST FROM ROOM ${getroomlist.size} !VM : 535")
+                                _CardPatientList.value = RoomPatientListState.FullReadList(getroomlist)
+                            }
+                            FStorePatientListState.emptylist -> {
+                                _CardPatientList.value = RoomPatientListState.emptylist
+                            }
+                        }
                 }
-                FBPatientListState.emptylist -> {
-                    _CardPatientList.value = RoomPatientListState.emptylist
-                }
+            } else{
+                Log.d("TAGY", "LIST NOT EMPTY IN ROOM  ${roomlist.size} !VM : 550")
+                _CardPatientList.value = RoomPatientListState.FullReadList(roomlist)
             }
-
-            }
-        }else _CardPatientList.value = RoomPatientListState.FullReadList(roomlist)
+        }catch (e: Exception) {
+            Log.e("TAGY", "Error fetching patient list", e)
+            _CardPatientList.value = RoomPatientListState.Error(e.message ?: "Unknown error occurred")
+        }
     }
+    //fetch search list from room
     fun getSearchResult(usertext : String) = viewModelScope.launch{
-        val roompatienlist = roomuc.SearchPatient(usertext)
+        val roompatienlist = roompatientuc.SearchPatient(usertext)
         if(roompatienlist.isEmpty()){
             _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
         }else _CardPatientList.value = RoomPatientListState.SearchList(roompatienlist)
     }
+    //fetch critical list from room
     fun getCriticalList() = viewModelScope.launch{
-        val roompatienlist = roomuc.getCriticalist()
+        val roompatienlist = roompatientuc.getCriticalist()
         if(roompatienlist.isEmpty()){
             Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
         }else _CardPatientList.value = RoomPatientListState.CriticalList(roompatienlist)
+    }
+
+
+    // MEDICINE FUNCTIONS
+     fun insertmedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.insertPatientCard(medieneInfo)
+    }
+    fun deletemedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.deletePatientCard(medieneInfo)
+    }
+    fun updatemedi(medieneInfo: MedieneInfo) = viewModelScope.launch{
+        roommeduc.updatePatientCard(medieneInfo)
+    }
+
+    private var _PatientMediList :  MutableStateFlow<List<MedieneInfo>> = MutableStateFlow(emptyList())
+    var patientmedilist : StateFlow<List<MedieneInfo>> = _PatientMediList
+
+
+   fun patientmedilist(patientid: String )  = viewModelScope.launch{
+         _PatientMediList.value = emptyList<MedieneInfo>()
+        _PatientMediList.value =   roommeduc.fetchPatientMedi(patientid)
     }
 
 
@@ -572,14 +586,12 @@ class AppVM( private val navController: NavController,
         _bottombarstate.value = barstate
     }
 
-
-
-
 }
 sealed class AuthState {
     object Idle : AuthState()
     object Authenticated : AuthState()
     object UnAuthenticated : AuthState()
     object LoadingAuth : AuthState()
-    data class Failed(val message: String) : AuthState()
+    data class LoginFailed(val message: String) : AuthState()
+    data class SinupFailed(val message : String) : AuthState()
 }

@@ -5,12 +5,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
-import com.example.nurseflowd1.domain.usecases.RoomUseCase
+import com.example.nurseflowd1.domain.usecases.RoomMediUC
+import com.example.nurseflowd1.domain.usecases.RoomPatientUC
 
-class AuthVMF(val navController: NavController , val storageuc : AWStorageUseCase , val roomuc : RoomUseCase) : ViewModelProvider.Factory {
+class AuthVMF(val navController: NavController , val storageuc : AWStorageUseCase , val roomuc : RoomPatientUC, val roomMediUC: RoomMediUC) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(AppVM::class.java)) {
-            return AppVM(navController , storageuc , roomuc) as T
+            return AppVM(navController , storageuc , roomuc, roomMediUC) as T
         }
         throw IllegalArgumentException("ViewModel not found ")
     }

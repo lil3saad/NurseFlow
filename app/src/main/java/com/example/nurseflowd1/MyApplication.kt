@@ -11,21 +11,23 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        CreateMediceneChannel()
+        CreateNotiChannel()
     }
-   fun CreateMediceneChannel(){
-       // The Android SDK Version of the user must be Above Oreo
-       if(Build.VERSION.SDK_INT  >=  Build.VERSION_CODES.O) {
-            val medichannel = NotificationChannel(
-                MediNotiService.channelid,
-                "Medication Reminders", // Will be displayed in App Settings
-                NotificationManager.IMPORTANCE_HIGH          // Define the level of importance of the notifications , there are level of importance  of notification , Surf Through all the Levels Of Importance
-            )
-           medichannel.description = "Get Patient Medication Reminders"
 
-           val notimanager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-           notimanager.createNotificationChannel(medichannel) // Channel Created
-       }
-       // set channel description
-   }
+    private fun CreateNotiChannel() {
+        val MediChannel = NotificationChannel( NotificationReferences.MediChannelId.ref , "Medication Reminder"  ,
+            NotificationManager.IMPORTANCE_HIGH   ).apply {
+                description = "Get Patient Reminders"
+        }
+
+        val notiManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        notiManager.createNotificationChannel(MediChannel)
+    }
+
+
+}
+
+sealed class NotificationReferences(val ref : String){
+    object MediChannelId : NotificationReferences(ref = "notichannel101")
 }
