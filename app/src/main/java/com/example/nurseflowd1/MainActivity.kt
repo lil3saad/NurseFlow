@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
                                     is AppBarTitleState.DisplayTitle -> {
                                         Row( verticalAlignment = Alignment.CenterVertically) {
                                             Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ) )
-                                            Text( state.display , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.08).sp ,
+                                            Text( state.display , fontFamily = Headingfont  , color = Color.White, fontSize = (Screenwidth * 0.065).sp ,
                                                 modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
                                         }
                                     }

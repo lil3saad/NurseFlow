@@ -66,9 +66,12 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,viewmodel : AppVM , patientid : String , patientname : String){
+
+
+
+
     Column(modifier = modifier.fillMaxSize().background(AppBg)
         , horizontalAlignment = Alignment.CenterHorizontally ) {
-
 
         Column(modifier = Modifier.fillMaxWidth(0.9f).fillMaxHeight(0.9f)
             ,  horizontalAlignment = Alignment.CenterHorizontally ){
