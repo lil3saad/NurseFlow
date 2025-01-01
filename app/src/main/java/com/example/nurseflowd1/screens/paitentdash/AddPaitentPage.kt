@@ -1,6 +1,7 @@
 package com.example.nurseflowd1.screens.paitentdash
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -131,11 +132,11 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                     SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age" , true)
             }
 
-            Row(modifier = Modifier.fillMaxWidth() ,
+            Row(modifier = Modifier.fillMaxWidth()  ,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Is patient in critical condition and needs to prioritised?")
+                Text("Is patient in critical condition and needs to prioritised?" , fontSize = 13.sp , modifier = Modifier.fillMaxWidth(0.85f))
                 Switch(checked = iscritcal.value , onCheckedChange = {
                     iscritcal.value = it
                 })
@@ -150,9 +151,11 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
 
             when(val state = addPatientState){
                 is AddPatientState.AddPatientFailed -> { isloading = false ; errormessage = state.errormsg }
-                AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
+                is AddPatientState.AddingPatient -> { errormessage = "" ; isloading = true }
+                is AddPatientState.PatientAdded -> { navcontroller.popBackStack()
+                  viewmodel.AddPatientResset()
+                }
                 else -> Unit
-
             }
             if(errormessage.isNotBlank()){
                 Text( text = errormessage,
@@ -224,7 +227,5 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                 Text("Continue -->" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = ScreenWidth (0.05).sp)
             }
         }
-
-
     }
 }

@@ -43,6 +43,7 @@ import com.example.nurseflowd1.ui.theme.Headingfont
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
+import androidx.core.text.isDigitsOnly
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
@@ -118,9 +119,9 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
             )
 
 
-            Row(modifier = Modifier.fillMaxWidth().padding( horizontal = ScreenWidth(0.2).dp)){
+            Row(modifier = Modifier.fillMaxWidth().padding( horizontal = 32.dp)){
                 SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false)
-                Spacer( modifier = Modifier.size(ScreenWidth(0.1).dp))
+                Spacer( modifier = Modifier.size(20.dp))
                 SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age", true)
             }
 
@@ -152,7 +153,14 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
                         else { gender_ststate.value = SupportTextState.ideal }
 
                         if(age.value.isBlank()){age_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
-                        else { age_ststate.value = SupportTextState.ideal }
+                        else if(age.value.isNotBlank() && age.value.isDigitsOnly()) {
+                            age_ststate.value = SupportTextState.ideal
+                        }
+                        else {
+                            age_ststate.value = SupportTextState.empty("Numbers only") ; isvalid = false
+                        }
+
+
 
                         return isvalid
                     }
@@ -217,8 +225,8 @@ fun SignupFeildsSecond( modifier: Modifier,
             isError = iserror.value,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = Color.White.copy(alpha = 0.55f),
-                focusedBorderColor = HTextClr
-
+                focusedBorderColor = HTextClr,
+                cursorColor = HTextClr
             )
         )
 }

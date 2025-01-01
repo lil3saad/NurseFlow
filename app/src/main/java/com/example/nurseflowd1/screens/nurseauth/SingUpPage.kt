@@ -1,9 +1,12 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.R
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +37,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -55,17 +59,13 @@ fun giveKeyboard() : SoftwareKeyboardController =  LocalSoftwareKeyboardControll
 
 @Composable
 fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext: String , supportextstate : MutableState<SupportTextState>){
-
-    Column(modifier = Modifier.padding(bottom =screenHeight(0.01).dp)){
-
+    Column(modifier = Modifier.padding(bottom = 2.dp)){
         Column(modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
         ){
-            Text(
-                label, color = HTextClr , style = TextStyle(
-                fontSize = screenHeight(0.025).sp ,
-                fontFamily = Headingfont
-            ))
+            Text(label, color = HTextClr , style = TextStyle(fontSize = 16.sp ,
+                fontFamily = Headingfont)
+            )
         }
         val softwarekeyboard = giveKeyboard()
         val iserror = remember { mutableStateOf(false) }
@@ -74,13 +74,17 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
                     usertext -> textstate.value = usertext
             } ,
             placeholder = {
-                Text(placeholdertext, color = Color.White.copy(0.50f))
+                Text(placeholdertext, color = Color.White.copy(0.50f) , fontSize = 13.sp)
             },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = AppBg ,
+                focusedContainerColor = Color.Black.copy(alpha = 0.25f),
                 unfocusedIndicatorColor = Color.White.copy(0.50f) ,
                 focusedIndicatorColor = HTextClr,
-                focusedContainerColor = Color.Black.copy(alpha = 0.25f)
+                cursorColor = HTextClr,
+                focusedTextColor = Color.White,
+                unfocusedPlaceholderColor = Color.White.copy(0.50f),
+                focusedPlaceholderColor = Color.White
             ),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
@@ -111,7 +115,6 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
         barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
         colorState = AppBarColorState.DefaultColors,
         NavigationIconState.None
-
     )
    viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
     var user_email = remember { mutableStateOf("") } ; var useremail_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
@@ -126,9 +129,9 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     // LaunchEffect observes the side effects when the key provided changes and makes sure the
     // execution after the key changes happens only once
     LaunchedEffect(authState.value) {
-        when(authState.value) {
+        when(val state = authState.value) {
             is AuthState.Authenticated -> { navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false) }
-            is AuthState.SinupFailed -> { isLoading.value  = false ; ErrorMessage.value = (authState.value as AuthState.LoginFailed).message }
+            is AuthState.SinupFailed -> { isLoading.value  = false ; ErrorMessage.value = state.message }
             is AuthState.LoadingAuth -> {
                 ErrorMessage.value = "" ;  isLoading.value = true
                 Log.d("TAGY" , "Creating user please wait...")
@@ -144,15 +147,15 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Text("Welcome to NurseFlow " , style = TextStyle(
-                fontSize = (screenHeight(0.035).sp) , fontFamily = Headingfont , color = HTextClr),
-                modifier = Modifier.padding(bottom = screenHeight(0.01).dp)
+                fontSize = 25.sp , fontFamily = Headingfont , color = HTextClr),
+                modifier = Modifier.padding(bottom = 55.dp)
             )
-            SingupFeilds("UserId" , user_email , placeholdertext = "Enter email id or phone number", useremail_ststate)
+            SingupFeilds("Email Id" , user_email , placeholdertext = "Enter email id ", useremail_ststate)
             SingupFeilds("Password" , password1 , placeholdertext = "Set Passowrd" , password1_ststate)
             SingupFeilds("Confirm " , password2, placeholdertext = "Re-enter password" , password2_ststate)
             // When the User Closes the App without Registering , he still gets redirected to the dashboard because the state becomes authenticated on the auth page itself and not after registration
             if(!ErrorMessage.value.isBlank()){
-                Text(ErrorMessage.value, style = TextStyle( color = Color.Red.copy(alpha = 0.8f) , fontSize = screenHeight(0.025).sp))
+                Text(ErrorMessage.value, style = TextStyle( color = Color.Red.copy(alpha = 0.7f) , fontSize = 15.sp) , modifier =  modifier.fillMaxWidth() , textAlign = TextAlign.Center)
             }
             if(isLoading.value){
                 CircularProgressIndicator(Modifier.size(50.dp) , strokeWidth = 5.dp , color = HTextClr)
@@ -178,9 +181,10 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
 
             },
                 colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
-                modifier = Modifier.padding(top = screenHeight (0.04).dp ).size(width = screenHeight(0.15).dp , height = screenHeight(0.05) .dp)
+                modifier = Modifier.padding(top = 55.dp ).size(width = 100.dp , height = 45.dp),
+                contentPadding =       PaddingValues(0.dp)
             ) {
-                Text("SignUp" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = screenHeight (0.025).sp)
+                Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = 17.sp)
             }
         }
 

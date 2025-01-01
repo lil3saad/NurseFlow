@@ -341,8 +341,7 @@ class AppVM(private val navController: NavController,
                                 CoroutineScope(Dispatchers.IO).launch{
                                     savePatientCardInRoom(roompatientcard)
                                 }
-                                _Addpatientstate.value = AddPatientState.idle
-                                navController.popBackStack()
+                                _Addpatientstate.value = AddPatientState.PatientAdded
                             }
                             .addOnFailureListener { e ->
                                 Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
@@ -355,6 +354,9 @@ class AppVM(private val navController: NavController,
             }
             else -> Unit
         }
+    }
+    fun AddPatientResset() {
+        _Addpatientstate.value = AddPatientState.idle
     }
 
     //NurseProfile Operations

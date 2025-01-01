@@ -86,6 +86,10 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
 
 
+    // Date Picker
+    implementation("network.chaintech:kmp-date-time-picker:1.0.7")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
