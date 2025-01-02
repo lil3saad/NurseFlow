@@ -317,11 +317,12 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                         Switch(checked = isSwitchOn.value , onCheckedChange = {
                             isSwitchOn.value = it ; launchDatePicker.value = true } ,
                             colors = SwitchDefaults.colors(
-                                uncheckedThumbColor = HTextClr,
-                                uncheckedTrackColor = Color.White.copy(alpha = 0.8f),
-                                uncheckedBorderColor = AppBg,
+                                uncheckedBorderColor = Color.White.copy(alpha = 0.35f),
+                                uncheckedTrackColor = Color.Gray,
+                                uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
+                                checkedTrackColor = HTextClr,
                                 checkedThumbColor = Color.White,
-                                checkedTrackColor = HTextClr
+                                checkedBorderColor = HTextClr
                             )
                             )
                     }
