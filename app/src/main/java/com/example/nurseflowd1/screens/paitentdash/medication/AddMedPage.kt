@@ -59,7 +59,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.SecClr
@@ -367,7 +366,7 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                     Button(onClick = {
                                         getendtime.value = datestate.selectedDateMillis!!
                                         launchDatePicker.value = false
-                                        isreminderset.value = EpochTimeDisplay(datestate.selectedDateMillis!!)
+                                        isreminderset.value = EpochDateDisplay(datestate.selectedDateMillis!!)
                                     },
                                         colors = ButtonDefaults.buttonColors(containerColor = HTextClr
                                             , contentColor = Color.White),
@@ -570,7 +569,7 @@ fun DosageRow(
 
     }
 }
-fun EpochTimeDisplay(
+fun EpochDateDisplay(
     epochMilliseconds: Long,
     pattern: String = "dd/MM/yyyy"
 ) : String {

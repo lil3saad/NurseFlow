@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -47,13 +48,16 @@ import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.NavigationIconState
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import java.util.Calendar
 
 
 @Composable
 fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavController, viewmodel: AppVM){
 
     viewmodel.ChangeTopBarState(
-        barstate = AppBarTitleState.DisplayTitle("NurseFlow"),
+        barstate = AppBarTitleState.DisplayTitle("Patient Admission"),
         colorState = AppBarColorState.DefaultColors,
         iconState = NavigationIconState.DefaultBack
     )
@@ -126,6 +130,11 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                 placeholdertext = "Enter patients diagnosed condition  ",
                 doctorname_ststate
             )
+            SingupFeilds(label = "Department ",
+                textstate = user_patientDeparment,
+                placeholdertext = "Enter assigned medical department",
+                user_patientDeparment_ststate
+            )
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp ),
                  horizontalArrangement = Arrangement.SpaceEvenly ){
                     SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false)
@@ -139,8 +148,16 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
             ) {
                 Text("Is patient in critical condition and needs to prioritised?" , fontSize = 13.sp , modifier = Modifier.fillMaxWidth(0.85f))
                 Switch(checked = iscritcal.value , onCheckedChange = {
-                    iscritcal.value = it
-                })
+                    iscritcal.value = it },
+                    colors = SwitchDefaults.colors(
+                        uncheckedBorderColor = Color.White.copy(alpha = 0.35f),
+                        uncheckedTrackColor = Color.Gray,
+                        uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
+                        checkedTrackColor = HTextClr,
+                        checkedThumbColor = Color.White,
+                        checkedBorderColor = HTextClr
+                    )
+                )
             }
 
 
@@ -171,7 +188,10 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
             }
 
             Button( onClick = {
-                fun NotEmptyFeilds() : Boolean { var isvalid = true
+
+                AdmissionDate.value = System.currentTimeMillis()
+                fun NotEmptyFeilds() : Boolean {
+                    var isvalid = true
                     if( user_name.value.isBlank()){ username_ststate.value = SupportTextState.empty("Required*") ; isvalid = false}
                     else { username_ststate.value = SupportTextState.ideal }
 
@@ -192,19 +212,23 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
 
                     if( user_condition.value.isBlank()){  usercondition_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
                     else { usercondition_ststate.value = SupportTextState.ideal }
+
                     if( user_wardno.value.isBlank()){  userwardno_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
                     else { userwardno_ststate.value = SupportTextState.ideal }
-
                     if(gender.value.isBlank()){gender_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
                     else { gender_ststate.value = SupportTextState.ideal }
 
                     if(age.value.isBlank()){age_ststate.value = SupportTextState.empty("Required") ; isvalid = false}
                     else { age_ststate.value = SupportTextState.ideal }
 
+                    if( user_patientDeparment.value.isBlank()){  user_patientDeparment_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                    else {  user_patientDeparment_ststate.value = SupportTextState.ideal }
+
+                    if( AdmissionDate.value == 0L){  AdmissionDate_ststate.value = SupportTextState.empty("Required*")  ; isvalid = false}
+                    else { AdmissionDate_ststate.value = SupportTextState.ideal }
+
                     return isvalid
                 }
-
-
                 if(NotEmptyFeilds()){
                     try { // Store These in ViewModel
                          val patientinfo = PatientInfo(
@@ -214,7 +238,11 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                             p_doctor = doctorname.value,
                             p_phoneno = phoneno.value,
                             p_gender = gender.value , p_age = age.value.toInt(),
-                            iscritical = iscritcal.value)
+                            iscritical = iscritcal.value,
+                             Department = user_patientDeparment.value,
+                             AdmissionDate = AdmissionDate.value
+                         )
+
                         viewmodel.SavePatientInfoFirestore(patientinfo)
                     // Save a Copy of User Entered Patient Info in View Model
                     }catch (e : Exception){
