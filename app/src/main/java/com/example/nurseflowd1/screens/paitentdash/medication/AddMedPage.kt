@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.SecClr
@@ -67,7 +68,6 @@ import com.example.nurseflowd1.datamodels.MedieneInfo
 import com.example.nurseflowd1.screens.paitentdash.AlarmScheduler
 import com.example.nurseflowd1.ui.theme.Bodyfont
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,24 +82,19 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
 
             val user_mediname = remember { mutableStateOf("") }
             var user_medinamestate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
-            SingupFeilds(label = "",
-                user_mediname,
-                placeholdertext = "Enter Medicene Name",
-                user_medinamestate
-            )
+            SingupFeilds(label = "", user_mediname, placeholdertext = "Enter Medicene Name", user_medinamestate)
 
-            val medibuttonstate : MutableState<MediTypeState> = remember { mutableStateOf(MediTypeState.idle) }
-            Log.d("MAGGIE" , "${medibuttonstate.value} is the type of medi selected")
-
+            var user_MedType : MutableState<MediTypeState> = remember { mutableStateOf(MediTypeState.idle) }
+            // MedType Select Row
             LazyRow(modifier = Modifier.fillMaxWidth()){
                 item{
                     Button(
                         onClick = {
-                            if(medibuttonstate.value != MediTypeState.tablet) medibuttonstate.value = MediTypeState.tablet
-                            else medibuttonstate.value = MediTypeState.idle
+                            if(user_MedType.value != MediTypeState.tablet) user_MedType.value = MediTypeState.tablet
+                            else user_MedType.value = MediTypeState.idle
                         },
                         modifier = Modifier.padding(8.dp)
-                            .background( color = when(val state = medibuttonstate.value){
+                            .background( color = when(val state = user_MedType.value){
                                 MediTypeState.tablet -> { HTextClr}
                                 else -> { SecClr }
                             } , shape = RoundedCornerShape(5.dp))
@@ -118,12 +113,12 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                 item{
                     Button(
                         onClick = {
-                            if(medibuttonstate.value != MediTypeState.Tonic) medibuttonstate.value = MediTypeState.Tonic
-                            else medibuttonstate.value = MediTypeState.idle
+                            if(user_MedType.value != MediTypeState.Tonic) user_MedType.value = MediTypeState.Tonic
+                            else user_MedType.value = MediTypeState.idle
 
                         },
                         modifier = Modifier.padding(8.dp)
-                            .background( color = when(val state = medibuttonstate.value){
+                            .background( color = when(val state = user_MedType.value){
                                 MediTypeState.Tonic -> { HTextClr}
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
@@ -140,15 +135,14 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                     ){ Text("Tonic" , color = Color.White)  }
 
                 }
-                item{
+                item {
                     Button(
                         onClick = {
-                            if(medibuttonstate.value != MediTypeState.Capsule) medibuttonstate.value = MediTypeState.Capsule
-                            else medibuttonstate.value = MediTypeState.idle
-
+                            if(user_MedType.value != MediTypeState.Capsule) user_MedType.value = MediTypeState.Capsule
+                            else user_MedType.value = MediTypeState.idle
                         },
                         modifier = Modifier.padding(8.dp)
-                            .background( color = when(val state = medibuttonstate.value){
+                            .background( color = when(val state = user_MedType.value){
                                 MediTypeState.Capsule -> { HTextClr}
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
@@ -168,12 +162,12 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                 item{
                     Button(
                         onClick = {
-                            if(medibuttonstate.value != MediTypeState.Drops) medibuttonstate.value = MediTypeState.Drops
-                            else medibuttonstate.value = MediTypeState.idle
+                            if(user_MedType.value != MediTypeState.Drops) user_MedType.value = MediTypeState.Drops
+                            else user_MedType.value = MediTypeState.idle
 
                         },
                         modifier = Modifier.padding(8.dp)
-                            .background( color = when(val state = medibuttonstate.value){
+                            .background( color = when(val state = user_MedType.value){
                                 MediTypeState.Drops -> { HTextClr}
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
@@ -194,14 +188,14 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
 
                     Button(
                         onClick = {
-                            if (medibuttonstate.value != MediTypeState.Injection) medibuttonstate.value =
+                            if (user_MedType.value != MediTypeState.Injection) user_MedType.value =
                                 MediTypeState.Injection
-                            else medibuttonstate.value = MediTypeState.idle
+                            else user_MedType.value = MediTypeState.idle
 
                         },
                         modifier = Modifier.padding(8.dp)
                             .background(
-                                color = when (val state = medibuttonstate.value) {
+                                color = when (val state = user_MedType.value) {
                                     MediTypeState.Injection -> {
                                         HTextClr
                                     }
@@ -228,12 +222,12 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                 item{
                     Button(
                         onClick = {
-                            if(medibuttonstate.value != MediTypeState.Others) medibuttonstate.value = MediTypeState.Others
-                            else medibuttonstate.value = MediTypeState.idle
+                            if(user_MedType.value != MediTypeState.Others) user_MedType.value = MediTypeState.Others
+                            else user_MedType.value = MediTypeState.idle
               
                         },
                         modifier = Modifier.padding(8.dp)
-                            .background( color = when(val state = medibuttonstate.value){
+                            .background( color = when(val state = user_MedType.value){
                                 MediTypeState.Others -> { HTextClr}
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
@@ -250,15 +244,24 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                     ){ Text("Others" , color = Color.White)  }
                 }
             }
+            // Error Dialog
+            if(user_MedType.value == MediTypeState.Empty){
+                Row(modifier =  Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
+                    Text(text = "Please Select a Medicine type" , fontSize = 12.sp , color = Color.Red)
+                }
+
+            }
+
 
             val currentdosage = remember { mutableStateOf(1) }
-            val itemtimemap = remember { mutableStateMapOf( currentdosage.value to "Set Dose") }
+            val DosageMap = remember { mutableStateMapOf( currentdosage.value to "Set Dose") }
             val itemnumberforpicker = remember { mutableStateOf(1) }
 
             val launchPicker  = remember { mutableStateOf(false) }
 
+            var ErrorTime = remember { mutableStateOf(false) }
             Column(modifier = Modifier.padding(top = 18.dp).fillMaxWidth())  {
-                DosageRow(currentdosage , itemtimemap)
+                DosageRow(currentdosage , DosageMap)
 
                 // Timmer Box
                 Box(modifier = Modifier.fillMaxWidth(),
@@ -267,36 +270,37 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                     LazyVerticalGrid(columns = GridCells.Fixed(3) ,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp)
                     ){
-                        for ( item in itemtimemap.toMap()) {
+                        for ( item in DosageMap.toMap()){
                             item {
-                                SelectTime( modifier = Modifier.padding(  top = 10.dp , start = 10.dp , end = 10.dp )
-                                    .height(45.dp).width(10.dp)
-                                    .background( SecClr , shape = RoundedCornerShape(12.dp))
-                                    .border(0.2.dp , color = Color.White.copy(alpha = 0.1f) , shape = RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        if(!launchPicker.value) launchPicker.value = true
-                                        else launchPicker.value = false
-
-                                        itemnumberforpicker.value = item.key
-                                    },
+                                SelectTimeButton(modifier = Modifier .clickable { if(!launchPicker.value) launchPicker.value = true
+                                    else launchPicker.value = false
+                                    itemnumberforpicker.value = item.key },
                                     item.key,
                                     item.value
                                 )
                             }
                         }
                     }
-                    if(launchPicker.value) LaunchTimeInput(
-                        onConfrim = {
-                            timestate , itemnumber ->
-                            itemtimemap.replace(itemnumber , "${timestate.hour}:${timestate.minute}")
-                            Log.d("MYCOCK","${itemtimemap.toMap()} !278")
-                            Log.d("TAGY" , "HOUR SET ${timestate.hour}")
-                            Log.d("TAGY" , "HOUR SET ${timestate.minute}")
-                            launchPicker.value = false
-                        },
-                        { launchPicker.value = false },
-                        itemnumberforpicker.value
-                    )
+                    if(launchPicker.value) {
+                        LaunchTimeInput(
+                            onConfrim = { timestate , itemnumber ->
+                                DosageMap.replace(itemnumber , "${timestate.hour}:${timestate.minute}")
+                                Log.d("MYCOCK","${DosageMap.toMap()} !278")
+                                Log.d("TAGY" , "HOUR SET ${timestate.hour}")
+                                Log.d("TAGY" , "HOUR SET ${timestate.minute}")
+                                launchPicker.value = false
+                            },
+                            onCancel = { launchPicker.value = false },
+                            itemnumber = itemnumberforpicker.value
+                        )
+                    }
+
+                }
+                if(ErrorTime.value){
+                Row(modifier =  Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center)
+                {
+                    Text(text = "Please Select a Medicine type" , fontSize = 12.sp , color = Color.Red)
+                }
                 }
             }
 
@@ -374,10 +378,7 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                         }
                     }
                 }
-
             }
-
-
             if(isreminderset.value.isNotBlank()){
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text("Remind Until : ${isreminderset.value}" , fontFamily = Bodyfont ,  color = HTextClr)
@@ -388,21 +389,29 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
 
             val context = LocalContext.current
             Button(onClick = {
-                for(item in itemtimemap){
-                    val mediinfo = MedieneInfo(medi_name = user_mediname.value,
-                        medid = patientid+user_mediname.value,
-                        medi_type = medibuttonstate.value.ref,
-                        patientid = patientid,
-                        dosageno = item.key,
-                        meditime = item.value ,
-                        patientname = patientname ,
-                        endmeditime = getendtime.value)
-                    val alarmscheduler = AlarmScheduler(context)
-                    if(isSwitchOn.value) alarmscheduler.ScheduleAlarmNotification(mediinfo)
-                    viewmodel.insertmedi(mediinfo)
-                    // Insert very Dosage with time into room table
+                if(IsValidateUserMed(ErrorTime,
+                        user_mediname,
+                        user_medinamestate,
+                        user_MedType,
+                        DosageMap)) {
+                    for(item in DosageMap){
+                        val mediinfo = MedieneInfo(medi_name = user_mediname.value,
+                            medid = patientid+user_mediname.value,
+                            medi_type = user_MedType.value.ref,
+                            patientid = patientid,
+                            dosageno = item.key,
+                            meditime = item.value ,
+                            patientname = patientname ,
+                            endmeditime = getendtime.value)
+                        val alarmscheduler = AlarmScheduler(context)
+                        if(isSwitchOn.value) alarmscheduler.ScheduleAlarmNotification(mediinfo)
+                        viewmodel.insertmedi(mediinfo)  // Insert very Dosage with time into room table
+                    }
+                    navController.popBackStack()
+
                 }
-                navController.popBackStack()
+
+
             },
                 colors = ButtonDefaults.buttonColors(
                     contentColor = Color.White,
@@ -416,6 +425,47 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
     }
 }
 
+fun IsValidateUserMed(ErrorTime: MutableState<Boolean>,
+                      medname : MutableState<String>,
+                      mednamestate : MutableState<SupportTextState>,
+                      medtype : MutableState<MediTypeState>,
+                      DosageMap :  SnapshotStateMap<Int, String> ) : Boolean {
+
+    var isvalid = true
+    if(medname.value.isBlank()){
+        mednamestate.value = SupportTextState.empty("Please enter medicine name")
+        isvalid = false
+    }else { mednamestate.value = SupportTextState.ideal }
+    if(medtype.value == MediTypeState.idle || medtype.value == MediTypeState.Empty ){
+        medtype.value = MediTypeState.Empty ; isvalid = false}
+    for (item in DosageMap){
+        if(item.value.contains("Set Dose")){
+            ErrorTime.value = true
+            isvalid = false
+        }
+    }
+    return isvalid
+}
+@Composable
+fun SelectTimeButton(
+    modifier: Modifier,
+    itemnumber : Int,
+    itemvalue : String
+){
+    Row( modifier = modifier.padding(  top = 10.dp , start = 10.dp , end = 10.dp )
+            .height(45.dp).width(10.dp)
+            .background( SecClr , shape = RoundedCornerShape(12.dp))
+            .border(0.2.dp , color = Color.White.copy(alpha = 0.1f) , shape = RoundedCornerShape(12.dp))
+    ,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ){
+        Icon(imageVector = ImageVector.vectorResource(R.drawable.clock) , contentDescription = "Clock")
+        Spacer( modifier = Modifier.size(5.dp))
+        if(itemvalue == "Set Dose") Text("$itemvalue-$itemnumber" , fontSize = 12.sp)
+        else Text("$itemvalue")
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LaunchTimeInput(
@@ -469,27 +519,12 @@ fun LaunchTimeInput(
             ) { Text("Confirm") }
         }
     }
-
 }
 @Composable
-fun SelectTime(modifier: Modifier  = Modifier,
-    itemnumber : Int,
-    itemvalue : String
+fun DosageRow(
+    currentdosage : MutableState<Int>,
+    itemmap : SnapshotStateMap<Int, String>
 ){
-    Row( modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ){
-       Icon(imageVector = ImageVector.vectorResource(R.drawable.clock) , contentDescription = "Clock")
-        Spacer( modifier = Modifier.size(5.dp))
-        if(itemvalue == "Set Dose") Text("$itemvalue-$itemnumber")
-        else Text("$itemvalue")
-    }
-}
-
-
-@Composable
-fun DosageRow(currentdosage : MutableState<Int>, itemmap : SnapshotStateMap<Int, String>){
     Row( modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp) , verticalAlignment = Alignment.CenterVertically
         , horizontalArrangement = Arrangement.SpaceBetween){
 
@@ -535,7 +570,6 @@ fun DosageRow(currentdosage : MutableState<Int>, itemmap : SnapshotStateMap<Int,
 
     }
 }
-
 fun EpochTimeDisplay(
     epochMilliseconds: Long,
     pattern: String = "dd/MM/yyyy"

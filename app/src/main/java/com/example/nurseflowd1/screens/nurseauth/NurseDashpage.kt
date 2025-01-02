@@ -335,9 +335,12 @@ fun PaitentCard(patient : CardPatient , navigator: NavController , notificationm
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
     val context = LocalContext.current
 
-    Card(Modifier.padding( bottom = 10.dp )
+    Card(Modifier.padding( bottom = 10.dp)
         .height(160.dp)
         .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
+        .clickable{
+            navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
+        }
     ){
         Row(modifier = Modifier.fillMaxSize() .background(color = SecClr)){
             Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,

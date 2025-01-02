@@ -68,12 +68,13 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
     var kin = remember { mutableStateOf("") }; var kin_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var patient_id = remember { mutableStateOf("") }; var patientid_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var doctorname = remember { mutableStateOf("") }; var doctorname_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
-    var phoneno  = remember { mutableStateOf("") }; var phoneno_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var user_wardno  = remember { mutableStateOf("") }; var userwardno_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+    var phoneno  = remember { mutableStateOf("") }; var phoneno_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var gender = remember { mutableStateOf("") }; var gender_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
     var age = remember { mutableStateOf("") }; var age_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
-
     var iscritcal  = remember { mutableStateOf(false) }
+    var user_patientDeparment = remember { mutableStateOf("") } ; var user_patientDeparment_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
+    var AdmissionDate = remember { mutableStateOf(0L) } ; var AdmissionDate_ststate : MutableState<SupportTextState> = remember { mutableStateOf(SupportTextState.ideal) }
 
     Column( modifier = modifier.fillMaxSize().background(AppBg)
         .verticalScroll( rememberScrollState() ) ,
