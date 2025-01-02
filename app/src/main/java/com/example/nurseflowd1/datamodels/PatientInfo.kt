@@ -1,5 +1,7 @@
 package com.example.nurseflowd1.datamodels
 
+import androidx.room.ColumnInfo
+
 data class PatientInfo(
       var p_firstname : String = "defaultname",
       var p_surename : String = "nosurname",
@@ -11,4 +13,6 @@ data class PatientInfo(
       var p_phoneno : String = "noname",
       var wardno : String = "101",
       var p_age : Int = 0,
+      val Department : String ,
+      val AdmissionDate: Long ,
 )

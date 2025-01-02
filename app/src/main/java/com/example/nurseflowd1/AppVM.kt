@@ -219,6 +219,8 @@ class AppVM(private val navController: NavController,
                                             val resultwardno = resultp_info["wardno"] as String
                                             val resultcondition =  resultp_info["condition"] as String
                                             val resultiscritical = resultp_info["iscritical"]as Boolean
+                                            val resultdeparment = resultp_info["Department"] as String
+                                            val resultDoa = resultp_info["AdmissionDate"] as Long
 
                                             val patientinfo = CardPatient(
                                                 patientid = id,
@@ -228,7 +230,9 @@ class AppVM(private val navController: NavController,
                                                 gender = gender,
                                                 wardno = resultwardno,
                                                 condition = resultcondition,
-                                                iscrictal = resultiscritical
+                                                iscrictal = resultiscritical,
+                                                Department = resultdeparment,
+                                                AdmissionDate = resultDoa
                                             )
                                             patientList.add(patientinfo)
                                         }
@@ -290,7 +294,10 @@ class AppVM(private val navController: NavController,
             gender = pinfo.p_gender,
             age = pinfo.p_age.toString(),
             wardno = pinfo.wardno,
-            iscrictal = pinfo.iscritical)
+            iscrictal = pinfo.iscritical ,
+            Department = pinfo.Department,
+            AdmissionDate = pinfo.AdmissionDate
+            )
 
         _Addpatientstate.value = AddPatientState.AddingPatient
         when (_NurseDocId.value) {
@@ -341,8 +348,7 @@ class AppVM(private val navController: NavController,
                                 CoroutineScope(Dispatchers.IO).launch{
                                     savePatientCardInRoom(roompatientcard)
                                 }
-                                _Addpatientstate.value = AddPatientState.idle
-                                navController.popBackStack()
+                                _Addpatientstate.value = AddPatientState.PatientAdded
                             }
                             .addOnFailureListener { e ->
                                 Log.d("TAGY", "NurseDoc could not be created: ${e.message}")
@@ -355,6 +361,9 @@ class AppVM(private val navController: NavController,
             }
             else -> Unit
         }
+    }
+    fun AddPatientResset() {
+        _Addpatientstate.value = AddPatientState.idle
     }
 
     //NurseProfile Operations

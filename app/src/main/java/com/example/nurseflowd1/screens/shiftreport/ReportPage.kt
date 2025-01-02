@@ -19,7 +19,6 @@ import com.example.nurseflowd1.screens.NavigationIconState
 
 @Composable
 fun ShiftReportPage(modifier: Modifier , navController: NavController ,viewmodel : AppVM){
-
     viewmodel.ChangeTopBarState(
         barstate = AppBarTitleState.DisplayTitle("ShiftReports"),
         colorState = AppBarColorState.DefaultColors,
@@ -28,7 +27,7 @@ fun ShiftReportPage(modifier: Modifier , navController: NavController ,viewmodel
     viewmodel.ChangeBottomBarState(BottomBarState.ReportsPage)
     Column(modifier = modifier.fillMaxSize().background(AppBg),
         verticalArrangement = Arrangement.SpaceBetween
-    ) {
+    ){
         Text("THIS IS SHIFTREPORT PAGE")
         val barstate by viewmodel.appbartitlestate.collectAsState()
     }

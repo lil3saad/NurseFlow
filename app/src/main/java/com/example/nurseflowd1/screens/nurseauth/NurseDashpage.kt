@@ -1,3 +1,5 @@
+@file:Suppress("PreviewAnnotationInFunctionWithParameters")
+
 package com.example.nurseflowd1.screens.nurseauth
 
 import android.app.NotificationManager
@@ -77,9 +79,12 @@ import com.example.nurseflowd1.room.RoomPatientListState
 import com.example.nurseflowd1.ui.theme.panelcolor
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
+import com.example.nurseflowd1.screens.paitentdash.medication.EpochDateDisplay
 
 // NURSE DASHBOARD
 // if a Authenticated user coming from the login screen (AFTER NORMAL LOGIN ) is Authenticated and sent to N_Dashboard and the user keeps pressing back the user will be sent back to the login page , not for the first time , not for second time but he will be surely sent back
@@ -150,7 +155,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                     Log.d("TAGY" , "IN NURSHDASHBOARD ${patientlist.size} : 144")
                           listsize.value = patientlist.size.toString()
                          items(patientlist) {
-                                 patient -> PaitentCard(patient , navController, notificationmanager)
+                                 patient -> PaitentCard(patient , navController)
                          }
                 }
                 is RoomPatientListState.emptylist -> {
@@ -176,14 +181,14 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                     val patientlist = state.patientlist
                     listsize.value = patientlist.size.toString()
                     items(patientlist){
-                            patient -> PaitentCard(patient , navController , notificationmanager)
+                            patient -> PaitentCard(patient , navController )
                     }
                 }
                 is RoomPatientListState.SearchList -> {
                     val patientlist = state.patientlist
                     listsize.value = patientlist.size.toString()
                     items(patientlist){
-                            patient -> PaitentCard(patient , navController , notificationmanager)
+                            patient -> PaitentCard(patient , navController )
                     }
                 }
                 is RoomPatientListState.Error -> {
@@ -329,22 +334,38 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
         }
     }
 }
+
+
+
+@Preview(showSystemUi = true, device = Devices.PIXEL_7A)
 @Composable
-fun PaitentCard(patient : CardPatient , navigator: NavController , notificationmanager: NotificationManager){
+fun PreviewFun(){
+    PaitentCard(
+        CardPatient( patientid = "101"  , name = "DummyBigAss Namemotherfucker" , age = "11" , gender = "female " , condition = "HyperMicrocondria" , iscrictal = true,
+            doctorname = "somethingsomething" , Department = "This is Deparment" , AdmissionDate = System.currentTimeMillis() , wardno = "101"
+            ) ,
+        navigator = rememberNavController()
+    )
+}
+@Composable
+fun PaitentCard(patient : CardPatient , navigator: NavController){
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
     val context = LocalContext.current
 
-    Card(Modifier.padding( bottom = 10.dp )
+    Card(Modifier.padding( bottom = 10.dp)
         .height(160.dp)
         .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
+        .clickable{
+            navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
+        }
     ){
         Row(modifier = Modifier.fillMaxSize() .background(color = SecClr)){
+
             Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxHeight()
                     .fillMaxWidth(0.18f)
                     .padding(start = ScreenWidth(0.02).dp , end = ScreenWidth(0.03).dp )
-
             ){
                 Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
                     ,modifier = Modifier.size( 65.dp ).clickable{}
@@ -352,11 +373,13 @@ fun PaitentCard(patient : CardPatient , navigator: NavController , notificationm
             }
             Column( verticalArrangement = Arrangement.Center ,
                 modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)
-
             ){
                 Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , color = Color.White  )
                 Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-                Text( "Conditon: ${patient.condition}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Condition: ${patient.condition}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+                Text( "Department : ${patient.Department}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
+               var MyAddmisonDate =  EpochDateDisplay(patient.AdmissionDate)
+                Text( "Admission Date: $MyAddmisonDate" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
 
                 Row( horizontalArrangement = Arrangement.spacedBy( ScreenWidth(0.05).dp ) ,
                     modifier = Modifier.fillMaxWidth()) {

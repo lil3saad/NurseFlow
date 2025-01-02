@@ -8,4 +8,5 @@ sealed class MediTypeState(val ref : String) {
     object Drops : MediTypeState("Drops")
     object Injection : MediTypeState("Injection")
     object Others : MediTypeState("Others")
+    object Empty : MediTypeState("Empty")
 }
