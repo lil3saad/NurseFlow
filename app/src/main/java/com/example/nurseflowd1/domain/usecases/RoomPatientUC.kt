@@ -27,7 +27,12 @@ class RoomPatientUC(val patientcardao : PatientCardDao) {
             patientcardao.deletecard(patientcard)
         }
     }
+    suspend fun DeletePaitentCards() = withContext(Dispatchers.IO){
+        patientcardao.emptyPatientCards()
+    }
 
+
+    // List Operations
     suspend fun readPatientCardList() : List<CardPatient> = withContext(Dispatchers.IO){
         Log.d("TAGY" , "Fetching Patients from Room !RoomPatientUC:31")
         patientcardao.selectallpatientcard()
@@ -40,9 +45,11 @@ class RoomPatientUC(val patientcardao : PatientCardDao) {
     suspend fun getCriticalist() = withContext(Dispatchers.IO){
         patientcardao.getcriticalpatients()
     }
-
-    suspend fun DeletePaitentCards() = withContext(Dispatchers.IO){
-        patientcardao.emptyPatientCards()
+    suspend fun SortListByName() = withContext(Dispatchers.IO){
+        patientcardao.SortListByName()
+    }
+    suspend fun SortListByDOA() = withContext(Dispatchers.IO){
+        patientcardao.SortListByDOA()
     }
 
 }

@@ -411,7 +411,6 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                         viewmodel.insertmedi(mediinfo)  // Insert very Dosage with time into room table
                     }
                     navController.popBackStack()
-
                 }
 
 

@@ -219,8 +219,8 @@ class AppVM(private val navController: NavController,
                                             val resultwardno = resultp_info["wardno"] as String
                                             val resultcondition =  resultp_info["condition"] as String
                                             val resultiscritical = resultp_info["iscritical"]as Boolean
-                                            val resultdeparment = resultp_info["Department"] as String
-                                            val resultDoa = resultp_info["AdmissionDate"] as Long
+                                            val resultdeparment = resultp_info["department"] as String
+                                            val resultDoa = resultp_info["admissionDate"] as Long
 
                                             val patientinfo = CardPatient(
                                                 patientid = id,
@@ -231,8 +231,8 @@ class AppVM(private val navController: NavController,
                                                 wardno = resultwardno,
                                                 condition = resultcondition,
                                                 iscrictal = resultiscritical,
-                                                Department = resultdeparment,
-                                                AdmissionDate = resultDoa
+                                                department = resultdeparment,
+                                                admissionDate = resultDoa
                                             )
                                             patientList.add(patientinfo)
                                         }
@@ -295,8 +295,8 @@ class AppVM(private val navController: NavController,
             age = pinfo.p_age.toString(),
             wardno = pinfo.wardno,
             iscrictal = pinfo.iscritical ,
-            Department = pinfo.Department,
-            AdmissionDate = pinfo.AdmissionDate
+            department = pinfo.department,
+            admissionDate = pinfo.admissionDate
             )
 
         _Addpatientstate.value = AddPatientState.AddingPatient
@@ -541,11 +541,28 @@ class AppVM(private val navController: NavController,
     }
     //fetch critical list from room
     fun getCriticalList() = viewModelScope.launch{
+        _CardPatientList.value = RoomPatientListState.loading
         val roompatienlist = roompatientuc.getCriticalist()
         if(roompatienlist.isEmpty()){
             Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
         }else _CardPatientList.value = RoomPatientListState.CriticalList(roompatienlist)
     }
+    fun getSortedListByName() = viewModelScope.launch{
+        _CardPatientList.value = RoomPatientListState.loading
+        val list = roompatientuc.SortListByName()
+        if(list.isEmpty()){
+            Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
+        }else _CardPatientList.value = RoomPatientListState.SortedList(list)
+    }
+    fun getSortedListByDOA() = viewModelScope.launch{
+        _CardPatientList.value = RoomPatientListState.loading
+        val list = roompatientuc.SortListByDOA()
+        if(list.isEmpty()){
+            Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
+        }else _CardPatientList.value = RoomPatientListState.SortedList(list)
+    }
+
+
 
 
     // MEDICINE FUNCTIONS

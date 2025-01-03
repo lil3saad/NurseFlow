@@ -239,8 +239,8 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                             p_phoneno = phoneno.value,
                             p_gender = gender.value , p_age = age.value.toInt(),
                             iscritical = iscritcal.value,
-                             Department = user_patientDeparment.value,
-                             AdmissionDate = AdmissionDate.value
+                             department = user_patientDeparment.value,
+                             admissionDate = AdmissionDate.value
                          )
 
                         viewmodel.SavePatientInfoFirestore(patientinfo)

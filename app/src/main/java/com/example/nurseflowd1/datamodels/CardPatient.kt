@@ -24,7 +24,7 @@ data class CardPatient(
     @ColumnInfo
     val iscrictal : Boolean  ,
     @ColumnInfo
-    val Department : String ,
+    val department : String ,
     @ColumnInfo
-    val AdmissionDate: Long ,
+    val admissionDate: Long ,
 )

@@ -13,6 +13,6 @@ data class PatientInfo(
       var p_phoneno : String = "noname",
       var wardno : String = "101",
       var p_age : Int = 0,
-      val Department : String ,
-      val AdmissionDate: Long ,
+      val department : String ,
+      val admissionDate: Long ,
 )

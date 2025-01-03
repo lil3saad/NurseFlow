@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -29,15 +30,23 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -139,14 +148,12 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 
         val displaycriticallist : MutableState<Boolean> = remember { mutableStateOf(false) }
         val serachtext  : MutableState<String> = remember { mutableStateOf("") }
-
         val listsize : MutableState<String> = remember { mutableStateOf("0") }
         TopPanel(displaycriticallist , serachtext, viewmodel , listsize)
 
         LazyColumn(modifier = Modifier.padding(top = ScreenWidth(0.05).dp )
             .fillMaxWidth(0.9f).fillMaxHeight()) {
             when(val state = roompatientliststate){
-
                 is RoomPatientListState.idle -> { Log.d("TAGY" , "THIS IS WHY FROM ROOM LIST IDLE !NURSEDASH : 143" ) }
                 is RoomPatientListState.NewAdded -> {
                     Log.d("TAGY" , "FROM HERE  NURSEDASH: 145") ; viewmodel.getCardPatietnList() }
@@ -194,11 +201,20 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                 is RoomPatientListState.Error -> {
                     item { Text("${state.msg}") }
                 }
+                is RoomPatientListState.SortedList -> {
+                    val patientlist = state.patientlist
+                    Log.d("TAGY" , "SORTED LIST OBTAINED${patientlist.size} : 144")
+                    listsize.value = patientlist.size.toString()
+                    items(patientlist) {
+                            patient -> PaitentCard(patient , navController)
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM,
              listsize : MutableState<String>){
@@ -225,22 +241,17 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
         )){
             Column(modifier = Modifier.fillMaxWidth().padding(6.dp)
             ){
-                Text(displaytext , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White)
-                Row(modifier = Modifier.fillMaxWidth() ,
-                    horizontalArrangement = Arrangement.SpaceBetween ,
-                    verticalAlignment = Alignment.Bottom){
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(displaytext , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White)
 
-                    Text(listsize.value, fontSize = 55.sp , fontFamily = Headingfont , color = Color.White ,
-                        modifier = Modifier.padding(start = 10.dp )
-                        )
                     Button( onClick = { if(criticaliststate.value == false ){
-                                               criticaliststate.value = true
-                                               viewmodel.getCriticalList()
-                                           }else {
-                                               viewmodel.getCardPatietnList()
-                                               criticaliststate.value = false
-                                           }
-                                      },
+                        criticaliststate.value = true
+                        viewmodel.getCriticalList()
+                    }else {
+                        viewmodel.getCardPatietnList()
+                        criticaliststate.value = false
+                    }
+                    },
                         colors = if(criticaliststate.value) {
                             ButtonColors(
                                 containerColor = Color.Black.copy(alpha = 0.15f),
@@ -270,6 +281,62 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                         }
                     }
                 }
+
+                Row(modifier = Modifier.fillMaxWidth() ,
+                    horizontalArrangement = Arrangement.SpaceBetween ,
+                    verticalAlignment = Alignment.Bottom){
+
+                    Text(listsize.value, fontSize = 55.sp , fontFamily = Headingfont , color = Color.White ,
+                        modifier = Modifier.padding(start = 10.dp ))
+
+                    val context = LocalContext.current
+                    var OptionsList = arrayOf("Name" , "Admission" , "None")
+                    var ExpandedBox by remember { mutableStateOf(false) }
+                    var SelectedText by remember { mutableStateOf(OptionsList[1]) }
+
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Text("Sort" , modifier = Modifier.padding(end = 8.dp) , style = TextStyle(fontFamily = Headingfont))
+                        Box(contentAlignment = Alignment.Center){
+                            ExposedDropdownMenuBox(expanded = ExpandedBox , onExpandedChange = { ExpandedBox = !ExpandedBox }) {
+                                Row(verticalAlignment = Alignment.CenterVertically , modifier = Modifier.background(shape = RoundedCornerShape(45.dp), color = Color.Black.copy(alpha = 0.22f)).padding(vertical = 0.dp , horizontal = 12.dp) ){
+                                    Button(onClick = {},
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent , contentColor = Color.White) ,
+                                        contentPadding = PaddingValues(0.dp)
+                                        ){
+                                        Text(SelectedText ,   style = TextStyle(fontSize = 10.sp , fontFamily = Bodyfont) , modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryEditable , enabled = true))
+                                    }
+                                    Icon(imageVector = Icons.Default.ArrowDropDown , contentDescription = "Drop Down Arrow" , modifier = Modifier)
+                                }
+                                ExposedDropdownMenu(expanded = ExpandedBox , onDismissRequest = {ExpandedBox = false},
+                                        containerColor = Color.Black.copy(alpha = 0.5f)  ,
+                                        shape = RoundedCornerShape( topStart = 0.dp , topEnd = 0.dp , bottomStart = 15.dp , bottomEnd = 15.dp),
+                                        matchTextFieldWidth = true,
+                                        border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp, color = Color.Black.copy(alpha = 0.5f))  ){
+                                        OptionsList.forEachIndexed { index , value ->
+                                            DropdownMenuItem(
+                                                text = { Text("$value" , fontSize = 12.sp)} ,
+                                                onClick = {
+                                                    Toast.makeText(context,"THIS ITEM WAS CLICKED" ,
+                                                        Toast.LENGTH_LONG).show()
+                                                    if(value == "Admission"){
+                                                        viewmodel.getSortedListByDOA()
+                                                    }
+                                                    if(value == "Name"){
+                                                        viewmodel.getSortedListByName()
+                                                    }
+                                                    SelectedText = value
+                                                    ExpandedBox = false
+
+                                                }
+                                            )
+                                        }
+                                }
+                            }
+                        }
+                    }
+
+
+                }
             }
         }
         // Search Row
@@ -283,7 +350,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                 modifier = Modifier
                     .fillMaxWidth()
                     .height( 55.dp ),
-                placeholder = { Text("Search patient" , color = Color.White.copy(alpha = 0.5f) )
+                placeholder = { Text("Search by name,department,condition,doctor" , color = Color.White.copy(alpha = 0.5f)  , fontSize = 12.sp)
                               } ,
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Black.copy(alpha = 0.22f),
@@ -341,9 +408,8 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
 @Composable
 fun PreviewFun(){
     PaitentCard(
-        CardPatient( patientid = "101"  , name = "DummyBigAss Namemotherfucker" , age = "11" , gender = "female " , condition = "HyperMicrocondria" , iscrictal = true,
-            doctorname = "somethingsomething" , Department = "This is Deparment" , AdmissionDate = System.currentTimeMillis() , wardno = "101"
-            ) ,
+        CardPatient(patientid = "101" , name = "DummyBigAss Namemotherfucker" , age = "11" , gender = "female " , condition = "HyperMicrocondria" , iscrictal = true,
+            doctorname = "somethingsomething" , department = "This is Deparment" , admissionDate = System.currentTimeMillis() , wardno = "101"),
         navigator = rememberNavController()
     )
 }
@@ -354,59 +420,77 @@ fun PaitentCard(patient : CardPatient , navigator: NavController){
     val context = LocalContext.current
 
     Card(Modifier.padding( bottom = 10.dp)
-        .height(160.dp)
+        .height(180.dp)
         .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
         .clickable{
             navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
-        }
+        },
+        colors = CardDefaults.cardColors(containerColor = SecClr)
     ){
-        Row(modifier = Modifier.fillMaxSize() .background(color = SecClr)){
-
-            Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight()
-                    .fillMaxWidth(0.18f)
-                    .padding(start = ScreenWidth(0.02).dp , end = ScreenWidth(0.03).dp )
-            ){
-                Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
-                    ,modifier = Modifier.size( 65.dp ).clickable{}
-                )
-            }
-            Column( verticalArrangement = Arrangement.Center ,
-                modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)
-            ){
-                Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , color = Color.White  )
-                Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-                Text( "Condition: ${patient.condition}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-                Text( "Department : ${patient.Department}" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-               var MyAddmisonDate =  EpochDateDisplay(patient.AdmissionDate)
-                Text( "Admission Date: $MyAddmisonDate" , style = TextStyle( fontSize = 18.sp , fontFamily = Bodyfont) , modifier = Modifier.fillMaxWidth() ,  color = Color.White)
-
-                Row( horizontalArrangement = Arrangement.spacedBy( ScreenWidth(0.05).dp ) ,
-                    modifier = Modifier.fillMaxWidth()) {
-                    Text( "Age : ${patient.age}"  , style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
-                    Text( "Gender: ${patient.gender}", style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
-                }
-            }
-
-            Column( verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxHeight().fillMaxWidth()
-                    .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )) {
-                Icon( imageVector = ImageVector.vectorResource(R.drawable.dashopen),
-                    contentDescription = "DashboardIcon",
-                    tint = Color.White,
-                    modifier = Modifier.size( 38.dp ).clickable {
-                        navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
+        Column(modifier = Modifier.fillMaxSize().padding(12.dp).background(color = SecClr) , verticalArrangement = Arrangement.SpaceBetween){
+            Row(modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween){
+                Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture",modifier = Modifier.size( 50.dp ))
+                Column(modifier = Modifier.fillMaxWidth(0.8f)){
+                    Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color = Color.White)
+                    Row( horizontalArrangement = Arrangement.spacedBy( ScreenWidth(0.05).dp ) ) {
+                        Text( "Age : ${patient.age}"  , style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
+                        Text( "Gender: ${patient.gender}", style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
                     }
-                )
-                Column(horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("Ward" ,color = Color.White , fontSize = 13.sp)
-                    Text(patient.wardno, color = Color.White , fontSize = 11.sp)
+                }
+                Column(modifier = Modifier.size(45.dp).background(color = HTextClr , shape = RoundedCornerShape(12.dp)), horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.spacedBy(1.dp)){
+                Text("Ward" ,color = Color.White , fontSize = 10.sp)
+                Text(patient.wardno, color = Color.White , fontSize = 10.sp )
                 }
             }
+
+            Row(modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween ){
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp , top = 5.dp) ) {
+                    Text( "Condition : ${patient.condition}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color = Color.White)
+                    Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color = Color.White)
+                    Text( "Department : ${patient.department}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color = Color.White)
+                }
+            }
+
+
+            Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.End){
+                var MyAddmisonDate =  EpochDateDisplay(patient.admissionDate)
+                Text( "DOA: $MyAddmisonDate" , style = TextStyle( fontSize = 12.sp , fontFamily = Bodyfont) ,  color = Color.White)
+            }
+
         }
+
+//
+//        Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier.fillMaxHeight()
+//                .fillMaxWidth(0.18f)
+//                .padding(start = ScreenWidth(0.02).dp , end = ScreenWidth(0.03).dp )
+//        ){
+//            Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
+//                ,modifier = Modifier.size( 65.dp ).clickable{}
+//            )
+//        }
+//        Column( verticalArrangement = Arrangement.Center ,
+//            modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)
+//        ){
+//
+//
+//
+//
+//        }
+//
+//        Column( verticalArrangement = Arrangement.SpaceBetween,
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier.fillMaxHeight().fillMaxWidth()
+//                .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )) {
+//            Icon( imageVector = ImageVector.vectorResource(R.drawable.dashopen),
+//                contentDescription = "DashboardIcon",
+//                tint = Color.White,
+//                modifier = Modifier.size( 38.dp ).clickable {
+//                    navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
+//                }
+//            )
+//
+//        }
     }
 }
 
