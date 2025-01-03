@@ -1,5 +1,6 @@
 package com.example.nurseflowd1.screens.nurseauth
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -98,6 +100,7 @@ fun LoginFields(label : String, textstate : MutableState<String>, placeholder : 
 }
 
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, viewmodel: AppVM) {
 
@@ -110,25 +113,28 @@ fun LoginScreen(modifier: Modifier = Modifier, navcontroller: NavController, vie
     viewmodel.ChangeBottomBarState(BottomBarState.NoBottomBar)
     // If users keep entering null fields it will show message or execute statement once but not again and again
     // The same Functionality works with wrong email and password tho , if they keep using wrong creds , it keeps messaging the user with same authstate which is failed
-    val authState by viewmodel.authstate.collectAsState()
-
     val errormessage = remember { mutableStateOf("") }
     val isloading = remember { mutableStateOf(false) }
+    val authState by viewmodel.authstate.collectAsState()
+    LaunchedEffect(authState) {
         when(val state = authState){
-            is AuthState.Authenticated ->{
-                navcontroller.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
+            is AuthState.Authenticated -> {
+//                navcontroller.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false)
+                Log.d("TAGY" , "USER LOGGED IN MF")
+                navcontroller.popBackStack()
+                navcontroller.navigate( route = Destinations.NurseDboardScreen.ref )
             }
             is AuthState.LoginFailed -> {
                 errormessage.value = state.message ; isloading.value = false
             }
             is AuthState.LoadingAuth -> {
                 errormessage.value = ""; isloading.value = true
-                Log.d("TAGY" , "Loging in.......")
             }
             else -> Unit
         }
-    LoginContent(modifier , navcontroller , viewmodel , errormessage , isloading)
+    }
 
+    LoginContent(modifier , navcontroller , viewmodel , errormessage , isloading)
 }
 
 @Composable

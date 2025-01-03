@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.room.Transaction
 import com.example.nurseflowd1.datamodels.CardPatient
 import com.example.nurseflowd1.datamodels.MedieneInfo
 import com.example.nurseflowd1.datamodels.NurseInfo
@@ -33,17 +32,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.HashMap
@@ -65,11 +57,8 @@ class AppVM(private val navController: NavController,
 
     fun authStatus() = viewModelScope.launch {
         if ( currentuser != null) _authState.value = AuthState.Authenticated
-        else
-        {
-            Log.d("TAGY" , "AUTH STATUS : UNAuthenticated ")
+        else { Log.d("TAGY" , "AUTH STATUS : UNAuthenticated ")
             _authState.value = AuthState.UnAuthenticated
-
         }
     }
 
@@ -516,7 +505,7 @@ class AppVM(private val navController: NavController,
                                 roompatientuc.insertPatientList(state.patientlist)
                                 val getroomlist = roompatientuc.readPatientCardList()
                                 Log.d("TAGY", "GOT LIST FROM ROOM ${getroomlist.size} !VM : 535")
-                                _CardPatientList.value = RoomPatientListState.FullReadList(getroomlist)
+                                _CardPatientList.value = RoomPatientListState.FetchedList(getroomlist)
                             }
                             FStorePatientListState.emptylist -> {
                                 _CardPatientList.value = RoomPatientListState.emptylist
@@ -525,7 +514,7 @@ class AppVM(private val navController: NavController,
                 }
             } else{
                 Log.d("TAGY", "LIST NOT EMPTY IN ROOM  ${roomlist.size} !VM : 550")
-                _CardPatientList.value = RoomPatientListState.FullReadList(roomlist)
+                _CardPatientList.value = RoomPatientListState.FetchedList(roomlist)
             }
         }catch (e: Exception) {
             Log.e("TAGY", "Error fetching patient list", e)
@@ -537,29 +526,33 @@ class AppVM(private val navController: NavController,
         val roompatienlist = roompatientuc.SearchPatient(usertext)
         if(roompatienlist.isEmpty()){
             _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
-        }else _CardPatientList.value = RoomPatientListState.SearchList(roompatienlist)
+        }else _CardPatientList.value = RoomPatientListState.FetchedList(roompatienlist)
     }
     //fetch critical list from room
     fun getCriticalList() = viewModelScope.launch{
         _CardPatientList.value = RoomPatientListState.loading
         val roompatienlist = roompatientuc.getCriticalist()
         if(roompatienlist.isEmpty()){
-            Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
-        }else _CardPatientList.value = RoomPatientListState.CriticalList(roompatienlist)
+            _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
+            Log.d("TAGY" , "NO PATIENTS FOUND !VM:getSearchResult,551")
+        }else _CardPatientList.value = RoomPatientListState.FetchedList(roompatienlist)
     }
     fun getSortedListByName() = viewModelScope.launch{
         _CardPatientList.value = RoomPatientListState.loading
         val list = roompatientuc.SortListByName()
         if(list.isEmpty()){
-            Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
-        }else _CardPatientList.value = RoomPatientListState.SortedList(list)
+            _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
+            Log.d("TAGY" , "Error in Fetching Patient List !VM:getSearchResult,548")
+        }else _CardPatientList.value = RoomPatientListState.FetchedList(list)
     }
     fun getSortedListByDOA() = viewModelScope.launch{
+
         _CardPatientList.value = RoomPatientListState.loading
         val list = roompatientuc.SortListByDOA()
         if(list.isEmpty()){
-            Log.d("TAGY" , "NO PATIENTS FOUND WITH THAT TEST !VM:getSearchResult,551")
-        }else _CardPatientList.value = RoomPatientListState.SortedList(list)
+            _CardPatientList.value = RoomPatientListState.Error("No Patients Found")
+            Log.d("TAGY" , "Error in Fetching Patient List !VM:getSearchResult,557")
+        }else _CardPatientList.value = RoomPatientListState.FetchedList(list)
     }
 
 

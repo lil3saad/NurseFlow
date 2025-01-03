@@ -208,7 +208,7 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Destinations.NurseDboardScreen.ref ,
             ){
-                NurseDashBoardScreen(modifier, navController , viewmodel , notimanager)
+                NurseDashBoardScreen(modifier, navController , viewmodel)
             }
             composable(route = Destinations.AccountScreen.ref){
                 AccountScreen(modifier , viewmodel , navController)

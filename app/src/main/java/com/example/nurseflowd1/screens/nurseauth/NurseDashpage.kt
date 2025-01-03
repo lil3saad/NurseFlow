@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -30,9 +29,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -98,12 +95,39 @@ import com.example.nurseflowd1.screens.paitentdash.medication.EpochDateDisplay
 // NURSE DASHBOARD
 // if a Authenticated user coming from the login screen (AFTER NORMAL LOGIN ) is Authenticated and sent to N_Dashboard and the user keeps pressing back the user will be sent back to the login page , not for the first time , not for second time but he will be surely sent back
 @Composable
-fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM , notificationmanager: NotificationManager) {
-
+fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , viewmodel : AppVM ) {
+    Log.d("TAGY" , "DASHBOARD SCREEN CALLED")
    val context = LocalContext.current
+    viewmodel.authStatus() // For AutoLog
+    val authState by viewmodel.authstate.collectAsState()
+    val gotnursedocid by viewmodel.NurseDocId.collectAsState() // Get Nurse DocumentId by Uid// Observing the AuthState
+    LaunchedEffect(authState) { // What Does Launched Effect Do Exactly
+        when (authState) {
+            is AuthState.Idle -> {
+                Log.d("TAGY" , "NURSE IS NOT FUCKING AUTHED !NurseDash:120")
+                navController.popBackStack() ; navController.navigate(Destinations.LoginScreen.ref)  }
+            is AuthState.UnAuthenticated -> {  // Clears all BackStack
+                Log.d("TAGY" , "NURSE IS NOT FUCKING AUTHED !NurseDash:120")
+                navController.popBackStack()
+                navController.navigate(Destinations.LoginScreen.ref)
+            }
+            is AuthState.LoginFailed -> { Toast.makeText(context, (authState as AuthState.LoginFailed).message, Toast.LENGTH_LONG).show() }
+            is AuthState.Authenticated ->  {
+                Log.d("TAGY" , "NURSE AUTHENTICATED !NurseDash:111")
+                when (gotnursedocid) {
+                    is  NurseDocIdState.CurrentNurseId -> Unit
+                    else ->  viewmodel.GetNurseDocId()
+                }
+            }
+            else -> {
+                Log.d("TAGY" , "NURSE DONT KNOW WHICH State !NurseDash:120")
+                navController.popBackStack()
+                navController.navigate(Destinations.LoginScreen.ref)
+            }
+        }
+    }
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
-
     // Change Bar States
     viewmodel.ChangeTopBarState(
         barstate = AppBarTitleState.DisplayTitle("Dashboard"),
@@ -113,24 +137,6 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
     viewmodel.ChangeBottomBarState(BottomBarState.NurseDashBoard)
     //Authentication State
 
-    viewmodel.authStatus() // For AutoLog
-    val authState by viewmodel.authstate.collectAsState() // Observing the AuthState
-    val gotnursedocid by viewmodel.NurseDocId.collectAsState() // Get Nurse DocumentId by Uid
-    LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Idle -> { navController.navigate(Destinations.LoginScreen.ref) }
-            is AuthState.UnAuthenticated -> { navController.navigate(Destinations.LoginScreen.ref) }
-            is AuthState.LoginFailed -> { Toast.makeText(context, (authState as AuthState.LoginFailed).message, Toast.LENGTH_LONG).show() }
-            is AuthState.Authenticated ->  {
-                Log.d("TAGY" , "NURSE AUTHENTICATED !NurseDash:111")
-                when (gotnursedocid) {
-                    is  NurseDocIdState.CurrentNurseId -> Unit
-                    else ->  viewmodel.GetNurseDocId()
-                }
-            }
-            else -> Unit
-        }
-    }
     LaunchedEffect(gotnursedocid) {
         when (gotnursedocid) {
             is NurseDocIdState.CurrentNurseId -> {
@@ -156,10 +162,9 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
             when(val state = roompatientliststate){
                 is RoomPatientListState.idle -> { Log.d("TAGY" , "THIS IS WHY FROM ROOM LIST IDLE !NURSEDASH : 143" ) }
                 is RoomPatientListState.NewAdded -> {
-                    Log.d("TAGY" , "FROM HERE  NURSEDASH: 145") ; viewmodel.getCardPatietnList() }
-                is RoomPatientListState.FullReadList -> {
+                    Log.d("TAGY" , "New Patient Called !NurseDash:165") ; viewmodel.getCardPatietnList() }
+                is RoomPatientListState.FetchedList -> {
                          val patientlist = state.patientlist
-                    Log.d("TAGY" , "IN NURSHDASHBOARD ${patientlist.size} : 144")
                           listsize.value = patientlist.size.toString()
                          items(patientlist) {
                                  patient -> PaitentCard(patient , navController)
@@ -184,31 +189,10 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                         }
                     }
                 }
-                is RoomPatientListState.CriticalList -> {
-                    val patientlist = state.patientlist
-                    listsize.value = patientlist.size.toString()
-                    items(patientlist){
-                            patient -> PaitentCard(patient , navController )
-                    }
-                }
-                is RoomPatientListState.SearchList -> {
-                    val patientlist = state.patientlist
-                    listsize.value = patientlist.size.toString()
-                    items(patientlist){
-                            patient -> PaitentCard(patient , navController )
-                    }
-                }
                 is RoomPatientListState.Error -> {
                     item { Text("${state.msg}") }
                 }
-                is RoomPatientListState.SortedList -> {
-                    val patientlist = state.patientlist
-                    Log.d("TAGY" , "SORTED LIST OBTAINED${patientlist.size} : 144")
-                    listsize.value = patientlist.size.toString()
-                    items(patientlist) {
-                            patient -> PaitentCard(patient , navController)
-                    }
-                }
+
             }
         }
     }
@@ -290,7 +274,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                         modifier = Modifier.padding(start = 10.dp ))
 
                     val context = LocalContext.current
-                    var OptionsList = arrayOf("Name" , "Admission" , "None")
+                    var OptionsList = arrayOf("Name" , "Admission" )
                     var ExpandedBox by remember { mutableStateOf(false) }
                     var SelectedText by remember { mutableStateOf(OptionsList[1]) }
 
@@ -316,14 +300,8 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                                             DropdownMenuItem(
                                                 text = { Text("$value" , fontSize = 12.sp)} ,
                                                 onClick = {
-                                                    Toast.makeText(context,"THIS ITEM WAS CLICKED" ,
-                                                        Toast.LENGTH_LONG).show()
-                                                    if(value == "Admission"){
-                                                        viewmodel.getSortedListByDOA()
-                                                    }
-                                                    if(value == "Name"){
-                                                        viewmodel.getSortedListByName()
-                                                    }
+                                                    if(value == "Admission") viewmodel.getSortedListByDOA()
+                                                    if(value == "Name") viewmodel.getSortedListByName()
                                                     SelectedText = value
                                                     ExpandedBox = false
 
@@ -402,17 +380,6 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
     }
 }
 
-
-
-@Preview(showSystemUi = true, device = Devices.PIXEL_7A)
-@Composable
-fun PreviewFun(){
-    PaitentCard(
-        CardPatient(patientid = "101" , name = "DummyBigAss Namemotherfucker" , age = "11" , gender = "female " , condition = "HyperMicrocondria" , iscrictal = true,
-            doctorname = "somethingsomething" , department = "This is Deparment" , admissionDate = System.currentTimeMillis() , wardno = "101"),
-        navigator = rememberNavController()
-    )
-}
 @Composable
 fun PaitentCard(patient : CardPatient , navigator: NavController){
     @Composable

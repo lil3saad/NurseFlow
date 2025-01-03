@@ -130,7 +130,7 @@ fun AuthScreen(modifier: Modifier = Modifier, navController: NavController , vie
     // execution after the key changes happens only once
     LaunchedEffect(authState.value) {
         when(val state = authState.value) {
-            is AuthState.Authenticated -> { navController.popBackStack( route = Destinations.NurseDboardScreen.ref , inclusive = false) }
+            is AuthState.Authenticated -> {  navController.popBackStack(route = Destinations.LoginScreen.ref , inclusive = false) }
             is AuthState.SinupFailed -> { isLoading.value  = false ; ErrorMessage.value = state.message }
             is AuthState.LoadingAuth -> {
                 ErrorMessage.value = "" ;  isLoading.value = true

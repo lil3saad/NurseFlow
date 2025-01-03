@@ -301,7 +301,7 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                 if(ErrorTime.value){
                 Row(modifier =  Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center)
                 {
-                    Text(text = "Please Select a Medicine type" , fontSize = 12.sp , color = Color.Red)
+                    Text(text = "Please Set All Dosages Timings" , fontSize = 12.sp , color = Color.Red)
                 }
                 }
             }
@@ -325,9 +325,8 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
                                 checkedTrackColor = HTextClr,
                                 checkedThumbColor = Color.White,
-                                checkedBorderColor = HTextClr
-                            )
-                            )
+                                checkedBorderColor = HTextClr)
+                        )
                     }
                     if(isSwitchOn.value && !launchPicker.value) {
                         if(launchDatePicker.value){
