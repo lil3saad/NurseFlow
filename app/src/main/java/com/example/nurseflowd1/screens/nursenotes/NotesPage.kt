@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.nurseflowd1.AppVM
 import com.example.nurseflowd1.screens.AppBarColorState
@@ -28,6 +29,6 @@ fun NurseNotesPage(modifier: androidx.compose.ui.Modifier , navController: NavCo
         .fillMaxSize(),
         Arrangement.SpaceBetween
     ) {
-        Text("THIS IS NURSE NOTES PAGE")
+        Text("THIS IS NURSE NOTES PAGE" , color =  Color.DarkGray )
     }
 }

@@ -35,9 +35,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -73,9 +75,6 @@ import java.util.Locale
 @Composable
 fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,viewmodel : AppVM , patientid : String , patientname : String){
 
-
-
-
     Column(modifier = modifier.fillMaxSize().background(AppBg)
         , horizontalAlignment = Alignment.CenterHorizontally ) {
 
@@ -98,19 +97,20 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                         modifier = Modifier.padding(8.dp)
                             .background( color = when(val state = user_MedType.value){
                                 MediTypeState.tablet -> { HTextClr}
-                                else -> { SecClr }
-                            } , shape = RoundedCornerShape(5.dp))
+                                else -> { SecClr } }, shape = RoundedCornerShape(5.dp))
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when(val state = user_MedType.value){
+                                MediTypeState.tablet -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ){ Text("Tablet" , color = Color.White)  }
+                    ){ Text("Tablet")  }
                 }
                 item{
                     Button(
@@ -125,16 +125,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when( user_MedType.value){
+                                MediTypeState.Tonic -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ){ Text("Tonic" , color = Color.White)  }
+                    ){ Text("Tonic")  }
 
                 }
                 item {
@@ -149,16 +151,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when(user_MedType.value){
+                                MediTypeState.Capsule -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ){ Text("Capsule" , color = Color.White)  }
+                    ){ Text("Capsule" )  }
 
                 }
                 item{
@@ -174,16 +178,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when(val state = user_MedType.value){
+                                MediTypeState.Drops -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ){ Text("Drops" , color = Color.White)  }
+                    ){ Text("Drops")  }
 
                 }
                 item {
@@ -208,16 +214,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 }, shape = RoundedCornerShape(5.dp)
                             )
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when(val state = user_MedType.value){
+                                MediTypeState.Injection -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ) { Text("Injection", color = Color.White) }
+                    ) { Text("Injection") }
 
                 }
 
@@ -234,16 +242,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                 else -> { SecClr }
                             },shape = RoundedCornerShape(5.dp))
                             .border(
-                                width = 0.1.dp,
-                                color = Color.White.copy(alpha = 0.1f),
+                                width = 0.2.dp,
+                                color = Color.Black.copy(alpha = 0.3f),
                                 shape = RoundedCornerShape(5.dp)
                             ),
                         shape = RoundedCornerShape(5.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
-                            contentColor = Color.White
+                            contentColor = when(user_MedType.value){
+                                MediTypeState.Others -> { Color.White}
+                                else -> { Color.DarkGray } }
                         )
-                    ){ Text("Others" , color = Color.White)  }
+                    ){ Text("Others")  }
                 }
             }
             // Error Dialog
@@ -316,7 +326,7 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                     Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween ,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Set Medicine Reminder Notifications?")
+                        Text("Set Medicine Reminder Notifications?" , color = Color.DarkGray , fontFamily = Bodyfont)
                         Switch(checked = isSwitchOn.value , onCheckedChange = {
                             isSwitchOn.value = it ; launchDatePicker.value = true } ,
                             colors = SwitchDefaults.colors(
@@ -337,9 +347,9 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                             )
                             Column(modifier = Modifier.background(AppBg)){
                                 DatePicker(datestate ,
-                                    title = { Text("Duration") },
+                                    title = { Text("Duration" , color = Color.DarkGray , fontFamily = Bodyfont) },
                                     showModeToggle = false,
-                                    headline = { Text("Set Reminder duration until" , fontSize = 15.sp) },
+                                    headline = { Text("Set Reminder duration until" , fontSize = 15.sp , color = Color.DarkGray , fontFamily = Bodyfont ) },
                                     modifier = Modifier.background(AppBg),
                                     colors = DatePickerDefaults.colors(
                                         dividerColor = HTextClr,
@@ -347,12 +357,18 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                         containerColor = AppBg,
                                         dateTextFieldColors = TextFieldDefaults.colors(
                                             unfocusedContainerColor = AppBg,
-                                            unfocusedIndicatorColor = Color.White,
+                                            unfocusedIndicatorColor = Color.DarkGray,
                                             focusedIndicatorColor = HTextClr,
-                                            unfocusedLabelColor = Color.White,
+                                            unfocusedLabelColor = Color.DarkGray,
                                             focusedLabelColor = HTextClr,
                                             focusedContainerColor = AppBg,
-
+                                            unfocusedTextColor = Color.DarkGray,
+                                            focusedTextColor = Color.DarkGray,
+                                            errorContainerColor = Color.Black.copy(alpha = 0.1f),
+                                            errorTextColor = Color.DarkGray,
+                                            errorIndicatorColor = Color.Red,
+                                            errorLabelColor = Color.Red,
+                                            errorSupportingTextColor = Color.Red
                                         )
                                     )
                                 )
@@ -361,20 +377,24 @@ fun AddMedScreen(modifier: Modifier = Modifier , navController: NavController,vi
                                     Button(onClick = { isSwitchOn.value = false
                                         launchDatePicker.value = false
                                     },
-                                        colors = ButtonDefaults.buttonColors(containerColor = HTextClr
-                                         , contentColor = Color.White
-                                        ),
+                                        colors = ButtonDefaults.buttonColors(containerColor = HTextClr, contentColor = Color.White),
                                         modifier = Modifier.padding(start = 36.dp)
                                     ){ Text("Cancel") }
                                     Button(onClick = {
-                                        getendtime.value = datestate.selectedDateMillis!!
-                                        launchDatePicker.value = false
-                                        isreminderset.value = EpochDateDisplay(datestate.selectedDateMillis!!)
-                                    },
+                                        if(datestate.selectedDateMillis != null){
+                                            getendtime.value = datestate.selectedDateMillis!!
+                                            launchDatePicker.value = false
+                                            isreminderset.value = EpochDateDisplay(datestate.selectedDateMillis!!)
+                                        }
+
+                                                     },
+
                                         colors = ButtonDefaults.buttonColors(containerColor = HTextClr
                                             , contentColor = Color.White),
                                         modifier = Modifier.padding(end = 36.dp)
-                                    ) { Text("Confirm") }
+                                    ){
+                                        Text("Confirm")
+                                    }
                                 }
                             }
                         }
@@ -461,12 +481,14 @@ fun SelectTimeButton(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ){
-        Icon(imageVector = ImageVector.vectorResource(R.drawable.clock) , contentDescription = "Clock")
+        Icon(imageVector = ImageVector.vectorResource(R.drawable.clock) , contentDescription = "Clock" , tint = Color.DarkGray)
         Spacer( modifier = Modifier.size(5.dp))
-        if(itemvalue == "Set Dose") Text("$itemvalue-$itemnumber" , fontSize = 12.sp)
-        else Text("$itemvalue")
+        if(itemvalue == "Set Dose") Text("$itemvalue-$itemnumber" , fontSize = 12.sp ,  color = Color.DarkGray)
+        else Text("$itemvalue" , color = Color.DarkGray )
     }
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LaunchTimeInput(
@@ -487,36 +509,43 @@ fun LaunchTimeInput(
         ) {
         TimePicker(state = intimepickerstate,
             colors = TimePickerDefaults.colors(
-                 timeSelectorUnselectedContentColor = Color.White,
+                 timeSelectorUnselectedContentColor = Color.DarkGray,
                 timeSelectorSelectedContentColor = Color.White,
                 timeSelectorSelectedContainerColor = HTextClr,
                 timeSelectorUnselectedContainerColor = SecClr ,
                 periodSelectorBorderColor = Color.Transparent,
+
                 periodSelectorSelectedContentColor = Color.White,
+                periodSelectorUnselectedContentColor = Color.DarkGray,
+
+
                 periodSelectorSelectedContainerColor = HTextClr,
                 periodSelectorUnselectedContainerColor = SecClr,
                 clockDialColor = SecClr,
                 clockDialSelectedContentColor = HTextClr,
-                clockDialUnselectedContentColor = Color.White,
+                clockDialUnselectedContentColor = Color.DarkGray,
                 selectorColor = Color.White,
             )
         )
         Row(  modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween){
-            Button(onClick = {
-                onCancel() },
+            Button(onClick = { onCancel() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SecClr,
-                    contentColor = Color.White
+                    contentColor = Color.DarkGray
                 ),
-                modifier = Modifier.padding(start = 36.dp)
+                modifier = Modifier.padding(start = 50.dp).background(color = SecClr , shape = ButtonDefaults.shape )
+                    .border(0.1.dp , color = Color.Black.copy(alpha = 0.2f), shape = ButtonDefaults.shape ),
+                shape = ButtonDefaults.shape
             ) { Text("Cancel") }
+
             Button(onClick = {
                    onConfrim(intimepickerstate , itemnumber) }, colors = ButtonDefaults.buttonColors(
                 containerColor = HTextClr,
-                contentColor = Color.White
-                 ),
-                modifier = Modifier.padding(end = 36.dp)
+                contentColor = Color.White),
+                modifier = Modifier.padding(end = 50.dp).background(color = HTextClr , shape = ButtonDefaults.shape )
+                    .border(0.1.dp , color = Color.Black.copy(alpha = 0.2f), shape = ButtonDefaults.shape ),
+                shape = ButtonDefaults.shape
             ) { Text("Confirm") }
         }
     }
@@ -529,11 +558,11 @@ fun DosageRow(
     Row( modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp) , verticalAlignment = Alignment.CenterVertically
         , horizontalArrangement = Arrangement.SpaceBetween){
 
-        Text("Dosages (per/day)" , fontSize = 20.sp)
+        Text("Dosages (per/day)" , fontSize = 20.sp , color = Color.DarkGray , fontFamily = Bodyfont)
 
 
         Row( modifier = Modifier.background(SecClr , shape = RoundedCornerShape(55.dp))
-            .border(0.55.dp , color = Color.White.copy(alpha = 0.1f) , shape = RoundedCornerShape(55.dp))
+            .border(0.2.dp , color = Color.Black.copy(alpha = 0.1f) , shape = RoundedCornerShape(55.dp))
             .padding(5.dp),
             verticalAlignment = Alignment.CenterVertically){
 
@@ -551,7 +580,7 @@ fun DosageRow(
                 },
                 tint = Color.White)
             }
-            Text(text = "${currentdosage.value}" , fontSize = 18.sp , modifier = Modifier.padding(horizontal = 8.dp))
+            Text(text = "${currentdosage.value}" , fontSize = 18.sp , modifier = Modifier.padding(horizontal = 8.dp) , color = Color.DarkGray)
             FloatingActionButton( onClick = {} ,
                 modifier = Modifier.size(23.5.dp),
                 containerColor = HTextClr){

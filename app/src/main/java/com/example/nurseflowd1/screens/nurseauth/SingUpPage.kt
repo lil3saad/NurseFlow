@@ -49,6 +49,7 @@ import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
 import com.example.nurseflowd1.ui.theme.AppBg
+import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
 
@@ -74,18 +75,21 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
                     usertext -> textstate.value = usertext
             } ,
             placeholder = {
-                Text(placeholdertext, color = Color.White.copy(0.50f) , fontSize = 13.sp)
+                Text(placeholdertext, color = Color.Gray , fontSize = 13.sp , fontFamily = Bodyfont )
             },
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = AppBg ,
-                focusedContainerColor = Color.Black.copy(alpha = 0.25f),
-                unfocusedIndicatorColor = Color.White.copy(0.50f) ,
+                focusedContainerColor = Color.Black.copy(alpha = 0.15f),
+                unfocusedIndicatorColor = Color.DarkGray,
                 focusedIndicatorColor = HTextClr,
-                cursorColor = HTextClr,
-                focusedTextColor = Color.White,
-                unfocusedPlaceholderColor = Color.White.copy(0.50f),
-                focusedPlaceholderColor = Color.White
-            ),
+                cursorColor = Color.Black,
+                focusedTextColor = Color.DarkGray,
+                unfocusedTextColor = Color.DarkGray,
+                errorIndicatorColor = Color.Red,
+                errorContainerColor = Color.Black.copy(alpha = 0.1f),
+                errorTextColor = Color.DarkGray,
+                errorCursorColor = Color.Black),
+
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
@@ -97,7 +101,7 @@ fun SingupFeilds(label: String, textstate: MutableState<String>, placeholdertext
             ),
             supportingText = {
                 when(val state = supportextstate.value){
-                    is SupportTextState.empty -> { Text(state.errormsg) ; iserror.value = true}
+                    is SupportTextState.empty -> { Text(state.errormsg , color = Color.Red) ; iserror.value = true}
                     is SupportTextState.ideal -> { iserror.value = false}
                     else -> Unit
                 }

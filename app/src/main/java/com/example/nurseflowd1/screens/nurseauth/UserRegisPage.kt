@@ -48,6 +48,7 @@ import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
+import com.example.nurseflowd1.ui.theme.Bodyfont
 
 
 @Composable
@@ -201,10 +202,11 @@ fun SignupFeildsSecond( modifier: Modifier,
 
      var keyboardtype = KeyboardType.Text
      if(isnumeric) keyboardtype = KeyboardType.Number
+
         OutlinedTextField( value = textstate.value , onValueChange = {
                 it -> textstate.value = it
         },
-            placeholder = { Text(placeholder , color = Color.White.copy(0.50f) )},
+            placeholder = { Text(placeholder , color = Color.Gray , fontFamily = Bodyfont , fontSize = 12.sp )},
             modifier = modifier,
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardtype,
@@ -217,16 +219,21 @@ fun SignupFeildsSecond( modifier: Modifier,
             ),
             supportingText = {
                 when(val state = supporttextstate.value) {
-                    is SupportTextState.empty ->  { Text(state.errormsg) ; iserror.value = true}
+                    is SupportTextState.empty ->  { Text(state.errormsg , color = Color.Red) ; iserror.value = true}
                     is SupportTextState.ideal -> { iserror.value = false }
                     else -> Unit
                 }
             },
             isError = iserror.value,
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Color.White.copy(alpha = 0.55f),
+                unfocusedBorderColor = Color.DarkGray,
                 focusedBorderColor = HTextClr,
-                cursorColor = HTextClr
+                focusedTextColor = Color.DarkGray,
+                unfocusedTextColor = Color.DarkGray,
+                cursorColor = Color.Black,
+                errorBorderColor = Color.Red,
+                errorTextColor = Color.DarkGray,
+                errorCursorColor = Color.Gray
             )
         )
 }

@@ -52,6 +52,8 @@ import com.example.nurseflowd1.screens.Destinations
 import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
+import com.example.nurseflowd1.ui.theme.Bodyfont
+import com.example.nurseflowd1.ui.theme.SecClr
 
 // NURSE LOGIN
 @Composable
@@ -70,14 +72,14 @@ fun LoginFields(label : String, textstate : MutableState<String>, placeholder : 
         value = textstate.value,
         onValueChange = { input -> textstate.value = input },
         placeholder = {
-            Text(placeholder, color = Color.White.copy(alpha = 0.5f) , fontSize = 14.sp )
+            Text(placeholder, color = Color.Gray , fontSize = 14.sp , fontFamily = Bodyfont)
         },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth(),
         supportingText = {
             when(val state = supportingText.value){
-                is SupportTextState.empty -> {  Text(state.errormsg) ; isError.value = true }
+                is SupportTextState.empty -> {  Text(state.errormsg , color = Color.Red) ; isError.value = true }
                 is SupportTextState.ideal -> { isError.value = false}
                 else -> Unit
             }
@@ -92,8 +94,14 @@ fun LoginFields(label : String, textstate : MutableState<String>, placeholder : 
             }
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color.White,
-            focusedBorderColor = HTextClr.copy(alpha = 0.75f)
+            unfocusedBorderColor = Color.DarkGray,
+            focusedBorderColor = HTextClr.copy(alpha = 0.75f),
+            cursorColor = Color.Black,
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.DarkGray,
+            errorTextColor = Color.DarkGray,
+            errorBorderColor = Color.Red,
+            errorCursorColor = Color.Black
         )
         // Apply the same height
     )
@@ -207,24 +215,25 @@ fun LoginContent(modifier: Modifier,
                 modifier = Modifier.fillMaxWidth().padding(top =ScreenWidth(0.1).dp )
             ){
 
-                Text( "Have not singed up at NurseFlow yet?" , color = Color.White ,
+                Text( "Have not singed up at NurseFlow yet?" , color = Color.DarkGray ,
                     softWrap = true,
                     modifier = Modifier
                         .padding( end = ScreenWidth(0.02).dp )
                         .width( ScreenWidth(0.5).dp )
                         .wrapContentWidth(),
                     fontSize =  13.sp ,
-                    lineHeight = ScreenWidth(0.06).sp
+                    lineHeight = ScreenWidth(0.06).sp,
+                    fontFamily = Bodyfont
                 )
                 Button( onClick = { navcontroller.navigate(Destinations.RegisScreen.ref) },
-                    colors = ButtonColors( containerColor = Color.White,
-                    contentColor = Color.Black,
-                    disabledContentColor = Color.Black,
-                    disabledContainerColor = Color.White ),
+                    colors = ButtonColors( containerColor = SecClr,
+                    contentColor = Color.DarkGray,
+                    disabledContentColor = Color.DarkGray,
+                    disabledContainerColor = SecClr ),
                     modifier = Modifier.size(width = 125.dp  , height  = 35.dp  ),
                     contentPadding = PaddingValues(0.dp)
                 ){
-                    Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = 16.sp )
+                    Text("Signup" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = 16.sp , color = Color.DarkGray )
                 }
 
             }

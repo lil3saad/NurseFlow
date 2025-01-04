@@ -54,6 +54,7 @@ import com.example.nurseflowd1.screens.nurseauth.SupportTextState
 import com.example.nurseflowd1.ui.theme.Bodyfont
 import com.example.nurseflowd1.ui.theme.HTextClr
 import com.example.nurseflowd1.ui.theme.Headingfont
+import com.example.nurseflowd1.ui.theme.SecClr
 import io.appwrite.models.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,7 +81,7 @@ fun PatientDashBoardScreen(modifier: Modifier = Modifier, viewmodel : AppVM, nav
         verticalArrangement = Arrangement.Bottom){
         val list =  viewmodel.patientmedilist.collectAsState()
 
-        Text("Medicines" , fontFamily = Headingfont , fontSize = 26.sp, modifier = Modifier.padding(start = 12.dp) , color = Color.White )
+        Text("Medicines" , fontFamily = Headingfont , fontSize = 26.sp, modifier = Modifier.padding(start = 12.dp) , color = Color.DarkGray )
 
         Box(contentAlignment = Alignment.BottomEnd) {
             LazyColumn(modifier = Modifier.padding(top = 12.dp).fillMaxWidth().fillMaxHeight(0.7f) , contentPadding = PaddingValues(horizontal = 16.dp)) {
@@ -115,9 +116,8 @@ fun PatientDashBoardScreen(modifier: Modifier = Modifier, viewmodel : AppVM, nav
 //
 @Composable
 fun MediCard(medicine : MedieneInfo){
-    Card(colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        modifier = Modifier.padding(bottom = 12.dp)
-            .border(0.1.dp, color = Color.White.copy(alpha = 0.2f) , shape = CardDefaults.shape)
+    Card(colors = CardDefaults.cardColors(containerColor = SecClr),
+        modifier = Modifier.padding(bottom = 12.dp).border(0.1.dp, color = Color.Black.copy(alpha = 0.1f) , shape = CardDefaults.shape)
     ){
         Row(modifier = Modifier.padding(16.dp).fillMaxSize() , verticalAlignment = Alignment.CenterVertically) {
 
@@ -160,12 +160,12 @@ fun MediCard(medicine : MedieneInfo){
                 // GET THE UPCOMING DOSE , AND IF PREVIOUS DOSAGES WHERE MISSED INDICATE MISSED DOSAGES
                 Column(modifier = Modifier,
                     verticalArrangement = Arrangement.Center) {
-                    Text("${medicine.medi_name}" , color = Color.White , fontSize = 20.sp , fontFamily = Headingfont)
-                    Text("Upcoming : ${medicine.meditime}" , fontSize = 16.sp , fontFamily = Bodyfont , color = Color.White  )
+                    Text("${medicine.medi_name}" , color = Color.DarkGray , fontSize = 20.sp , fontFamily = Headingfont)
+                    Text("Upcoming : ${medicine.meditime}" , fontSize = 16.sp , fontFamily = Bodyfont , color = Color.DarkGray )
                 }
 
                 Icon(imageVector = ImageVector.vectorResource(R.drawable.gomedi) , contentDescription = "" ,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp) , tint = Color.Gray
                 )
 
             }

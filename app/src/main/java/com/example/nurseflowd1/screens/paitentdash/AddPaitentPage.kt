@@ -146,7 +146,7 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Is patient in critical condition and needs to prioritised?" , fontSize = 13.sp , modifier = Modifier.fillMaxWidth(0.85f))
+                Text("Is patient in critical condition and needs to prioritised?" , fontSize = 13.sp , modifier = Modifier.fillMaxWidth(0.85f) , color = Color.DarkGray)
                 Switch(checked = iscritcal.value , onCheckedChange = {
                     iscritcal.value = it },
                     colors = SwitchDefaults.colors(
@@ -159,9 +159,6 @@ fun Add_PatientInfo_Screen(modifier: Modifier = Modifier, navcontroller : NavCon
                     )
                 )
             }
-
-
-
 
             val addPatientState by viewmodel.addPatientState.collectAsState()
             var errormessage by remember { mutableStateOf("") }

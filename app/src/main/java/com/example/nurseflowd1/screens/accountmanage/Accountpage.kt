@@ -81,39 +81,31 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
     // Change State of TopBarState
     viewmodel.ChangeTopBarState( barstate = AppBarTitleState.DisplayTitle("Profile"),
         colorState = AppBarColorState.DefaultColors,
-        iconState = NavigationIconState.DefaultBack
-    )
+        iconState = NavigationIconState.None)
     viewmodel.ChangeBottomBarState(BottomBarState.AccountPage)
-
-
     @Composable
     fun ScreenWidth(k : Double) : Double = LocalConfiguration.current.screenWidthDp * k
-
     @Composable
     fun DisplayTextFeild(text : String , label : String){
         Text( text = text , style = TextStyle(fontFamily = Bodyfont, fontSize = 16.sp ) ,
             modifier = Modifier
-                .border(0.5.dp, color = Color.White.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                .border(0.5.dp, color = Color.Black.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(12.dp))
                 .fillMaxWidth()
                 .height(46.dp)
-                .padding(12.dp)
+                .padding(12.dp),
+            color = Color.DarkGray
         )
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End){
             Text( text = label , style = TextStyle(fontFamily = Bodyfont, fontSize = 16.sp ), textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth() , color = Color.DarkGray
             )
         }
 
     }
 
-
-
-    Column(modifier = Modifier.background(AppBg)
-        .fillMaxSize()
-        .verticalScroll( rememberScrollState() ),
+    Column(modifier = Modifier.background(AppBg).fillMaxSize().verticalScroll( rememberScrollState() ),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
@@ -200,11 +192,10 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                             )
                         }
                 ){
-                        Text("Change Profile Picture" , modifier = Modifier.padding( top = 6.dp) , fontSize = 14.sp
-                        )
+                        Text("Change Profile Picture" , modifier = Modifier.padding( top = 6.dp) , fontSize = 14.sp , color = Color.DarkGray)
                         Icon( imageVector = Icons.Default.Edit , contentDescription =  "Edit Profile",
                             modifier = Modifier.padding(start = 3.dp )
-                                .size(25.dp)
+                                .size(25.dp) , tint =Color.DarkGray
                         )
                 }
 
@@ -228,11 +219,11 @@ fun AccountScreen( modifier : Modifier = Modifier, viewmodel : AppVM , navcontro
                     horizontalArrangement = Arrangement.spacedBy(25.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text( text = "Gender : " , style = TextStyle(fontFamily = Headingfont, fontSize = 16.sp , color = HTextClr))
-                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Headingfont, fontSize = 16.sp ))
+                        Text( text = fetchenurseinfo.N_gender , style = TextStyle(fontFamily = Bodyfont, fontSize = 16.sp , color = Color.DarkGray ))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text( text = "Age : " , style = TextStyle(fontFamily = Headingfont, fontSize = 16.sp , color = HTextClr))
-                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Bodyfont, fontSize = 16.sp ))
+                        Text( text = fetchenurseinfo.N_age.toString() , style = TextStyle(fontFamily = Bodyfont, fontSize = 16.sp ) , color = Color.DarkGray)
                     }
                 }
             }

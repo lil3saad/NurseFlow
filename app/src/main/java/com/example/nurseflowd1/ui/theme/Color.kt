@@ -12,7 +12,7 @@ val Pink40 = Color(0xFF7D5260)
 
 
 // My AppColors
-val AppBg =Color(0xFF080e1c)
-val HTextClr = Color(0xFF0f67fd)
-val SecClr = Color(0xFF131a30)
-val panelcolor = Color(0xFF242e49)
+val AppBg =Color(0xFFf6f6f6)
+val HTextClr = Color(0xFF0c73fb)
+val SecClr = Color(0xFFdddddd)
+val panelcolor = Color(0xFF0c73fb)

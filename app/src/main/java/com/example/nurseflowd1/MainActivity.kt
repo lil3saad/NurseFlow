@@ -10,18 +10,23 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -67,6 +72,8 @@ import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
 import com.example.nurseflowd1.screens.paitentdash.PatientDashBoardScreen
 import com.example.nurseflowd1.screens.paitentdash.medication.AddMedScreen
 import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
+import com.example.nurseflowd1.ui.theme.HTextClr
+import com.example.nurseflowd1.ui.theme.SecClr
 import com.example.nurseflowd1.ui.theme.panelcolor
 
 
@@ -92,74 +99,70 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
-
             val navController = rememberNavController()
             val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc)
             val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
-
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
-                Scaffold(modifier = Modifier.background(AppBg)
+                Scaffold(modifier = Modifier.background(HTextClr)
                     .systemBarsPadding() // LOAD SCAFFOLD RESPECTING THE USER'S GESTURES / BUTTON SYSTEM BARS
                     .fillMaxSize(),
                     topBar = {
-
                         val titlestate by viewmodel.appbartitlestate.collectAsState()
                         val iconstate by viewmodel.appbariconstate.collectAsState()
                         val colorstate by viewmodel.appbarcolorstate.collectAsState()
-                        TopAppBar(
-                            title = {
-                                when(val state = titlestate){
-                                    is AppBarTitleState.DisplayTitle -> {
-                                        Row( verticalAlignment = Alignment.CenterVertically) {
-                                            Image( painter = painterResource(R.drawable.syringe) , contentDescription = "" , modifier = Modifier.size( (Screenwidth * 0.10).dp ))
-                                            Text( state.display , fontFamily = Headingfont  , color = Color.White, fontSize = 28.sp ,
-                                                modifier = Modifier.padding(start = 8.dp, top = 12.dp) )
+                        Surface(shape = RoundedCornerShape(bottomStart = 45.dp , bottomEnd = 45.dp), // Customize the shape
+                            color = HTextClr, // Background color for the app bar
+                            modifier = when(colorstate) {
+                                AppBarColorState.DefaultColors -> { Modifier.fillMaxWidth().background(AppBg) }
+                                AppBarColorState.NurseDashColors -> { Modifier.fillMaxWidth().background(HTextClr) }
+                            }
+                        ){
+                            TopAppBar(  modifier = Modifier.padding(horizontal = 12.dp , vertical = 6.dp),
+                                title = { when (val state = titlestate) {
+                                        is AppBarTitleState.DisplayTitle -> {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Image(
+                                                    painter = painterResource(R.drawable.syringe),
+                                                    contentDescription = "",
+                                                    modifier = Modifier.size((Screenwidth * 0.10).dp)
+                                                )
+                                                Text(
+                                                    state.display,
+                                                    fontFamily = Headingfont,
+                                                    color = Color.White,
+                                                    fontSize = 28.sp,
+                                                    modifier = Modifier.padding(start = 8.dp, top = 12.dp)
+                                                )
+                                            }
                                         }
+                                        is AppBarTitleState.DisplayTitleWithBack -> Unit
+                                        AppBarTitleState.NoTopAppBar -> Unit
                                     }
-                                    is AppBarTitleState.DisplayTitleWithBack -> Unit
-                                    AppBarTitleState.NoTopAppBar -> Unit
-                                }
-                            },
-                            colors = when(colorstate){
-                                AppBarColorState.DefaultColors -> {
-                                    TopAppBarColors(
-                                        containerColor = AppBg,
-                                        scrolledContainerColor = Color.Black,
-                                        navigationIconContentColor = Color.Black,
-                                        titleContentColor = Color.Black,
-                                        actionIconContentColor = Color.Black
-                                    )
-                                }
-                                AppBarColorState.NurseDashColors -> {
-                                    TopAppBarColors(
-                                        containerColor = panelcolor,
-                                        scrolledContainerColor = Color.Black,
-                                        navigationIconContentColor = Color.Black,
-                                        titleContentColor = Color.Black,
-                                        actionIconContentColor = Color.Black
-                                    )
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = Color.Transparent, // Set to transparent to avoid overlap with Surface color
+                                    titleContentColor = Color.White,
 
-                                }
-                            }
-                            ,
-                            navigationIcon = {
-                                when(iconstate){
-                                    NavigationIconState.DefaultBack -> {
-                                        Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "NavigationIcon",
-                                            modifier = Modifier.padding(start = 4.dp , end = 12.dp, top = 12.dp)
-                                                .size( (Screenwidth * 0.08).dp )
-                                                .clickable{ navController.popBackStack() },
-                                            tint = Color.White)
+                                ),
+                                navigationIcon = {
+                                    when (iconstate) {
+                                        NavigationIconState.DefaultBack -> {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowBack,
+                                                contentDescription = "NavigationIcon",
+                                                modifier = Modifier
+                                                    .padding(start = 4.dp, end = 12.dp, top = 12.dp)
+                                                    .size((Screenwidth * 0.08).dp)
+                                                    .clickable { navController.popBackStack() },
+                                                tint = Color.White
+                                            )
+                                        }
+                                        NavigationIconState.None -> Unit
                                     }
-                                    NavigationIconState.None -> Unit
                                 }
-                            }
-
-
-
-                        )
+                            )
+                        }
                     },
                     bottomBar = {
                         val bottombarstate by viewmodel.bottombarstate.collectAsState()

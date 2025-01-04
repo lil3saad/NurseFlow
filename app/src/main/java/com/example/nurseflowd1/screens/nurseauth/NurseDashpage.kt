@@ -201,12 +201,12 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableState<String> , viewmodel: AppVM,
-             listsize : MutableState<String>){
+             listsize : MutableState<String>) {
 
     val softwarekeybaord = LocalSoftwareKeyboardController.current!!
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
-    val toppanelshape = RoundedCornerShape(bottomEnd = 45.dp , bottomStart = 45.dp)
+    val toppanelshape = RoundedCornerShape(bottomEnd = 50.dp , bottomStart = 50.dp)
 
 
     var displaytext =  "Total patients"
@@ -216,7 +216,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
         displaylabel = "Total"
     }
     Column(modifier = Modifier.fillMaxWidth().fillMaxWidth(0.5f)
-        .background(panelcolor, shape = toppanelshape)
+        .background(HTextClr, shape = toppanelshape)
         .padding(vertical = 10.dp, horizontal = 20.dp)
     ){
 
@@ -226,7 +226,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
             Column(modifier = Modifier.fillMaxWidth().padding(6.dp)
             ){
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(displaytext , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White)
+                    Text(displaytext , fontSize = 25.sp , fontFamily = Bodyfont , color = Color.White )
 
                     Button( onClick = { if(criticaliststate.value == false ){
                         criticaliststate.value = true
@@ -245,7 +245,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                             )
                         }else {
                             ButtonColors(
-                                containerColor = Color.Red.copy(alpha = 0.12f),
+                                containerColor = Color.Red.copy(alpha = 0.2f),
                                 contentColor = Color.Black ,
                                 disabledContentColor = Color.White.copy(alpha = 0.22f),
                                 disabledContainerColor = Color.White.copy(alpha = 0.22f)
@@ -279,23 +279,23 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                     var SelectedText by remember { mutableStateOf(OptionsList[1]) }
 
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        Text("Sort" , modifier = Modifier.padding(end = 8.dp) , style = TextStyle(fontFamily = Headingfont))
+                        Text("Sort" , modifier = Modifier.padding(end = 8.dp) , style = TextStyle(fontFamily = Headingfont) , color = Color.White)
                         Box(contentAlignment = Alignment.Center){
                             ExposedDropdownMenuBox(expanded = ExpandedBox , onExpandedChange = { ExpandedBox = !ExpandedBox }) {
-                                Row(verticalAlignment = Alignment.CenterVertically , modifier = Modifier.background(shape = RoundedCornerShape(45.dp), color = Color.Black.copy(alpha = 0.22f)).padding(vertical = 0.dp , horizontal = 12.dp) ){
+                                Row(verticalAlignment = Alignment.CenterVertically , modifier = Modifier.background(shape = RoundedCornerShape(45.dp), color = Color.Black.copy(alpha = 0.10f)).padding(vertical = 0.dp , horizontal = 12.dp) ){
                                     Button(onClick = {},
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent , contentColor = Color.White) ,
                                         contentPadding = PaddingValues(0.dp)
                                         ){
-                                        Text(SelectedText ,   style = TextStyle(fontSize = 10.sp , fontFamily = Bodyfont) , modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryEditable , enabled = true))
+                                        Text(SelectedText ,   style = TextStyle(fontSize = 10.sp , fontFamily = Bodyfont) , modifier = Modifier.menuAnchor(type = MenuAnchorType.PrimaryEditable , enabled = true) , color = Color.White)
                                     }
-                                    Icon(imageVector = Icons.Default.ArrowDropDown , contentDescription = "Drop Down Arrow" , modifier = Modifier)
+                                    Icon(imageVector = Icons.Default.ArrowDropDown , contentDescription = "Drop Down Arrow" , modifier = Modifier , tint = Color.White)
                                 }
                                 ExposedDropdownMenu(expanded = ExpandedBox , onDismissRequest = {ExpandedBox = false},
                                         containerColor = Color.Black.copy(alpha = 0.5f)  ,
                                         shape = RoundedCornerShape( topStart = 0.dp , topEnd = 0.dp , bottomStart = 15.dp , bottomEnd = 15.dp),
                                         matchTextFieldWidth = true,
-                                        border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp, color = Color.Black.copy(alpha = 0.5f))  ){
+                                        border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp, color = Color.Black.copy(alpha = 0.1f))  ){
                                         OptionsList.forEachIndexed { index , value ->
                                             DropdownMenuItem(
                                                 text = { Text("$value" , fontSize = 12.sp)} ,
@@ -328,13 +328,15 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                 modifier = Modifier
                     .fillMaxWidth()
                     .height( 55.dp ),
-                placeholder = { Text("Search by name,department,condition,doctor" , color = Color.White.copy(alpha = 0.5f)  , fontSize = 12.sp)
+                placeholder = { Text("Search by name,department,condition,doctor" , color = Color.White  , fontSize = 12.sp)
                               } ,
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Black.copy(alpha = 0.22f),
+                    unfocusedContainerColor = Color.Black.copy(alpha = 0.1f),
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
+                    focusedContainerColor = Color.White.copy(alpha = 0.1f),
                     focusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    cursorColor = Color.White
                 ),
                 trailingIcon = {
                     if(isSearch){
@@ -347,7 +349,7 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                                 Searchtext.value = ""
                                 softwarekeybaord.hide()
                             } ,
-                            tint =Color.White)
+                            tint = Color.White)
                     }else {
                         Icon( imageVector = Icons.Default.Close , contentDescription = "Search Patiens" , modifier = Modifier
                             .padding(end = 12.dp)
@@ -355,9 +357,8 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                             .clickable{
                                 viewmodel.getCardPatietnList()
                                 isSearch = true
-                            }
-                            ,
-                            tint = HTextClr)
+                            },
+                            tint = Color.White)
                     }
                 },
                 shape =  RoundedCornerShape(45.dp),
@@ -388,7 +389,7 @@ fun PaitentCard(patient : CardPatient , navigator: NavController){
 
     Card(Modifier.padding( bottom = 10.dp)
         .height(180.dp)
-        .border(width = 0.5.dp,  color = Color.White.copy(alpha = 0.05f) , shape = RoundedCornerShape(12.dp))
+        .border(width = 0.1.dp,  color = Color.Black.copy(alpha = 0.1f) , shape = RoundedCornerShape(12.dp))
         .clickable{
             navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
         },
@@ -396,68 +397,38 @@ fun PaitentCard(patient : CardPatient , navigator: NavController){
     ){
         Column(modifier = Modifier.fillMaxSize().padding(12.dp).background(color = SecClr) , verticalArrangement = Arrangement.SpaceBetween){
             Row(modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween){
-                Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture",modifier = Modifier.size( 50.dp ))
+                Image( imageVector = ImageVector.vectorResource(R.drawable.p_icon2) , contentDescription = "PaitentPicture",modifier = Modifier.size( 54.dp ).padding(end = 3.dp))
                 Column(modifier = Modifier.fillMaxWidth(0.8f)){
-                    Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color = Color.White)
+                    Text( "Name : ${patient.name}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color =  Color.DarkGray )
                     Row( horizontalArrangement = Arrangement.spacedBy( ScreenWidth(0.05).dp ) ) {
-                        Text( "Age : ${patient.age}"  , style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
-                        Text( "Gender: ${patient.gender}", style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color = Color.White)
+                        Text( "Age : ${patient.age}"  , style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color =  Color.Black.copy(alpha = 0.7f) )
+                        Text( "Gender: ${patient.gender}", style = TextStyle( fontSize = 15.sp , fontFamily = Bodyfont) , color =  Color.Black.copy(alpha = 0.7f) )
                     }
                 }
-                Column(modifier = Modifier.size(45.dp).background(color = HTextClr , shape = RoundedCornerShape(12.dp)), horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.spacedBy(1.dp)){
-                Text("Ward" ,color = Color.White , fontSize = 10.sp)
-                Text(patient.wardno, color = Color.White , fontSize = 10.sp )
+                Column(modifier = Modifier.size(45.dp).background(color = HTextClr , shape = RoundedCornerShape(12.dp)),
+                    horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center){
+                Text("Ward" ,color = Color.White , fontSize = 11.sp  , lineHeight = 11.sp)
+                Text(patient.wardno, color = Color.White, fontSize = 11.sp ,  lineHeight = 11.sp)
                 }
             }
 
             Row(modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.SpaceBetween ){
                 Column(modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp , top = 5.dp) ) {
-                    Text( "Condition : ${patient.condition}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color = Color.White)
-                    Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color = Color.White)
-                    Text( "Department : ${patient.department}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color = Color.White)
+                    Text( "Condition : ${patient.condition}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color =  Color.Black.copy(alpha = 0.7f) )
+                    Text( "Doctor : ${patient.doctorname}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont) ,  color =  Color.Black.copy(alpha = 0.7f) )
+                    Text( "Department : ${patient.department}" , style = TextStyle( fontSize = 16.sp , fontFamily = Bodyfont)  ,  color =  Color.Black.copy(alpha = 0.7f) )
                 }
             }
 
 
             Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.End){
                 var MyAddmisonDate =  EpochDateDisplay(patient.admissionDate)
-                Text( "DOA: $MyAddmisonDate" , style = TextStyle( fontSize = 12.sp , fontFamily = Bodyfont) ,  color = Color.White)
+                Text( "DOA: $MyAddmisonDate" , style = TextStyle( fontSize = 12.sp , fontFamily = Bodyfont) ,  color = Color.Black.copy(alpha = 0.7f) )
             }
 
         }
 
-//
-//        Column( verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
-//            modifier = Modifier.fillMaxHeight()
-//                .fillMaxWidth(0.18f)
-//                .padding(start = ScreenWidth(0.02).dp , end = ScreenWidth(0.03).dp )
-//        ){
-//            Image( imageVector = ImageVector.vectorResource(R.drawable.patientpic) , contentDescription = "PaitentPicture"
-//                ,modifier = Modifier.size( 65.dp ).clickable{}
-//            )
-//        }
-//        Column( verticalArrangement = Arrangement.Center ,
-//            modifier = Modifier.fillMaxHeight().fillMaxWidth(0.8f)
-//        ){
-//
-//
-//
-//
-//        }
-//
-//        Column( verticalArrangement = Arrangement.SpaceBetween,
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            modifier = Modifier.fillMaxHeight().fillMaxWidth()
-//                .padding( top = 12.dp , bottom = 9.dp , start = 8.dp , end = 8.dp )) {
-//            Icon( imageVector = ImageVector.vectorResource(R.drawable.dashopen),
-//                contentDescription = "DashboardIcon",
-//                tint = Color.White,
-//                modifier = Modifier.size( 38.dp ).clickable {
-//                    navigator.navigate(route = "patientdash/${patient.patientid}/${patient.name}")
-//                }
-//            )
-//
-//        }
+
     }
 }
 
@@ -468,6 +439,121 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
 
     when(bottombarstate){
         BottomBarState.NurseDashBoard -> {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
+            ){
+                val (btmbar, dcricle, addbtn) = createRefs()
+
+                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
+
+                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
+                    .constrainAs(btmbar) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(parent.bottom)
+                    }.fillMaxWidth()
+                    .height( ScreenWidth(0.15).dp )
+                ) {
+
+                    Row (modifier = Modifier.matchParentSize()
+                        .background(color = SecClr, shape = btmbarshpae)
+                        .padding(start = 50.dp , end = 50.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+
+                    ){
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(painter = painterResource(R.drawable.home),
+                                tint = HTextClr,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size(34.dp )
+                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr , fontSize = 9.sp)
+                            )
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.navigate(route = Destinations.ShiftReportScreen.ref)
+                                }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.Gray ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 34.dp)
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.navigate(route = Destinations.NurseNotes.ref)
+                                }
+                        ){
+
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint =  Color.Gray ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 35.dp )
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.clickable{
+                                navController.navigate(Destinations.AccountScreen.ref)
+                            }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
+                                tint =  Color.Gray ,
+                                modifier = Modifier.size( 37.dp )
+                            )
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray , fontSize = 9.sp))
+                        }
+                    }
+                }
+                val bottomgline = createGuidelineFromBottom(0.25f)
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.size( 70.dp )
+                        .constrainAs(dcricle) {
+                            bottom.linkTo(bottomgline)
+                            start.linkTo(btmbar.start)
+                            end.linkTo(btmbar.end)
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = AppBg,
+                ) {}
+                FloatingActionButton(
+                    onClick = {}, shape = CircleShape.copy(),
+                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
+                        .size( 56.dp )
+                        .constrainAs(addbtn) {
+                            start.linkTo(dcricle.start)
+                            end.linkTo(dcricle.end)
+                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
+                        }.clickable {
+                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                        },
+                    containerColor = HTextClr,
+                    contentColor = Color.White,
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
+                        modifier = Modifier.size( 40.dp )
+                            .clickable {
+                                navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            }
+                    )
+                }
+
+
+            }
+        }
+        BottomBarState.ReportsPage -> {
             ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
             ){
                 val (btmbar, dcricle, addbtn) = createRefs()
@@ -492,59 +578,64 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
 
                     ){
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                }
                         ) {
                             Icon(painter = painterResource(R.drawable.home),
-                                tint = HTextClr,
+                                tint = Color.Gray ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr , fontSize = 9.sp)
-                            )
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                .clickable{
-                                    navController.navigate(route = Destinations.ShiftReportScreen.ref)
-                                }
-                        ) {
+                        ){
                             Icon(painter = painterResource(R.drawable.key),
-                                tint = Color.White.copy(alpha = 0.55f),
+                                tint = HTextClr ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
                                 .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
                                     navController.navigate(route = Destinations.NurseNotes.ref)
                                 }
                         ){
 
                             Icon(painter = painterResource(R.drawable.stickynote),
-                                tint = Color.White.copy(alpha = 0.55f),
+                                tint = Color.Gray ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 35.dp )
                             )
-                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.clickable{
+                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
                                 navController.navigate(Destinations.AccountScreen.ref)
                             }
                         ) {
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                tint = Color.White.copy(alpha = 0.55f),
-                                modifier = Modifier.size( ScreenWidth(0.075).dp )
+                                tint = Color.Gray,
+                                modifier = Modifier.size( 37.dp )
                             )
-                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                     }
+
                 }
+
+
                 val bottomgline = createGuidelineFromBottom(0.25f)
                 FloatingActionButton(
                     onClick = {}, shape = CircleShape.copy(),
@@ -613,11 +704,11 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             }
                         ) {
                             Icon(painter = painterResource(R.drawable.home),
-                                tint = Color.White.copy(alpha = 0.55f),
+                                tint = Color.Gray,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -628,11 +719,11 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                                 }
                         ){
                             Icon(painter = painterResource(R.drawable.key),
-                                tint = Color.White.copy(alpha = 0.55f) ,
+                                tint = Color.Gray ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray ,  fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -642,7 +733,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             Icon(painter = painterResource(R.drawable.stickynote),
                                 tint = HTextClr ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 35.dp )
                             )
                             Text("Notes" , style = TextStyle( fontFamily = Headingfont ,  color =  HTextClr, fontSize = 9.sp))
                         }
@@ -654,139 +745,16 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             }
                         ) {
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                tint = Color.White.copy(alpha = 0.55f),
-                                modifier = Modifier
-                                    .size( ScreenWidth(0.075).dp )
+                                tint = Color.Gray,
+                                modifier = Modifier.size( 37.dp )
                             )
-                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
+                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                     }
 
                 }
 
 
-
-
-                val bottomgline = createGuidelineFromBottom(0.25f)
-                FloatingActionButton(
-                    onClick = {}, shape = CircleShape.copy(),
-                    modifier = Modifier.size( 70.dp )
-                        .constrainAs(dcricle) {
-                            bottom.linkTo(bottomgline)
-                            start.linkTo(btmbar.start)
-                            end.linkTo(btmbar.end)
-                        }.clickable {
-                            navController.navigate(Destinations.PatientRegisterScreen.ref)
-                        },
-                    containerColor = AppBg,
-                ) {}
-                FloatingActionButton(
-                    onClick = {}, shape = CircleShape.copy(),
-                    modifier = Modifier.border(0.2.dp , color = Color.White.copy(alpha = 0.5f) , shape = CircleShape)
-                        .size( 56.dp )
-                        .constrainAs(addbtn) {
-                            start.linkTo(dcricle.start)
-                            end.linkTo(dcricle.end)
-                            bottom.linkTo(dcricle.bottom, margin = 7.dp )
-                        }.clickable {
-                            navController.navigate(Destinations.PatientRegisterScreen.ref)
-                        },
-                    containerColor = HTextClr,
-                    contentColor = Color.White,
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                        modifier = Modifier.size( 25.dp )
-                            .clickable {
-                                navController.navigate(Destinations.PatientRegisterScreen.ref)
-                            }
-                    )
-                }
-
-
-            }
-        }
-        BottomBarState.ReportsPage -> {
-            ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
-            ){
-                val (btmbar, dcricle, addbtn) = createRefs()
-
-                val btmbarshpae = RoundedCornerShape(topEnd = 45.dp , topStart = 45.dp)
-
-                Box(modifier = Modifier.background(color = SecClr, shape = btmbarshpae)
-                    .border(0.1.dp , color = Color.White.copy(alpha = 0.05f) , shape = btmbarshpae)
-                    .constrainAs(btmbar) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                    }.fillMaxWidth()
-                    .height( ScreenWidth(0.15).dp )
-                ) {
-
-                    Row (modifier = Modifier.matchParentSize()
-                        .background(color = SecClr, shape = btmbarshpae)
-                        .padding(start = 50.dp , end = 50.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-
-                    ){
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .clickable{
-                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                }
-                        ) {
-                            Icon(painter = painterResource(R.drawable.home),
-                                tint = Color.White.copy(alpha = 0.55f) ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
-                            )
-                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                        ){
-                            Icon(painter = painterResource(R.drawable.key),
-                                tint = HTextClr ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
-                            )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                                .clickable{
-                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                    navController.navigate(route = Destinations.NurseNotes.ref)
-                                }
-                        ){
-
-                            Icon(painter = painterResource(R.drawable.stickynote),
-                                tint = Color.White.copy(alpha = 0.55f),
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
-                            )
-                            Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.clickable{
-                                navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                navController.navigate(Destinations.AccountScreen.ref)
-                            }
-                        ) {
-                            Icon(painter = painterResource(R.drawable.people), contentDescription = "",
-                                tint = Color.White.copy(alpha = 0.55f),
-                                modifier = Modifier
-                                    .size( ScreenWidth(0.075).dp )
-                            )
-                            Text("Account" , style = TextStyle( fontFamily = Headingfont , color = Color.White, fontSize = 9.sp))
-                        }
-                    }
-
-                }
 
 
                 val bottomgline = createGuidelineFromBottom(0.25f)
@@ -858,11 +826,11 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             }
                         ) {
                             Icon(painter = painterResource(R.drawable.home),
-                                tint = Color.White.copy(alpha = 0.55f) ,
+                                tint = Color.Gray  ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.White , fontSize = 9.sp))
+                            Text("Home" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -873,11 +841,11 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                                 }
                         ){
                             Icon(painter = painterResource(R.drawable.key),
-                                tint = Color.White.copy(alpha = 0.55f) ,
+                                tint = Color.Gray  ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 34.dp )
                             )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.White ,  fontSize = 9.sp))
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray ,  fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -885,15 +853,15 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         ){
 
                             Icon(painter = painterResource(R.drawable.stickynote),
-                                tint =  Color.White.copy(alpha = 0.55f) ,
+                                tint =  Color.Gray  ,
                                 contentDescription = "Paitent Image",
-                                modifier = Modifier.size( ScreenWidth(0.08).dp )
+                                modifier = Modifier.size( 35.dp )
                                     .clickable{
                                         navController.popBackStack( route = Destinations.NurseDboardScreen.ref , false)
                                         navController.navigate(Destinations.NurseNotes.ref)
                                     }
                             )
-                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,   color = Color.White , fontSize = 9.sp))
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,   color = Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -905,7 +873,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             Icon(painter = painterResource(R.drawable.people), contentDescription = "",
                                 tint = HTextClr ,
                                 modifier = Modifier
-                                    .size( ScreenWidth(0.075).dp )
+                                    .size( 37.dp )
                             )
                             Text("Account" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr, fontSize = 9.sp))
                         }
