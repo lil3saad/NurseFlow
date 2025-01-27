@@ -20,6 +20,8 @@ sealed class Destinations(val ref : String) {
 
 
     object ShiftReportScreen : Destinations("ShiftReport")
+    object AddReportScreen: Destinations("WriteReport")
+
     object NurseNotes : Destinations("NurseNotes")
 
 

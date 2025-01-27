@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -71,10 +69,8 @@ import com.example.nurseflowd1.screens.nurseauth.MyBottomNavBar
 import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
 import com.example.nurseflowd1.screens.paitentdash.PatientDashBoardScreen
 import com.example.nurseflowd1.screens.paitentdash.medication.AddMedScreen
-import com.example.nurseflowd1.screens.shiftreport.ShiftReportPage
+import com.example.nurseflowd1.screens.shiftreport.ReportPage
 import com.example.nurseflowd1.ui.theme.HTextClr
-import com.example.nurseflowd1.ui.theme.SecClr
-import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 class MainActivity : ComponentActivity() {
@@ -82,8 +78,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
+        
         val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
         val roomdatabase  = RoomDB.invoke(this)
 
@@ -226,7 +221,7 @@ class MainActivity : ComponentActivity() {
                 Add_PatientInfo_Screen( modifier ,  navController , viewmodel)
             }
             composable( route = Destinations.ShiftReportScreen.ref){
-                ShiftReportPage(modifier , navController, viewmodel)
+                ReportPage(modifier , navController, viewmodel)
             }
             composable( route = Destinations.NurseNotes.ref){
                 NurseNotesPage(modifier , navController, viewmodel)
@@ -259,6 +254,9 @@ class MainActivity : ComponentActivity() {
                 val patientid = navbackstackentry.arguments!!.getString("patientid")!!
                 val patientname = navbackstackentry.arguments!!.getString("patientname")!!
                 AddMedScreen(modifier , navController, viewmodel ,patientid , patientname )
+            }
+            composable(route = Destinations.AddReportScreen.ref){
+                ReportPage(modifier,navController,viewmodel)
             }
 
         }

@@ -177,7 +177,7 @@ fun NurseDashBoardScreen(modifier: Modifier , navController: NavController , vie
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("No patients available. Please add patients.")
+                            Text("No patients available. Please add patients.", fontFamily = Bodyfont , color = Color.DarkGray)
                         } }
                 }
                 is RoomPatientListState.loading -> {
@@ -273,7 +273,6 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                     Text(listsize.value, fontSize = 55.sp , fontFamily = Headingfont , color = Color.White ,
                         modifier = Modifier.padding(start = 10.dp ))
 
-                    val context = LocalContext.current
                     var OptionsList = arrayOf("Name" , "Admission" )
                     var ExpandedBox by remember { mutableStateOf(false) }
                     var SelectedText by remember { mutableStateOf(OptionsList[1]) }
@@ -304,7 +303,6 @@ fun TopPanel(criticaliststate :  MutableState<Boolean> , Searchtext : MutableSta
                                                     if(value == "Name") viewmodel.getSortedListByName()
                                                     SelectedText = value
                                                     ExpandedBox = false
-
                                                 }
                                             )
                                         }
@@ -436,7 +434,6 @@ fun PaitentCard(patient : CardPatient , navigator: NavController){
 fun MyBottomNavBar(navController: NavController = rememberNavController(), bottombarstate : BottomBarState ){
     @Composable
     fun ScreenWidth(k : Double) : Double = (LocalConfiguration.current.screenWidthDp * k)
-
     when(bottombarstate){
         BottomBarState.NurseDashBoard -> {
             ConstraintLayout(modifier = Modifier.fillMaxWidth().background(AppBg)
@@ -474,21 +471,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                .clickable{
-                                    navController.navigate(route = Destinations.ShiftReportScreen.ref)
-                                }
-                        ) {
-                            Icon(painter = painterResource(R.drawable.key),
-                                tint = Color.Gray ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( 34.dp)
-                            )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray , fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                            modifier = Modifier.padding( end = ScreenWidth(0.1).dp )
                                 .clickable{
                                     navController.navigate(route = Destinations.NurseNotes.ref)
                                 }
@@ -500,6 +483,20 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                                 modifier = Modifier.size( 35.dp )
                             )
                             Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(start = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.navigate(route = Destinations.ShiftReportScreen.ref)
+                                }
+                        ) {
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.Gray ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 34.dp)
+                            )
+                            Text("Report" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray , fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -593,18 +590,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                        ){
-                            Icon(painter = painterResource(R.drawable.key),
-                                tint = HTextClr ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( 34.dp )
-                            )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                            modifier = Modifier.padding( end = ScreenWidth(0.1).dp )
                                 .clickable{
                                     navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
                                     navController.navigate(route = Destinations.NurseNotes.ref)
@@ -618,6 +604,18 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             )
                             Text("Notes" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray , fontSize = 9.sp))
                         }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(start = ScreenWidth(0.1).dp )
+                        ){
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = HTextClr ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 34.dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  HTextClr ,  fontSize = 9.sp))
+                        }
+
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.clickable{
@@ -645,7 +643,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             start.linkTo(btmbar.start)
                             end.linkTo(btmbar.end)
                         }.clickable {
-                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            navController.navigate(Destinations.AddReportScreen.ref)
                         },
                     containerColor = AppBg,
                 ) {}
@@ -658,15 +656,15 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                             end.linkTo(dcricle.end)
                             bottom.linkTo(dcricle.bottom, margin = 7.dp )
                         }.clickable {
-                            navController.navigate(Destinations.PatientRegisterScreen.ref)
+                            navController.navigate(Destinations.AddReportScreen.ref)
                         },
                     containerColor = HTextClr,
                     contentColor = Color.White,
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "",
-                        modifier = Modifier.size( 25.dp )
+                        modifier = Modifier.size( 35.dp )
                             .clickable {
-                                navController.navigate(Destinations.PatientRegisterScreen.ref)
+                                navController.navigate(Destinations.AddReportScreen.ref)
                             }
                     )
                 }
@@ -712,7 +710,19 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
+                            modifier = Modifier.padding( end = ScreenWidth(0.1).dp )
+                        ){
+
+                            Icon(painter = painterResource(R.drawable.stickynote),
+                                tint = HTextClr ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 35.dp )
+                            )
+                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,  color =  HTextClr, fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(start = ScreenWidth(0.1).dp )
                                 .clickable{
                                     navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
                                     navController.navigate( route = Destinations.ShiftReportScreen.ref )
@@ -724,18 +734,6 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                                 modifier = Modifier.size( 34.dp )
                             )
                             Text("Reports" , style = TextStyle( fontFamily = Headingfont , color =  Color.DarkGray ,  fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
-                        ){
-
-                            Icon(painter = painterResource(R.drawable.stickynote),
-                                tint = HTextClr ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( 35.dp )
-                            )
-                            Text("Notes" , style = TextStyle( fontFamily = Headingfont ,  color =  HTextClr, fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
@@ -834,22 +832,7 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(end = ScreenWidth(0.1).dp )
-                                .clickable{
-                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
-                                    navController.navigate( route = Destinations.ShiftReportScreen.ref )
-                                }
-                        ){
-                            Icon(painter = painterResource(R.drawable.key),
-                                tint = Color.Gray  ,
-                                contentDescription = "Paitent Image",
-                                modifier = Modifier.size( 34.dp )
-                            )
-                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray ,  fontSize = 9.sp))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding( start = ScreenWidth(0.1).dp )
+                            modifier = Modifier.padding( end = ScreenWidth(0.1).dp )
                         ){
 
                             Icon(painter = painterResource(R.drawable.stickynote),
@@ -862,6 +845,21 @@ fun MyBottomNavBar(navController: NavController = rememberNavController(), botto
                                     }
                             )
                             Text("Notes" , style = TextStyle( fontFamily = Headingfont ,   color = Color.DarkGray , fontSize = 9.sp))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(start = ScreenWidth(0.1).dp )
+                                .clickable{
+                                    navController.popBackStack(route = Destinations.NurseDboardScreen.ref, false)
+                                    navController.navigate( route = Destinations.ShiftReportScreen.ref )
+                                }
+                        ){
+                            Icon(painter = painterResource(R.drawable.key),
+                                tint = Color.Gray  ,
+                                contentDescription = "Paitent Image",
+                                modifier = Modifier.size( 34.dp )
+                            )
+                            Text("Reports" , style = TextStyle( fontFamily = Headingfont , color = Color.DarkGray ,  fontSize = 9.sp))
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,

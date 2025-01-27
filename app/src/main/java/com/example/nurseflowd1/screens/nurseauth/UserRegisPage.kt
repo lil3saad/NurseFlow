@@ -2,6 +2,7 @@ package com.example.nurseflowd1.screens.nurseauth
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,9 @@ import com.example.nurseflowd1.screens.AppBarColorState
 import com.example.nurseflowd1.screens.AppBarTitleState
 import com.example.nurseflowd1.screens.BottomBarState
 import com.example.nurseflowd1.screens.NavigationIconState
+import com.example.nurseflowd1.screens.shiftreport.VitalSuffixType
 import com.example.nurseflowd1.ui.theme.Bodyfont
+import com.example.nurseflowd1.ui.theme.panelcolor
 
 
 @Composable
@@ -121,9 +124,9 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
 
 
             Row(modifier = Modifier.fillMaxWidth().padding( horizontal = 32.dp)){
-                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false)
+                SignupFeildsSecond(modifier = Modifier.weight(1f), gender , gender_ststate , "Gender" , false )
                 Spacer( modifier = Modifier.size(20.dp))
-                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age", true)
+                SignupFeildsSecond(modifier = Modifier.weight(0.6f), age , age_ststate , "Age", true )
             }
 
             var errormessage by remember { mutableStateOf("") }
@@ -192,7 +195,7 @@ fun NurseRegister(modifier: Modifier = Modifier, navController: NavController , 
 @Composable
 fun SignupFeildsSecond( modifier: Modifier,
     textstate : MutableState<String> , supporttextstate : MutableState<SupportTextState> ,
-    placeholder : String , isnumeric : Boolean
+    placeholder : String , isnumeric : Boolean , SuffixType : VitalSuffixType = VitalSuffixType.None
 ){
     val iserror = remember { mutableStateOf(false) }
     @Composable
@@ -213,9 +216,7 @@ fun SignupFeildsSecond( modifier: Modifier,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(
-                onDone = {
-                    softwarekeyboard.hide()
-                }
+                onDone = { softwarekeyboard.hide() }
             ),
             supportingText = {
                 when(val state = supporttextstate.value) {
@@ -234,7 +235,20 @@ fun SignupFeildsSecond( modifier: Modifier,
                 errorBorderColor = Color.Red,
                 errorTextColor = Color.DarkGray,
                 errorCursorColor = Color.Gray
-            )
+            ),
+            suffix = {
+                Text( text =  when(SuffixType) {
+                    VitalSuffixType.Bp -> { "mmHg" }
+                    VitalSuffixType.Hr -> { "bpm" }
+                    VitalSuffixType.None -> { "" }
+                    VitalSuffixType.OxyRate -> { "%" }
+                    VitalSuffixType.Respirate -> { "bpm" }
+                    VitalSuffixType.temp -> { "*C" } },
+                    style = TextStyle(fontSize = 13.sp , fontFamily = Bodyfont, color = panelcolor )
+                )
+
+
+            }
         )
 }
 

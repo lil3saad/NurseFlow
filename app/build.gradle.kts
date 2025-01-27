@@ -56,13 +56,13 @@ dependencies {
     // To use constraintlayout in compose
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-beta01")
 
-    //Firebase
+    //Firebase SDK
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-analytics")
 
     //Firebase Auth
     implementation("com.google.firebase:firebase-auth")
-    //FireStore
+    //FireStore Database
     implementation("com.google.firebase:firebase-firestore")
 
 
@@ -89,7 +89,19 @@ dependencies {
     // Date Picker
     implementation("network.chaintech:kmp-date-time-picker:1.0.7")
 
+    // Test dependencies
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.0")
+    androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.7.4")
 
+    // Exclude conflicting dependencies
+    configurations.all {
+        resolutionStrategy {
+            force ("androidx.test.ext:junit:1.1.5")
+            force ("androidx.test.espresso:espresso-core:3.5.0")
+        }
+    }
+    implementation("com.itextpdf:itext7-core:7.1.16")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
