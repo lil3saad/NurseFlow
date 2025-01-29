@@ -2,8 +2,8 @@ package com.example.nurseflowd1.domain.usecases
 
 
 import android.util.Log
-import com.example.nurseflowd1.datamodels.CardPatient
-import com.example.nurseflowd1.room.PatientCardDao
+import com.example.nurseflowd1.datalayer.datamodel.CardPatient
+import com.example.nurseflowd1.datalayer.room.PatientCardDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

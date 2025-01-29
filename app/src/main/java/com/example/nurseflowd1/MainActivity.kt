@@ -42,15 +42,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nurseflowd1.domain.AuthVMF
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
-import com.example.nurseflowd1.screens.accountmanage.AccountScreen
-import com.example.nurseflowd1.screens.nurseauth.AuthScreen
-import com.example.nurseflowd1.screens.Destinations
-import com.example.nurseflowd1.screens.accountmanage.AccountSettingPage
-import com.example.nurseflowd1.screens.accountmanage.UpdateProfilePage
-import com.example.nurseflowd1.screens.nurseauth.LoginScreen
-import com.example.nurseflowd1.screens.nurseauth.NurseDashBoardScreen
-import com.example.nurseflowd1.screens.nurseauth.NurseRegister
-import com.example.nurseflowd1.screens.paitentdash.Add_PatientInfo_Screen
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
 import com.example.nurseflowd1.ui.theme.Headingfont
@@ -58,18 +49,30 @@ import io.appwrite.Client
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.nurseflowd1.datalayer.room.RoomDB
+import com.example.nurseflowd1.domain.AppVM
 import com.example.nurseflowd1.domain.usecases.RoomMediUC
+import com.example.nurseflowd1.domain.usecases.NurseNoteUC
 import com.example.nurseflowd1.domain.usecases.RoomPatientUC
-import com.example.nurseflowd1.room.RoomDB
-import com.example.nurseflowd1.screens.AppBarColorState
-import com.example.nurseflowd1.screens.AppBarTitleState
-import com.example.nurseflowd1.screens.BottomBarState
-import com.example.nurseflowd1.screens.NavigationIconState
-import com.example.nurseflowd1.screens.nurseauth.MyBottomNavBar
-import com.example.nurseflowd1.screens.nursenotes.NurseNotesPage
-import com.example.nurseflowd1.screens.paitentdash.PatientDashBoardScreen
-import com.example.nurseflowd1.screens.paitentdash.medication.AddMedScreen
-import com.example.nurseflowd1.screens.shiftreport.ReportPage
+import com.example.nurseflowd1.presentation.AppBarColorState
+import com.example.nurseflowd1.presentation.AppBarTitleState
+import com.example.nurseflowd1.presentation.BottomBarState
+import com.example.nurseflowd1.presentation.Destinations
+import com.example.nurseflowd1.presentation.NavigationIconState
+import com.example.nurseflowd1.presentation.screens.accountmanage.AccountScreen
+import com.example.nurseflowd1.presentation.screens.accountmanage.AccountSettingPage
+import com.example.nurseflowd1.presentation.screens.accountmanage.UpdateProfilePage
+import com.example.nurseflowd1.presentation.screens.nurseauth.AuthScreen
+import com.example.nurseflowd1.presentation.screens.nurseauth.LoginScreen
+import com.example.nurseflowd1.presentation.screens.nurseauth.MyBottomNavBar
+import com.example.nurseflowd1.presentation.screens.nurseauth.NurseDashBoardScreen
+import com.example.nurseflowd1.presentation.screens.nurseauth.NurseRegister
+import com.example.nurseflowd1.presentation.screens.nursenotes.AddNurseNote
+import com.example.nurseflowd1.presentation.screens.nursenotes.NurseNotesPage
+import com.example.nurseflowd1.presentation.screens.paitentdash.Add_PatientInfo_Screen
+import com.example.nurseflowd1.presentation.screens.paitentdash.PatientDashBoardScreen
+import com.example.nurseflowd1.presentation.screens.paitentdash.medication.AddMedScreen
+import com.example.nurseflowd1.presentation.screens.shiftreport.ReportPage
 import com.example.nurseflowd1.ui.theme.HTextClr
 
 
@@ -85,9 +88,11 @@ class MainActivity : ComponentActivity() {
 
         val patientdao =roomdatabase.getpatientcardDAO()
         val medidao = roomdatabase.getmedicinedDAO()
+        val notedao = roomdatabase.getnoteDAO()
 
         val roompatientuse = RoomPatientUC(patientdao)
         val roommediuc = RoomMediUC(medidao)
+        val roomNoteUc = NurseNoteUC(notedao)
 
         val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -95,7 +100,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc)
+            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc , roomNoteUc)
             val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
@@ -193,7 +198,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun NavigationStack(modifier: Modifier = Modifier , navController: NavHostController , viewmodel : AppVM , notimanager: NotificationManager){
+    fun NavigationStack(modifier: Modifier = Modifier, navController: NavHostController, viewmodel : AppVM, notimanager: NotificationManager){
         NavHost( navController = navController , startDestination = Destinations.NurseDboardScreen.ref){
             composable(route = Destinations.LoginScreen.ref){
                 LoginScreen(modifier, navController , viewmodel)
@@ -226,6 +231,23 @@ class MainActivity : ComponentActivity() {
             composable( route = Destinations.NurseNotes.ref){
                 NurseNotesPage(modifier , navController, viewmodel)
             }
+            composable(route = Destinations.AddNoteScreen.route , arguments = listOf(
+                navArgument("notetitle"){  nullable = true ;  type = NavType.StringType },
+                navArgument("notebody"){   nullable = true ; type = NavType.StringType } ,
+                navArgument("UpdateNote") {  defaultValue = false ; type = NavType.BoolType },
+                navArgument("NoteId") {  defaultValue = 0 ; type = NavType.LongType }
+            )  ){  navstackentries ->
+
+
+                val noteid = navstackentries.arguments!!.getLong("NoteId")
+                val isupdatenote = navstackentries.arguments!!.getBoolean("UpdateNote")
+
+                val notetittle = navstackentries.arguments!!.getString("notetitle")
+                val notebody = navstackentries.arguments!!.getString("notebody")
+
+                AddNurseNote(modifier , viewmodel , navController , isupdatenote , noteid , notetittle!! , notebody!!)
+
+            }
             composable( route = Destinations.PatientDashboardScreen.ref , arguments = listOf(
                 navArgument(name = "patientid"){
                     defaultValue = "patientidnotpassed"
@@ -256,6 +278,7 @@ class MainActivity : ComponentActivity() {
                 AddMedScreen(modifier , navController, viewmodel ,patientid , patientname )
             }
             composable(route = Destinations.AddReportScreen.ref){
+
                 ReportPage(modifier,navController,viewmodel)
             }
 

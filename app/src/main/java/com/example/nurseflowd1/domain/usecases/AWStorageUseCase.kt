@@ -6,7 +6,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import com.example.nurseflowd1.domain.AWCreds
-import com.example.nurseflowd1.screens.accountmanage.ProfilePictureState
+import com.example.nurseflowd1.presentation.screens.accountmanage.ProfilePictureState
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.SetOptions
 import io.appwrite.Client
