@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import com.example.nurseflowd1.koin.appwriteModule
 import com.example.nurseflowd1.koin.roomModule
 import com.example.nurseflowd1.koin.usecasesModule
 import com.example.nurseflowd1.koin.viewmodelModule
@@ -19,7 +20,7 @@ class MyApplication : Application() {
 
         startKoin {
             androidContext(this@MyApplication)
-            modules( listOf ( roomModule , usecasesModule , viewmodelModule ) )
+            modules( listOf ( roomModule , usecasesModule , viewmodelModule , appwriteModule) )
         }
     }
     private fun CreateNotiChannel() {

@@ -16,6 +16,7 @@ import com.example.nurseflowd1.domain.usecases.NurseNoteUC
 import com.example.nurseflowd1.domain.usecases.RoomMediUC
 import com.example.nurseflowd1.domain.usecases.RoomPatientUC
 import io.appwrite.Client
+import io.appwrite.services.Storage
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -31,6 +32,7 @@ val roomModule = module {
     single { get<RoomDB>().getmedicinedDAO() }
     single { get<RoomDB>().getnoteDAO() }
 }
+
 val usecasesModule = module {
            single <NurseNoteUC> {
                NurseNoteUC( get<NurseNoteDao>()  )
@@ -41,13 +43,10 @@ val usecasesModule = module {
            single <RoomPatientUC> {
                RoomPatientUC( get<PatientCardDao>() )
            }
-           single<Client>{
-                 Client( get() ).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
-           }
            single <AWStorageUseCase> {
                AWStorageUseCase( get<Client>(), androidContext() )
            }
-    }
+}
 val viewmodelModule = module {
         // Koin Creates the View Model Factory by Default
         viewModel {
