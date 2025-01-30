@@ -45,8 +45,7 @@ import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
 
-class AppVM(private val navController: NavController,
-            private val  storageuc : AWStorageUseCase,
+class AppVM( private val  storageuc : AWStorageUseCase,
             private val roompatientuc : RoomPatientUC,
             private val roommeduc : RoomMediUC,
             private val nursenoteuc : NurseNoteUC
@@ -405,7 +404,6 @@ class AppVM(private val navController: NavController,
                     Log.d("TAGY", "Updated  NurseDoc with ${_NurseRegisinfo.profilepicid }!VM:UpdateNurseProfile")
                     firestoredb.collection("Nurses").document(nursedocid).set(_NurseRegisinfo).await()
                     _NurseProfileState.value = NurseProfileState.UpdateDone
-                    navController.popBackStack()
                     Log.d("TAGY", "the Document should be Updated !VM:UpdateNurseProfile")
 
                 } catch (e: FirebaseFirestoreException) {

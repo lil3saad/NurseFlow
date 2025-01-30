@@ -4,6 +4,11 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import com.example.nurseflowd1.koin.roomModule
+import com.example.nurseflowd1.koin.usecasesModule
+import com.example.nurseflowd1.koin.viewmodelModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 
 class MyApplication : Application() {
@@ -11,6 +16,11 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         CreateNotiChannel()
+
+        startKoin {
+            androidContext(this@MyApplication)
+            modules( listOf ( roomModule , usecasesModule , viewmodelModule ) )
+        }
     }
     private fun CreateNotiChannel() {
         val MediChannel = NotificationChannel( NotificationReferences.MediChannelId.ref , "Medication Reminder"  ,

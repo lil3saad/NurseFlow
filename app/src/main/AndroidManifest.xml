@@ -27,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".screens.paitentdash.MedsNotiReceiver" />
+        <receiver android:name=".presentation.screens.paitentdash.MedsNotiReceiver" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.nurseflowd1.fileprovider"

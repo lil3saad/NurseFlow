@@ -196,6 +196,7 @@ fun UpdateProfilePage(modifier: Modifier , navController: NavController , viewmo
                                     )
                                     viewmodel.SaveNurseInfoInVm(nurseinfo)
                                     viewmodel.UpdateNurseProfile()
+                                    navController.popBackStack()
                                 }
                             }catch (e : Exception){
                                 errormessage = "Age can only have numbers"

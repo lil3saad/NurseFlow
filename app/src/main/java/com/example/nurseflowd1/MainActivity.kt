@@ -40,7 +40,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.nurseflowd1.domain.AuthVMF
 import com.example.nurseflowd1.domain.usecases.AWStorageUseCase
 import com.example.nurseflowd1.ui.theme.AppBg
 import com.example.nurseflowd1.ui.theme.NurseFlowD1Theme
@@ -74,6 +73,9 @@ import com.example.nurseflowd1.presentation.screens.paitentdash.PatientDashBoard
 import com.example.nurseflowd1.presentation.screens.paitentdash.medication.AddMedScreen
 import com.example.nurseflowd1.presentation.screens.shiftreport.ReportPage
 import com.example.nurseflowd1.ui.theme.HTextClr
+import org.koin.android.ext.android.get
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -82,17 +84,17 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         
-        val client : Client = Client(this).setEndpoint("https://cloud.appwrite.io/v1").setProject("673b1afc002275ec3f3a")
-        val roomdatabase  = RoomDB.invoke(this)
 
-
-        val patientdao =roomdatabase.getpatientcardDAO()
-        val medidao = roomdatabase.getmedicinedDAO()
-        val notedao = roomdatabase.getnoteDAO()
-
-        val roompatientuse = RoomPatientUC(patientdao)
-        val roommediuc = RoomMediUC(medidao)
-        val roomNoteUc = NurseNoteUC(notedao)
+//        val roomdatabase  = RoomDB.invoke(this)
+//
+//
+//        val patientdao =roomdatabase.getpatientcardDAO()
+//        val medidao = roomdatabase.getmedicinedDAO()
+//        val notedao = roomdatabase.getnoteDAO()
+//
+//        val roompatientuse = RoomPatientUC(patientdao)
+//        val roommediuc = RoomMediUC(medidao)
+//        val roomNoteUc = NurseNoteUC(notedao)
 
         val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -100,8 +102,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc , roomNoteUc)
-            val viewmodel = ViewModelProvider(this , factory)[AppVM::class.java]
+
+//            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc , roomNoteUc)
+
+            val viewmodel = getViewModel<AppVM>()
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
                 Scaffold(modifier = Modifier.background(HTextClr)

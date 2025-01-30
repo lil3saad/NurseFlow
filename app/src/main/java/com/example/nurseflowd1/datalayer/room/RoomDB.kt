@@ -16,15 +16,4 @@ abstract class RoomDB : RoomDatabase() {
 
     abstract fun getnoteDAO() : NurseNoteDao
 
-    companion object {
-        @kotlin.jvm.Volatile
-        private var instance : RoomDB? = null
-        private var LOCK = Any()
-
-        operator fun invoke(context: Context) : RoomDB = instance ?: synchronized(LOCK){
-             instance ?:  Room.databaseBuilder(context = context , RoomDB::class.java , "PatientData").build()
-        }
-    }
-
-
 }
