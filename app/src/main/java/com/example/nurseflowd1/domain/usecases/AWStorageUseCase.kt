@@ -20,10 +20,11 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Arrays
 
-class AWStorageUseCase(val client: Client, val context: Context) {
+class AWStorageUseCase(val  client: Client, val context: Context) {
 
     val AppwriteStorage = Storage(client)
     val awcred = AWCreds()
+
     suspend fun getProfilePicture(fieldid : String) : MutableStateFlow<ProfilePictureState> {
         val profilepicstate  : MutableStateFlow<ProfilePictureState>  = MutableStateFlow(ProfilePictureState.empty)
         Log.d("TAGY", "Fetching $fieldid from Fs")

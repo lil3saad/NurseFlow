@@ -80,36 +80,22 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
 
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        
-
-//        val roomdatabase  = RoomDB.invoke(this)
-//
-//
-//        val patientdao =roomdatabase.getpatientcardDAO()
-//        val medidao = roomdatabase.getmedicinedDAO()
-//        val notedao = roomdatabase.getnoteDAO()
-//
-//        val roompatientuse = RoomPatientUC(patientdao)
-//        val roommediuc = RoomMediUC(medidao)
-//        val roomNoteUc = NurseNoteUC(notedao)
-
-        val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
 
-//            val factory = AuthVMF(navController , AWStorageUseCase(client, context = LocalContext.current) , roompatientuse, roommediuc , roomNoteUc)
 
             val viewmodel = getViewModel<AppVM>()
+
+            val notimanager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val navController = rememberNavController()
+
             NurseFlowD1Theme {
                 val Screenwidth = LocalConfiguration.current.screenWidthDp
-                Scaffold(modifier = Modifier.background(HTextClr)
-                    .systemBarsPadding() // LOAD SCAFFOLD RESPECTING THE USER'S GESTURES / BUTTON SYSTEM BARS
+                Scaffold(modifier = Modifier.background(HTextClr).systemBarsPadding()
                     .fillMaxSize(),
                     topBar = {
                         val titlestate by viewmodel.appbartitlestate.collectAsState()

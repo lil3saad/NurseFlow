@@ -45,7 +45,7 @@ import java.util.HashMap
 import kotlin.Boolean
 import kotlin.collections.get
 
-class AppVM( private val  storageuc : AWStorageUseCase,
+class AppVM(private val  storageuc : AWStorageUseCase,
             private val roompatientuc : RoomPatientUC,
             private val roommeduc : RoomMediUC,
             private val nursenoteuc : NurseNoteUC

@@ -24,9 +24,8 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val roomModule = module {
-    single<Context> { androidContext() }
     single<RoomDB> {
-            Room.databaseBuilder( get() , RoomDB::class.java , "MyRoomDatabase").build()
+            Room.databaseBuilder( androidContext() , RoomDB::class.java , "MyRoomDatabase").build()
     }
     single { get<RoomDB>().getpatientcardDAO() }
     single { get<RoomDB>().getmedicinedDAO() }
@@ -34,18 +33,23 @@ val roomModule = module {
 }
 
 val usecasesModule = module {
-           single <NurseNoteUC> {
+    single <NurseNoteUC> {
                NurseNoteUC( get<NurseNoteDao>()  )
-           }
-           single <RoomMediUC> {
+    }
+    single <RoomMediUC> {
                RoomMediUC ( get<MedicineDao>() )
-           }
-           single <RoomPatientUC> {
+    }
+    single <RoomPatientUC> {
                RoomPatientUC( get<PatientCardDao>() )
-           }
-           single <AWStorageUseCase> {
+    }
+    single<Client>{
+              Client(context = androidContext())
+                  .setEndpoint(endpoint = "https://cloud.appwrite.io/v1")
+                  .setProject(value = "673b1afc002275ec3f3a")
+    }
+    single <AWStorageUseCase> {
                AWStorageUseCase( get<Client>(), androidContext() )
-           }
+    }
 }
 val viewmodelModule = module {
         // Koin Creates the View Model Factory by Default
