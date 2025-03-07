@@ -86,55 +86,55 @@ fun NurseNotesPage(modifier: Modifier , navController: NavController, viewmodel 
         viewmodel.getNoteList()
     }
     val NoteList by viewmodel.notelist.collectAsState()
-    Column(modifier = modifier.background(AppBg)
-        .fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-
-        val searchtext = remember { mutableStateOf("") }
-        NoteSearchRow(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp), searchtext , viewmodel)
-
-        when(val state = NoteList){
-                is RoomNoteListState.Receive -> {
-                    LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(150.dp) ) {
-                        items(state.list) { note ->
-                            NoteCard(note,
-                                onDelete = { note ->
-                                    // Dialog
-                                    viewmodel.DeleteNote(note)
-                                },
-                                onUpdate = { updatenote ->
-                                    val route = Destinations.AddNoteScreen.createRoute(
-                                        isUpdate = true,
-                                        noteId = updatenote.noteid,
-                                        noteTitle = updatenote.title,
-                                        noteBody = updatenote.body
-                                    )
-                                    Log.d(
-                                        "NOTEUPDATE",
-                                        "Route: $route"
-                                    )  // Add this to see the generated route
-                                    navController.navigate(route)
-                                },
-                                navController
-                            )
-                        }
-                    }
-                }
-                is RoomNoteListState.EmptyList -> {
-                        Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-                            Text("Please Add Notes, no notes found" , style = TextStyle(fontSize = 15.sp , fontFamily = Bodyfont , color = Color.Black))
-                        }
-                }
-                is RoomNoteListState.Loading -> {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            CircularProgressIndicator( modifier = Modifier.size(200.dp ) , color = panelcolor)
-                        }
-                }
-                else -> Unit
-            }
-    }
+//    Column(modifier = modifier.background(AppBg)
+//        .fillMaxSize(),
+//        verticalArrangement = Arrangement.Top,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ){
+//
+//        val searchtext = remember { mutableStateOf("") }
+//        NoteSearchRow(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp), searchtext , viewmodel)
+//
+//        when(val state = NoteList){
+//                is RoomNoteListState.Receive -> {
+//                    LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(150.dp) ) {
+//                        items(state.list) { note ->
+//                            NoteCard(note,
+//                                onDelete = { note ->
+//                                    // Dialog
+//                                    viewmodel.DeleteNote(note)
+//                                },
+//                                onUpdate = { updatenote ->
+//                                    val route = Destinations.AddNoteScreen.createRoute(
+//                                        isUpdate = true,
+//                                        noteId = updatenote.noteid,
+//                                        noteTitle = updatenote.title,
+//                                        noteBody = updatenote.body
+//                                    )
+//                                    Log.d(
+//                                        "NOTEUPDATE",
+//                                        "Route: $route"
+//                                    )  // Add this to see the generated route
+//                                    navController.navigate(route)
+//                                },
+//                                navController
+//                            )
+//                        }
+//                    }
+//                }
+//                is RoomNoteListState.EmptyList -> {
+//                        Row(modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
+//                            Text("Please Add Notes, no notes found" , style = TextStyle(fontSize = 15.sp , fontFamily = Bodyfont , color = Color.Black))
+//                        }
+//                }
+//                is RoomNoteListState.Loading -> {
+//                        Column(modifier = Modifier.fillMaxSize()) {
+//                            CircularProgressIndicator( modifier = Modifier.size(200.dp ) , color = panelcolor)
+//                        }
+//                }
+//                else -> Unit
+//            }
+//    }
 
 }
 @Composable

@@ -162,366 +162,366 @@ fun ReportPage(modifier: Modifier, navcontroller : NavController, viewmodel : Ap
 
     val ShowTimeDialog = remember { mutableStateOf(false) }
     val timepicktype : MutableState<TimePickTypeState> = remember { mutableStateOf(TimePickTypeState.None) }
-    Box(modifier = modifier.fillMaxSize()) {
-
-        Column(modifier = Modifier.background(AppBg).fillMaxSize() , horizontalAlignment = Alignment.CenterHorizontally) {
-
-            Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.95f).background(AppBg)
-                .padding(6.dp)
-                .verticalScroll(rememberScrollState())  ){
-
-                SingupFeilds(label = "Patient Name",
-                    textstate = user_patientname,
-                    placeholdertext = "Enter Patient name" ,
-                    supportextstate = user_patientname_state,
-                )
-                SingupFeilds(label = "Patient Id",
-                    textstate = user_patientid,
-                    placeholdertext = "Enter Patient id" ,
-                    supportextstate = user_patientid_state,
-                )
-                val context = LocalContext.current
-                val genderdropExpanded =  remember {   mutableStateOf(false) }
-                val genderOptions = listOf<String>( "Male" , "Female" , "Non-Binary")
-                val selectedgender = remember { mutableStateOf("Female") }
-                user_gender.value = selectedgender.value
-                // Patient // Shift  Info Row
-                Column {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
-
-
-                        // Drop Down Gender Picker
-                        Box(modifier = Modifier.weight(1f) ) {
-                            ExposedDropdownMenuBox(expanded = genderdropExpanded.value , onExpandedChange = { genderdropExpanded.value = it}){
-                                TextField(value = selectedgender.value , onValueChange = {} , textStyle = TextStyle(fontSize = 12.sp , color = Color.Black , fontFamily = Bodyfont),
-                                    trailingIcon = {
-                                        Icon(imageVector = Icons.Default.ArrowDropDown  , contentDescription = "dropdownarrow" , tint = Color.DarkGray)
-                                    },
-                                    modifier = Modifier.menuAnchor().border(1.dp ,Color.Black, shape = RoundedCornerShape(4.dp)),
-                                    colors = TextFieldDefaults.colors(
-                                        unfocusedContainerColor = AppBg,
-                                        focusedContainerColor = AppBg,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent
-                                    ),
-                                    readOnly = true
-                                )
-                                ExposedDropdownMenu(expanded = genderdropExpanded.value , onDismissRequest = { genderdropExpanded.value = false },
-                                    containerColor = Color.Black.copy(alpha = 0.7f),
-                                    border = BorderStroke(color = Color.Black, width = 1.dp)
-                                ){
-                                    genderOptions.forEach { option ->
-                                        DropdownMenuItem( text = { Text("$option" , style = TextStyle(fontSize = 12.sp , color = Color.White)) } , onClick = {
-                                            selectedgender.value = option
-                                        })
-                                    }
-                                }
-                            }
-                        }
-
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_wardno,
-                            placeholder = "Ward no",
-                            supporttextstate = user_wardno_state,
-                            isnumeric = false
-                        )
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_dob,
-                            placeholder = "DOB: 12/12/2025",
-                            supporttextstate = user_dob_state,
-                            isnumeric = false
-                        )
-                    }
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
-
-                        Button(onClick = {  ShowTimeDialog.value = true
-                            timepicktype.value = TimePickTypeState.StartTime
-                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
-                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppBg
-                            ),
-                            contentPadding = PaddingValues(0.dp)
-                        ){
-                            if(Shift_startime.value.isNullOrBlank())
-                            Text("Shift Start Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
-                            else Text("${Shift_startime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
-                        }
-                        Button(onClick = {  ShowTimeDialog.value = true
-                            timepicktype.value = TimePickTypeState.EndTIme
-                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
-                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppBg
-                            ),
-                            contentPadding = PaddingValues(0.dp)
-                        ){
-                            if(Shift_endtime.value.isNullOrBlank())
-                            Text("Shift End Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
-                            else Text("${Shift_endtime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
-                        }
-
-
-                        SignupFeildsSecond(modifier = Modifier.weight(1f),
-                            textstate = Shift_date,
-                            placeholder = "Date: 12/12/2025",
-                            supporttextstate = shift_date_state,
-                            isnumeric = false
-                        )
-
-                    }
-                }
-
-
-                // Patient Medical Info
-                SingupFeilds(label = "Doctor",
-                    textstate = user_doctorname,
-                    placeholdertext = "Enter Doctor name",
-                    supportextstate = user_doctorname_state
-                )
-                SingupFeilds(label = "Diagnosis",
-                    textstate = user_diagnosis,
-                    placeholdertext = "Enter Diagnosed Condition",
-                    supportextstate = user_diagnosis_state
-                )
-                SingupFeilds(label = "Medical History",
-                    textstate = user_medicalhistory,
-                    placeholdertext = "Enter patient's medical history ",
-                    supportextstate = user_medicalhistory_state
-                )
-                SingupFeilds(label = "Allergies",
-                    textstate = user_allergies,
-                    placeholdertext = "Enter patient's medical history ",
-                    supportextstate = user_allergies_state
-                )
-                SingupFeilds(label = "Pain Assessment",
-                    textstate = user_painassesment,
-                    placeholdertext = "Enter patient's pain levels  ",
-                    supportextstate = user_painassesment_state
-                )
-
-                Text( text = "Vitals" ,modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), fontSize = 15.sp , fontFamily = Headingfont , color = panelcolor , textAlign = TextAlign.Center)
-                // Vitals Column
-                Column {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
-
-                        Button(onClick = {  ShowTimeDialog.value = true
-                            timepicktype.value = TimePickTypeState.VitalsRecordTime
-                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
-                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppBg
-                            ),
-                            contentPadding = PaddingValues(0.dp)
-                        ){
-                            if(user_vitalstime.value.isNullOrBlank())
-                                Text("Record Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
-                            else Text("${user_vitalstime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
-                        }
-
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_bp,
-                            placeholder = "BP",
-                            supporttextstate = user_bp_state,
-                            isnumeric = true,
-                            SuffixType = VitalSuffixType.Bp
-                        )
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_temp,
-                            placeholder = "Temperature",
-                            supporttextstate = user_temp_state,
-                            isnumeric = true,
-                            SuffixType = VitalSuffixType.temp
-                        )
-                    }
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_heartrate,
-                            placeholder = "HR",
-                            supporttextstate = user_heartrate_state,
-                            isnumeric = true,
-                            SuffixType = VitalSuffixType.Hr
-                        )
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_oxygen,
-                            placeholder = "SpO2",
-                            supporttextstate = user_oxygen_state,
-                            isnumeric = true,
-                            SuffixType = VitalSuffixType.OxyRate
-                        )
-                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
-                            textstate = user_respirate,
-                            placeholder = "RR",
-                            supporttextstate = user_respirate_state,
-                            isnumeric = true,
-                            SuffixType = VitalSuffixType.Respirate
-                        )
-                    }
-                }
-
-                // Report Fields
-                SingupFeilds(label = "Pre-Operative Order",
-                    textstate = user_pre_operative_order,
-                    placeholdertext = "Enter pre operation orders",
-                    supportextstate = user_pre_operative_order_state
-                )
-                SingupFeilds(label = "Post Operative Order",
-                    textstate = user_post_operative_ordre,
-                    placeholdertext = "Enter post operation order",
-                    supportextstate = user_post_operative_ordre_state
-                )
-                SingupFeilds(label = "Procedure Status",
-                    textstate = user_procedure_status,
-                    placeholdertext = "Enter ongoing procedure status ",
-                    supportextstate = user_procedure_status_state
-                )
-                SingupFeilds(label = "Stat Medication",
-                    textstate = user_stat_medication,
-                    placeholdertext = "Enter patient's immediate medications",
-                    supportextstate = user_stat_medication_state
-                )
-                SingupFeilds(label = "Verbal Order",
-                    textstate = user_doc_verbal_order_name,
-                    placeholdertext = "Enter doctor's verbal orders with doctors name",
-                    supportextstate = user_doc_verbal_order_name_state
-                )
-
-                SingupFeilds(label = "Nurse Remarks",
-                    textstate = user_nurse_remarks,
-                    placeholdertext = "Enter Nurse Remarks ",
-                    supportextstate = user_nurse_remarks_state
-                )
-                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.Center) {
-                    val context = LocalContext.current
-                    fun checkField(feildvalue : MutableState<String>, feildstate : MutableState<SupportTextState>) : Boolean {
-                        if(feildvalue.value.isNullOrBlank()) {
-                            feildstate.value = SupportTextState.empty("Required*")
-                            return false
-                        }
-                        else {
-                            feildstate.value = SupportTextState.ideal
-                            return true
-                        }
-                    }
-                    fun ValidateForm()  {
-
-                        var isValid = true
-
-                        isValid = checkField(user_patientname,user_patientname_state)
-
-                        // Patient Info Details
-                        isValid = checkField(user_patientname, user_patientname_state) && isValid
-                        isValid = checkField(user_patientid, user_patientid_state) && isValid
-                        isValid = checkField(user_gender, user_gender_state) && isValid
-                        isValid = checkField(user_wardno, user_wardno_state) && isValid
-                        isValid = checkField(user_dob, user_dob_state) && isValid
-
-                        // Shift Validation
-                        isValid = checkField(Shift_startime, shift_startime_state) && isValid
-                        isValid = checkField(Shift_endtime, shift_endtime_state) && isValid
-                        isValid = checkField(Shift_date, shift_date_state) && isValid
-
-                        // PATIENT MEDICALS
-                        isValid = checkField(user_doctorname, user_doctorname_state) && isValid
-                        isValid = checkField(user_diagnosis, user_diagnosis_state) && isValid
-                        isValid = checkField(user_medicalhistory, user_medicalhistory_state) && isValid
-                        isValid = checkField(user_allergies, user_allergies_state) && isValid
-                        isValid = checkField(user_painassesment, user_painassesment_state) && isValid
-
-                        // Patient Vitals
-                        isValid = checkField(user_vitalstime, user_vitals_state) && isValid
-                        isValid = checkField(user_bp, user_bp_state) && isValid
-                        isValid = checkField(user_heartrate, user_heartrate_state) && isValid
-                        isValid = checkField(user_temp, user_temp_state) && isValid
-                        isValid = checkField(user_oxygen, user_oxygen_state) && isValid
-                        isValid = checkField(user_respirate, user_respirate_state) && isValid
-                        isValid = checkField(user_pre_operative_order, user_pre_operative_order_state) && isValid
-                        isValid = checkField(user_post_operative_ordre, user_post_operative_ordre_state) && isValid
-                        isValid = checkField(user_procedure_status, user_procedure_status_state) && isValid
-                        isValid = checkField(user_stat_medication, user_stat_medication_state) && isValid
-                        isValid = checkField(user_doc_verbal_order_name, user_doc_verbal_order_name_state) && isValid
-                        isValid = checkField(user_nurse_remarks, user_nurse_remarks_state) && isValid
-
-                        if(isValid) {
-                            var VitalsList = mutableListOf<PatientVitals>()
-                            val vital = PatientVitals(
-                                vitalreport_time = user_vitalstime.value,
-                                bloodpressure = user_bp.value,
-                                heartreate = user_heartrate.value,
-                                temp = user_temp.value,
-                                oxygenlevel = user_oxygen.value,
-                                respiratoryrate = user_respirate.value
-                            )
-                            VitalsList.add(vital)
-                            val PatientReport = PatientShiftReport(
-                                shiftid = "$user_patientid" + "${Random.nextInt()}",
-                                shift_startime = Shift_startime.value,
-                                shift_endtime = Shift_endtime.value,
-                                shift_date = Shift_date.value,
-                                pInfo = P_ReportInfo(
-                                    patientname = user_patientname.value,
-                                    patientid = user_patientid.value,
-                                    Gender = user_gender.value,
-                                    wardno = user_wardno.value,
-                                    dob = user_dob.value
-                                ),
-                                patientMedicalInfo = P_ReportMedicalInfo(
-                                    doctors = user_doctorname.value,
-                                    diagnosis = user_diagnosis.value,
-                                    medicalhistory = user_medicalhistory.value,
-                                    allergies = user_allergies.value,
-                                    painlevels = user_painassesment.value,
-                                    vitals_timelist = VitalsList
-                                ),
-                                pre_operative_order = user_pre_operative_order.value,
-                                post_operative_ordre = user_post_operative_ordre.value,
-                                procedure_status = user_procedure_status.value,
-                                stat_medication = user_stat_medication.value,
-                                doc_verbal_order_name = user_doc_verbal_order_name.value,
-                                nurse_remarks = user_nurse_remarks.value
-                            )
-
-                            val pdf_file  : File = CreatePDF(PatientReport , context)
-                            val pdfuri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider",  pdf_file)
-                            // Create email intent
-                            val emailIntent = Intent(Intent.ACTION_SEND).apply {
-                                type = "application/pdf"
-                                putExtra(Intent.EXTRA_SUBJECT, "Patient Shift Report")
-                                putExtra(Intent.EXTRA_TEXT, "Attached patient shift report")
-                                putExtra(Intent.EXTRA_STREAM, pdfuri)
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            }
-                            context.startActivity(Intent.createChooser(emailIntent, "Send report"))
-
-                        }
-
-                    }
-                    // Direct Handover without saving the report
-                    Button(onClick = { ValidateForm() },
-                        colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
-                        modifier = Modifier.size(width = 150.dp , height = 50.dp)) {
-                        Text("Handover report" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = 13.sp)
-                    }
-                }
-
-
-            }
-        }
-
-        TimePickerDialog(ShowTimeDialog) { time ->
-            when(timepicktype.value) {
-                TimePickTypeState.EndTIme -> Shift_endtime.value = "${time.hour}:${time.minute}"
-                TimePickTypeState.StartTime ->       Shift_startime.value = "${time.hour}:${time.minute}"
-                TimePickTypeState.VitalsRecordTime -> { user_vitalstime.value = "${time.hour}:${time.minute}" }
-                else -> Unit
-            }
-
-        }
-    }
+//    Box(modifier = modifier.fillMaxSize()) {
+//
+//        Column(modifier = Modifier.background(AppBg).fillMaxSize() , horizontalAlignment = Alignment.CenterHorizontally) {
+//
+//            Column(modifier = Modifier.fillMaxHeight().fillMaxWidth(0.95f).background(AppBg)
+//                .padding(6.dp)
+//                .verticalScroll(rememberScrollState())  ){
+//
+//                SingupFeilds(label = "Patient Name",
+//                    textstate = user_patientname,
+//                    placeholdertext = "Enter Patient name" ,
+//                    supportextstate = user_patientname_state,
+//                )
+//                SingupFeilds(label = "Patient Id",
+//                    textstate = user_patientid,
+//                    placeholdertext = "Enter Patient id" ,
+//                    supportextstate = user_patientid_state,
+//                )
+//                val context = LocalContext.current
+//                val genderdropExpanded =  remember {   mutableStateOf(false) }
+//                val genderOptions = listOf<String>( "Male" , "Female" , "Non-Binary")
+//                val selectedgender = remember { mutableStateOf("Female") }
+//                user_gender.value = selectedgender.value
+//                // Patient // Shift  Info Row
+//                Column {
+//                    Row(modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
+//
+//
+//                        // Drop Down Gender Picker
+//                        Box(modifier = Modifier.weight(1f) ) {
+//                            ExposedDropdownMenuBox(expanded = genderdropExpanded.value , onExpandedChange = { genderdropExpanded.value = it}){
+//                                TextField(value = selectedgender.value , onValueChange = {} , textStyle = TextStyle(fontSize = 12.sp , color = Color.Black , fontFamily = Bodyfont),
+//                                    trailingIcon = {
+//                                        Icon(imageVector = Icons.Default.ArrowDropDown  , contentDescription = "dropdownarrow" , tint = Color.DarkGray)
+//                                    },
+//                                    modifier = Modifier.menuAnchor().border(1.dp ,Color.Black, shape = RoundedCornerShape(4.dp)),
+//                                    colors = TextFieldDefaults.colors(
+//                                        unfocusedContainerColor = AppBg,
+//                                        focusedContainerColor = AppBg,
+//                                        unfocusedIndicatorColor = Color.Transparent,
+//                                        focusedIndicatorColor = Color.Transparent
+//                                    ),
+//                                    readOnly = true
+//                                )
+//                                ExposedDropdownMenu(expanded = genderdropExpanded.value , onDismissRequest = { genderdropExpanded.value = false },
+//                                    containerColor = Color.Black.copy(alpha = 0.7f),
+//                                    border = BorderStroke(color = Color.Black, width = 1.dp)
+//                                ){
+//                                    genderOptions.forEach { option ->
+//                                        DropdownMenuItem( text = { Text("$option" , style = TextStyle(fontSize = 12.sp , color = Color.White)) } , onClick = {
+//                                            selectedgender.value = option
+//                                        })
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_wardno,
+//                            placeholder = "Ward no",
+//                            supporttextstate = user_wardno_state,
+//                            isnumeric = false
+//                        )
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_dob,
+//                            placeholder = "DOB: 12/12/2025",
+//                            supporttextstate = user_dob_state,
+//                            isnumeric = false
+//                        )
+//                    }
+//                    Row(modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
+//
+//                        Button(onClick = {  ShowTimeDialog.value = true
+//                            timepicktype.value = TimePickTypeState.StartTime
+//                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
+//                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = AppBg
+//                            ),
+//                            contentPadding = PaddingValues(0.dp)
+//                        ){
+//                            if(Shift_startime.value.isNullOrBlank())
+//                            Text("Shift Start Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
+//                            else Text("${Shift_startime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
+//                        }
+//                        Button(onClick = {  ShowTimeDialog.value = true
+//                            timepicktype.value = TimePickTypeState.EndTIme
+//                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
+//                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = AppBg
+//                            ),
+//                            contentPadding = PaddingValues(0.dp)
+//                        ){
+//                            if(Shift_endtime.value.isNullOrBlank())
+//                            Text("Shift End Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
+//                            else Text("${Shift_endtime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
+//                        }
+//
+//
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f),
+//                            textstate = Shift_date,
+//                            placeholder = "Date: 12/12/2025",
+//                            supporttextstate = shift_date_state,
+//                            isnumeric = false
+//                        )
+//
+//                    }
+//                }
+//
+//
+//                // Patient Medical Info
+//                SingupFeilds(label = "Doctor",
+//                    textstate = user_doctorname,
+//                    placeholdertext = "Enter Doctor name",
+//                    supportextstate = user_doctorname_state
+//                )
+//                SingupFeilds(label = "Diagnosis",
+//                    textstate = user_diagnosis,
+//                    placeholdertext = "Enter Diagnosed Condition",
+//                    supportextstate = user_diagnosis_state
+//                )
+//                SingupFeilds(label = "Medical History",
+//                    textstate = user_medicalhistory,
+//                    placeholdertext = "Enter patient's medical history ",
+//                    supportextstate = user_medicalhistory_state
+//                )
+//                SingupFeilds(label = "Allergies",
+//                    textstate = user_allergies,
+//                    placeholdertext = "Enter patient's medical history ",
+//                    supportextstate = user_allergies_state
+//                )
+//                SingupFeilds(label = "Pain Assessment",
+//                    textstate = user_painassesment,
+//                    placeholdertext = "Enter patient's pain levels  ",
+//                    supportextstate = user_painassesment_state
+//                )
+//
+//                Text( text = "Vitals" ,modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), fontSize = 15.sp , fontFamily = Headingfont , color = panelcolor , textAlign = TextAlign.Center)
+//                // Vitals Column
+//                Column {
+//                    Row(modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
+//
+//                        Button(onClick = {  ShowTimeDialog.value = true
+//                            timepicktype.value = TimePickTypeState.VitalsRecordTime
+//                            Toast.makeText(context , "CLicked" , Toast.LENGTH_LONG).show() },
+//                            modifier = Modifier.weight(1f).height(56.5.dp ).border(1.dp , Color.Black, shape = RoundedCornerShape(4.dp)) ,
+//                            colors = ButtonDefaults.buttonColors(
+//                                containerColor = AppBg
+//                            ),
+//                            contentPadding = PaddingValues(0.dp)
+//                        ){
+//                            if(user_vitalstime.value.isNullOrBlank())
+//                                Text("Record Time" , fontSize = 12.sp, fontFamily = Bodyfont , color = Color.Gray)
+//                            else Text("${user_vitalstime.value}" , fontSize = 12.sp , fontFamily = Bodyfont , color = Color.Black)
+//                        }
+//
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_bp,
+//                            placeholder = "BP",
+//                            supporttextstate = user_bp_state,
+//                            isnumeric = true,
+//                            SuffixType = VitalSuffixType.Bp
+//                        )
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_temp,
+//                            placeholder = "Temperature",
+//                            supporttextstate = user_temp_state,
+//                            isnumeric = true,
+//                            SuffixType = VitalSuffixType.temp
+//                        )
+//                    }
+//                    Row(modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.spacedBy(12.dp)){
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_heartrate,
+//                            placeholder = "HR",
+//                            supporttextstate = user_heartrate_state,
+//                            isnumeric = true,
+//                            SuffixType = VitalSuffixType.Hr
+//                        )
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_oxygen,
+//                            placeholder = "SpO2",
+//                            supporttextstate = user_oxygen_state,
+//                            isnumeric = true,
+//                            SuffixType = VitalSuffixType.OxyRate
+//                        )
+//                        SignupFeildsSecond(modifier = Modifier.weight(1f) ,
+//                            textstate = user_respirate,
+//                            placeholder = "RR",
+//                            supporttextstate = user_respirate_state,
+//                            isnumeric = true,
+//                            SuffixType = VitalSuffixType.Respirate
+//                        )
+//                    }
+//                }
+//
+//                // Report Fields
+//                SingupFeilds(label = "Pre-Operative Order",
+//                    textstate = user_pre_operative_order,
+//                    placeholdertext = "Enter pre operation orders",
+//                    supportextstate = user_pre_operative_order_state
+//                )
+//                SingupFeilds(label = "Post Operative Order",
+//                    textstate = user_post_operative_ordre,
+//                    placeholdertext = "Enter post operation order",
+//                    supportextstate = user_post_operative_ordre_state
+//                )
+//                SingupFeilds(label = "Procedure Status",
+//                    textstate = user_procedure_status,
+//                    placeholdertext = "Enter ongoing procedure status ",
+//                    supportextstate = user_procedure_status_state
+//                )
+//                SingupFeilds(label = "Stat Medication",
+//                    textstate = user_stat_medication,
+//                    placeholdertext = "Enter patient's immediate medications",
+//                    supportextstate = user_stat_medication_state
+//                )
+//                SingupFeilds(label = "Verbal Order",
+//                    textstate = user_doc_verbal_order_name,
+//                    placeholdertext = "Enter doctor's verbal orders with doctors name",
+//                    supportextstate = user_doc_verbal_order_name_state
+//                )
+//
+//                SingupFeilds(label = "Nurse Remarks",
+//                    textstate = user_nurse_remarks,
+//                    placeholdertext = "Enter Nurse Remarks ",
+//                    supportextstate = user_nurse_remarks_state
+//                )
+//                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.Center) {
+//                    val context = LocalContext.current
+//                    fun checkField(feildvalue : MutableState<String>, feildstate : MutableState<SupportTextState>) : Boolean {
+//                        if(feildvalue.value.isNullOrBlank()) {
+//                            feildstate.value = SupportTextState.empty("Required*")
+//                            return false
+//                        }
+//                        else {
+//                            feildstate.value = SupportTextState.ideal
+//                            return true
+//                        }
+//                    }
+//                    fun ValidateForm()  {
+//
+//                        var isValid = true
+//
+//                        isValid = checkField(user_patientname,user_patientname_state)
+//
+//                        // Patient Info Details
+//                        isValid = checkField(user_patientname, user_patientname_state) && isValid
+//                        isValid = checkField(user_patientid, user_patientid_state) && isValid
+//                        isValid = checkField(user_gender, user_gender_state) && isValid
+//                        isValid = checkField(user_wardno, user_wardno_state) && isValid
+//                        isValid = checkField(user_dob, user_dob_state) && isValid
+//
+//                        // Shift Validation
+//                        isValid = checkField(Shift_startime, shift_startime_state) && isValid
+//                        isValid = checkField(Shift_endtime, shift_endtime_state) && isValid
+//                        isValid = checkField(Shift_date, shift_date_state) && isValid
+//
+//                        // PATIENT MEDICALS
+//                        isValid = checkField(user_doctorname, user_doctorname_state) && isValid
+//                        isValid = checkField(user_diagnosis, user_diagnosis_state) && isValid
+//                        isValid = checkField(user_medicalhistory, user_medicalhistory_state) && isValid
+//                        isValid = checkField(user_allergies, user_allergies_state) && isValid
+//                        isValid = checkField(user_painassesment, user_painassesment_state) && isValid
+//
+//                        // Patient Vitals
+//                        isValid = checkField(user_vitalstime, user_vitals_state) && isValid
+//                        isValid = checkField(user_bp, user_bp_state) && isValid
+//                        isValid = checkField(user_heartrate, user_heartrate_state) && isValid
+//                        isValid = checkField(user_temp, user_temp_state) && isValid
+//                        isValid = checkField(user_oxygen, user_oxygen_state) && isValid
+//                        isValid = checkField(user_respirate, user_respirate_state) && isValid
+//                        isValid = checkField(user_pre_operative_order, user_pre_operative_order_state) && isValid
+//                        isValid = checkField(user_post_operative_ordre, user_post_operative_ordre_state) && isValid
+//                        isValid = checkField(user_procedure_status, user_procedure_status_state) && isValid
+//                        isValid = checkField(user_stat_medication, user_stat_medication_state) && isValid
+//                        isValid = checkField(user_doc_verbal_order_name, user_doc_verbal_order_name_state) && isValid
+//                        isValid = checkField(user_nurse_remarks, user_nurse_remarks_state) && isValid
+//
+//                        if(isValid) {
+//                            var VitalsList = mutableListOf<PatientVitals>()
+//                            val vital = PatientVitals(
+//                                vitalreport_time = user_vitalstime.value,
+//                                bloodpressure = user_bp.value,
+//                                heartreate = user_heartrate.value,
+//                                temp = user_temp.value,
+//                                oxygenlevel = user_oxygen.value,
+//                                respiratoryrate = user_respirate.value
+//                            )
+//                            VitalsList.add(vital)
+//                            val PatientReport = PatientShiftReport(
+//                                shiftid = "$user_patientid" + "${Random.nextInt()}",
+//                                shift_startime = Shift_startime.value,
+//                                shift_endtime = Shift_endtime.value,
+//                                shift_date = Shift_date.value,
+//                                pInfo = P_ReportInfo(
+//                                    patientname = user_patientname.value,
+//                                    patientid = user_patientid.value,
+//                                    Gender = user_gender.value,
+//                                    wardno = user_wardno.value,
+//                                    dob = user_dob.value
+//                                ),
+//                                patientMedicalInfo = P_ReportMedicalInfo(
+//                                    doctors = user_doctorname.value,
+//                                    diagnosis = user_diagnosis.value,
+//                                    medicalhistory = user_medicalhistory.value,
+//                                    allergies = user_allergies.value,
+//                                    painlevels = user_painassesment.value,
+//                                    vitals_timelist = VitalsList
+//                                ),
+//                                pre_operative_order = user_pre_operative_order.value,
+//                                post_operative_ordre = user_post_operative_ordre.value,
+//                                procedure_status = user_procedure_status.value,
+//                                stat_medication = user_stat_medication.value,
+//                                doc_verbal_order_name = user_doc_verbal_order_name.value,
+//                                nurse_remarks = user_nurse_remarks.value
+//                            )
+//
+//                            val pdf_file  : File = CreatePDF(PatientReport , context)
+//                            val pdfuri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider",  pdf_file)
+//                            // Create email intent
+//                            val emailIntent = Intent(Intent.ACTION_SEND).apply {
+//                                type = "application/pdf"
+//                                putExtra(Intent.EXTRA_SUBJECT, "Patient Shift Report")
+//                                putExtra(Intent.EXTRA_TEXT, "Attached patient shift report")
+//                                putExtra(Intent.EXTRA_STREAM, pdfuri)
+//                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                            }
+//                            context.startActivity(Intent.createChooser(emailIntent, "Send report"))
+//
+//                        }
+//
+//                    }
+//                    // Direct Handover without saving the report
+//                    Button(onClick = { ValidateForm() },
+//                        colors = ButtonColors( containerColor = HTextClr , contentColor = Color.White , disabledContentColor = Color.Black , disabledContainerColor = Color.White ),
+//                        modifier = Modifier.size(width = 150.dp , height = 50.dp)) {
+//                        Text("Handover report" , fontFamily = Headingfont , fontWeight = FontWeight.Bold , fontSize = 13.sp)
+//                    }
+//                }
+//
+//
+//            }
+//        }
+//
+//        TimePickerDialog(ShowTimeDialog) { time ->
+//            when(timepicktype.value) {
+//                TimePickTypeState.EndTIme -> Shift_endtime.value = "${time.hour}:${time.minute}"
+//                TimePickTypeState.StartTime ->       Shift_startime.value = "${time.hour}:${time.minute}"
+//                TimePickTypeState.VitalsRecordTime -> { user_vitalstime.value = "${time.hour}:${time.minute}" }
+//                else -> Unit
+//            }
+//
+//        }
+//    }
 
  }
 
