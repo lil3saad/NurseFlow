@@ -12,7 +12,6 @@ import org.koin.core.context.startKoin
 
 
 class MyApplication : Application() {
-
     override fun onCreate() {
         super.onCreate()
         CreateNotiChannel()
@@ -35,3 +34,5 @@ class MyApplication : Application() {
 sealed class NotificationReferences(val ref : String){
     object MediChannelId : NotificationReferences(ref = "notichannel101")
 }
+
+// All Animations Must be reentrant

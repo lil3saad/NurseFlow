@@ -42,7 +42,7 @@ val usecasesModule = module {
     single <RoomPatientUC> {
                RoomPatientUC( get<PatientCardDao>() )
     }
-    single<Client>{
+    single<Client> {
               Client(context = androidContext())
                   .setEndpoint(endpoint = "https://cloud.appwrite.io/v1")
                   .setProject(value = "673b1afc002275ec3f3a")
